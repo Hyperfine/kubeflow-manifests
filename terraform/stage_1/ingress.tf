@@ -48,11 +48,11 @@ YAML
 }
 
 data "kubectl_file_documents" "alb" {
-  content = file("./.deploy/terraform/stage_1/alb.yaml")
+  content = file("./terraform/stage_1/alb.yaml")
 }
 
 data "kubectl_file_documents" "profiles" {
-  content = file("./.deploy/terraform/stage_1/profiles.yaml")
+  content = file("./terraform/stage_1/profiles.yaml")
 }
 
 data "kustomization_build" "envoy" {

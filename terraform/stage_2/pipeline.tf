@@ -11,7 +11,7 @@ locals {
 }
 
 data "kubectl_file_documents" "pipeline" {
-  content =file("./.deploy/terraform/stage_2/pipeline.yaml")
+  content =file("./terraform/stage_2/pipeline.yaml")
 }
 
 data "kubectl_file_documents" "pipeline-config" {
