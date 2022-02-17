@@ -1,11 +1,11 @@
 variable "region" {
-  default = "us-east-2"
+  type = string
 }
 
 variable "cluster_name" {
-  default = "hyperfine-demo"
+  type = string
 }
 
 variable "domain_name" {
-  default = "hyperfine-dev.com"
+  type = string
 }
