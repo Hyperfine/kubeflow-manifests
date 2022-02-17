@@ -11,3 +11,4 @@ provider "kustomization" {
 provider "aws" {
   region = var.region
 }
+

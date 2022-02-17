@@ -16,7 +16,7 @@ terraform {
 }
 
 module "pre" {
-  source = "terraform/stage_0"
+  source = "./terraform/stage_0"
 
   cluster_name = var.cluster_name
   domain_name  = var.domain_name
@@ -26,7 +26,7 @@ module "pre" {
 
 
 module "ingress" {
-  source = "terraform/stage_1"
+  source = "./terraform/stage_1"
   region = var.region
   cluster_name = var.cluster_name
 
@@ -37,7 +37,7 @@ module "ingress" {
 }
 
 module "main" {
-  source = "terraform/stage_2"
+  source = "./terraform/stage_2"
   region = var.region
   cluster_name = var.cluster_name
   bucket = module.pre.bucket
@@ -46,14 +46,14 @@ module "main" {
 
 module "users" {
   for_each = toset(["syoung", "msofka", "aballantyne"])
-  source = "terraform/users"
+  source = "./terraform/users"
   domain_name = var.domain_name
   username = each.value
 }
 
 module "post" {
   depends_on = [module.main]
-  source = "terraform/stage_3"
+  source = "./terraform/stage_3"
 
   region = var.region
   domain_name = var.domain_name
