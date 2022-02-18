@@ -18,11 +18,3 @@ resource "kubectl_manifest" "kubeflow-issuer" {
     for_each  = data.kubectl_file_documents.kubeflow-issuer.manifests
     yaml_body = each.value
 }
-
-/*
-dont know why this fails
-resource "kustomization_resource" "issuer" {
-  for_each = data.kustomization_build.issuer.ids
-
-  manifest = data.kustomization_build.issuer.manifests[each.value]
-}*/

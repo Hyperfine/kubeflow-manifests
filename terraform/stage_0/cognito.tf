@@ -25,7 +25,7 @@ resource "aws_route53_record" "kubeflow_ns" {
 
 
 module "acm_cognito" {
-  source = "terraform-aws-modules/acm/aws"
+  source = "terraform-aws-modules/acm/aws?version=3.3.0"
   version = ">= 3.0"
   providers = {
     aws = aws.us-east-1 # cognito needs us-east-1
@@ -39,7 +39,8 @@ module "acm_cognito" {
 
 module "acm_kubeflow" {
   depends_on = [aws_route53_record.kubeflow_ns]
-  source = "terraform-aws-modules/acm/aws"
+  source = "terraform-aws-modules/acm/aws?version=3.3.0"
+  version = ">= 3.0"
 
   domain_name               = aws_route53_zone.kubeflow_zone.name
   zone_id                   = aws_route53_zone.kubeflow_zone.zone_id
