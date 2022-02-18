@@ -1,12 +1,6 @@
 data "kustomization_build" "cert" {
   path = "./common/cert-manager/cert-manager/base"
 }
-data "kustomization_build" "issuer" {
-  path = "./common/cert-manager/kubeflow-issuer/base"
-}
-data "kubectl_file_documents" "kubeflow-issuer" {
-  content = file("./common/cert-manager/kubeflow-issuer/base/cluster-issuer.yaml")
-}
 
 resource "kustomization_resource" "cert" {
   for_each = data.kustomization_build.cert.ids
@@ -15,6 +9,17 @@ resource "kustomization_resource" "cert" {
 }
 
 resource "kubectl_manifest" "kubeflow-issuer" {
-    for_each  = data.kubectl_file_documents.kubeflow-issuer.manifests
-    yaml_body = each.value
+    yaml_body = <<YAML
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  labels:
+    app.kubernetes.io/component: cert-manager
+    app.kubernetes.io/name: cert-manager
+    kustomize.component: cert-manager
+  name: kubeflow-self-signing-issuer
+  namespace: cert-manager
+spec:
+  selfSigned: {}
+YAML
 }
