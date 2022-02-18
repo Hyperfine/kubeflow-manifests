@@ -4,6 +4,9 @@ terraform {
       source  = "gavinbunney/kubectl"
       version = ">= 1.7.0"
     }
+    aws = {
+      version = ">= 4.1.0"
+    }
   }
 }
 
@@ -46,26 +49,12 @@ data aws_cognito_user_pools "pool" {
   name = "${data.aws_route53_zone.kubeflow_zone.name}-user-pool"
 }
 
-locals {
-  pool_id = one(data.aws_cognito_user_pools.pool.ids)
-}
-
-resource "null_resource" "cognito_user" {
-  # https://github.com/hashicorp/terraform-provider-aws/pull/19919 switch to whenever merged
-  triggers = {
-    user_pool_id = data.aws_cognito_user_pools.pool.id
-    username = local.key
+resource "aws_cognito_user" "users" {
+  user_pool_id = tolist(data.aws_cognito_user_pools.pool.ids)[0]
+  username = local.key
+  attributes = {
+    email = "${local.key}@hyperfine.io"
+    email_verified = true
   }
-
-  provisioner "local-exec" {
-    command = <<EOT
-    aws cognito-idp admin-create-user \
-      --user-pool-id ${local.pool_id} \
-      --username ${local.key} \
-      --temporary-password Password1! \
-      --user-attributes Name=email,Value="${local.key}@hyperfine.io" \
-    || \
-    true
-    EOT
-  }
+  temporary_password = "Password1!"
 }
