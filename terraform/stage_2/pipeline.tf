@@ -1,7 +1,3 @@
-data aws_s3_bucket "bucket" {
-  bucket = var.bucket
-}
-
 data aws_secretsmanager_secret_version "pipe-secret" {
   secret_id = var.secret_id
 }
@@ -14,15 +10,15 @@ data "kubectl_file_documents" "pipeline" {
   content =file("./terraform/stage_2/pipeline.yaml")
 }
 
-data "kubectl_file_documents" "pipeline-config" {
-  content =<<YAML
+resource "kubectl_manifest" "pipeline-config" {
+    yaml_body = <<YAML
 apiVersion: v1
 data:
   ConMaxLifeTimeSec: "120"
   appName: pipeline
   appVersion: 1.5.1
   autoUpdatePipelineDefaultVersion: "true"
-  bucketName: ${data.aws_s3_bucket.bucket.bucket}
+  bucketName: ${var.bucket}
   cacheDb: cachedb
   cacheImage: gcr.io/google-containers/busybox
   cronScheduleTimezone: UTC
@@ -48,7 +44,7 @@ data:
     artifactRepository:
     {
         s3: {
-            bucket: ${data.aws_s3_bucket.bucket.bucket},
+            bucket: ${var.bucket},
             keyPrefix: artifacts,
             endpoint: s3.amazonaws.com,
             insecure: true,
@@ -71,11 +67,6 @@ metadata:
   name: workflow-controller-configmap
   namespace: kubeflow
 YAML
-}
-
-resource "kubectl_manifest" "pipeline-config" {
-    for_each  = data.kubectl_file_documents.pipeline-config.manifests
-    yaml_body = each.value
 }
 
 resource "kubectl_manifest" "pipeline" {

@@ -1,11 +1,5 @@
-data "aws_vpc" "cluster_vpc" {
-  tags = {
-    "Name": var.vpc_name
-  }
-}
-
 data "aws_subnet_ids" "private" {
-  vpc_id = data.aws_vpc.cluster_vpc.id
+  vpc_id = var.vpc_id
   tags = {
     "kubernetes.io/role/internal-elb": "1"
   }
@@ -22,7 +16,7 @@ locals {
 
 resource "aws_security_group" "db" {
   name   = "service-rds-access"
-  vpc_id = data.aws_vpc.cluster_vpc.id
+  vpc_id = var.vpc_id
 
   ingress {
     description = "mysql from VPC"

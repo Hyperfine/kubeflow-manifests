@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.1.0"
+      version = ">= 3.74"
     }
     kustomization = {
       source  = "kbst/kustomization"
@@ -22,6 +22,7 @@ module "pre" {
   domain_name  = var.domain_name
   region       = var.region
   efs_name = "dl-cluster-data"
+  vpc_id = var.vpc_id
 }
 
 

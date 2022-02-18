@@ -1,52 +1,3 @@
-data "kubectl_file_documents" "ingress" {
-  content =<<YAML
-apiVersion: v1
-data:
-  CognitoAppClientId: ${var.cognito_client_id}
-  CognitoUserPoolArn: ${var.pool_arn}
-  CognitoUserPoolDomain: ${var.cognito_domain}
-  certArn: ${var.cert_arn}
-  loadBalancerScheme: internet-facing
-kind: ConfigMap
-metadata:
-  name: istio-ingress-cognito-parameters
-  namespace: istio-system
----
-apiVersion: v1
-data:
-  loadBalancerScheme: internet-facing
-kind: ConfigMap
-metadata:
-  labels:
-    kustomize.component: istio-ingress
-  name: istio-ingress-parameters
-  namespace: istio-system
----
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  annotations:
-    alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${var.pool_arn}","UserPoolClientId":"${var.cognito_client_id}", "UserPoolDomain":"${var.cognito_domain}"}'
-    alb.ingress.kubernetes.io/auth-type: cognito
-    alb.ingress.kubernetes.io/certificate-arn: ${var.cert_arn}
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    kubernetes.io/ingress.class: alb
-  labels:
-    kustomize.component: istio-ingress
-  name: istio-ingress
-  namespace: istio-system
-spec:
-  rules:
-  - http:
-      paths:
-      - backend:
-          serviceName: istio-ingressgateway
-          servicePort: 80
-        path: /*
-YAML
-}
-
 data "kubectl_file_documents" "alb" {
   content = file("./terraform/stage_1/alb.yaml")
 }
@@ -211,8 +162,52 @@ YAML
 
 resource "kubectl_manifest" "ingress" {
   depends_on = [kubectl_manifest.profiles-controller-service-account]
-  for_each = data.kubectl_file_documents.ingress.manifests
-  yaml_body = each.value
+  yaml_body = <<YAML
+apiVersion: v1
+data:
+  CognitoAppClientId: ${var.cognito_client_id}
+  CognitoUserPoolArn: ${var.pool_arn}
+  CognitoUserPoolDomain: ${var.cognito_domain}
+  certArn: ${var.cert_arn}
+  loadBalancerScheme: internet-facing
+kind: ConfigMap
+metadata:
+  name: istio-ingress-cognito-parameters
+  namespace: istio-system
+---
+apiVersion: v1
+data:
+  loadBalancerScheme: internet-facing
+kind: ConfigMap
+metadata:
+  labels:
+    kustomize.component: istio-ingress
+  name: istio-ingress-parameters
+  namespace: istio-system
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    alb.ingress.kubernetes.io/auth-idp-cognito: '{"UserPoolArn":"${var.pool_arn}","UserPoolClientId":"${var.cognito_client_id}", "UserPoolDomain":"${var.cognito_domain}"}'
+    alb.ingress.kubernetes.io/auth-type: cognito
+    alb.ingress.kubernetes.io/certificate-arn: ${var.cert_arn}
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    kubernetes.io/ingress.class: alb
+  labels:
+    kustomize.component: istio-ingress
+  name: istio-ingress
+  namespace: istio-system
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: istio-ingressgateway
+          servicePort: 80
+        path: /*
+YAML
 }
 
 resource "kubectl_manifest" "alb" {

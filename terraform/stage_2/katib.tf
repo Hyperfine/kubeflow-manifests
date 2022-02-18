@@ -6,8 +6,10 @@ locals {
   keys = jsondecode(data.aws_secretsmanager_secret_version.secret.secret_string)
 }
 
-data kubectl_file_documents "katib-secret" {
-  content =<<YAML
+
+
+resource "kubectl_manifest" "katib-secret" {
+    yaml_body = <<YAML
 apiVersion: v1
 stringData:
   DB_PASSWORD: ${local.keys["password"]}
@@ -22,11 +24,6 @@ metadata:
   namespace: kubeflow
 type: Opaque
 YAML
-}
-
-resource "kubectl_manifest" "katib-secret" {
-    for_each  = data.kubectl_file_documents.katib-secret.manifests
-    yaml_body = each.value
 }
 
 

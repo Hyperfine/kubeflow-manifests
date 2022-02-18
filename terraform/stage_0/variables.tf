@@ -10,9 +10,8 @@ variable "cluster_name" {
   type = string
 }
 
-variable "vpc_name" {
+variable "vpc_id" {
   type = string
-  default = "hyperfine-demo-vpc"
 }
 
 variable "first_run" {

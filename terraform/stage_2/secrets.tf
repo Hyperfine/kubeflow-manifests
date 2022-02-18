@@ -42,8 +42,10 @@ resource aws_iam_role_policy_attachment "ssm" {
 }
 
 
-data "kubectl_file_documents" "irsa" {
-  content = yamlencode({
+
+
+resource "kubectl_manifest" "irsa" {
+    yaml_body = yamlencode({
   "apiVersion": "v1"
   "kind": "ServiceAccount"
   "metadata": {
@@ -54,11 +56,6 @@ data "kubectl_file_documents" "irsa" {
       }
   }
   })
-}
-
-resource "kubectl_manifest" "irsa" {
-    for_each  = data.kubectl_file_documents.irsa.manifests
-    yaml_body = each.value
 }
 
 data "kustomization_build" "secret-manager" {
