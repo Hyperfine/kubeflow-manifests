@@ -25,7 +25,7 @@ module "pre" {
   vpc_id = var.vpc_id
 }
 
-
+/*
 module "ingress" {
   source = "./terraform/stage_1"
   region = var.region
@@ -60,3 +60,4 @@ module "post" {
   domain_name = var.domain_name
   cluster_name = var.cluster_name
 }
+*/
