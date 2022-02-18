@@ -25,7 +25,7 @@ module "pre" {
   vpc_id = var.vpc_id
 }
 
-/*
+
 module "ingress" {
   source = "./terraform/stage_1"
   region = var.region
@@ -45,13 +45,6 @@ module "main" {
   secret_id = module.pre.secret_id
 }
 
-module "users" {
-  for_each = toset(["syoung", "msofka", "aballantyne"])
-  source = "./terraform/users"
-  domain_name = var.domain_name
-  username = each.value
-}
-
 module "post" {
   depends_on = [module.main]
   source = "./terraform/stage_3"
@@ -60,4 +53,4 @@ module "post" {
   domain_name = var.domain_name
   cluster_name = var.cluster_name
 }
-*/
+
