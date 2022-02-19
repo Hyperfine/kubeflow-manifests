@@ -4,7 +4,7 @@ provider "aws" {
 }
 
 data aws_eks_cluster "eks" {
-  name = "${var.region}-${var.cluster_name}"
+  name = "${var.cluster_name}"
 }
 
 locals {
