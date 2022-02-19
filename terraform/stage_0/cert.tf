@@ -9,6 +9,8 @@ resource "kustomization_resource" "cert" {
 }
 
 resource "kubectl_manifest" "kubeflow-issuer" {
+  depends_on = [kustomization_resource.cert]
+
     yaml_body = <<YAML
 apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
