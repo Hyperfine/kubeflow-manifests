@@ -3,7 +3,7 @@ data "kustomization_build" "envoy" {
 }
 
 data "aws_eks_cluster" "cluster" {
-  name = "${var.region}-${var.cluster_name}"
+  name = var.cluster_name
 }
 
 data "aws_caller_identity" "current" {}
