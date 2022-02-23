@@ -1,6 +1,6 @@
 provider "aws" {
   alias = "us-east-1"
-  region = "us-east-1"
+  region = "us_east_1"
 }
 
 data "aws_route53_zone" "top" {
@@ -28,7 +28,7 @@ module "acm_cognito" {
   source = "terraform-aws-modules/acm/aws"
   version = ">= 3.0"
   providers = {
-    aws = aws.us-east-1 # cognito needs us-east-1
+    aws = aws.us_east_1 # cognito needs us-east-1
   }
 
   domain_name               = local.cognito_url
