@@ -1,6 +1,6 @@
 provider "aws" {
-  alias = "us-east-1"
-  region = "us_east_1"
+  alias = "us_east_1"
+  region = "us-east-1"
 }
 
 data "aws_route53_zone" "top" {
@@ -25,8 +25,8 @@ resource "aws_route53_record" "kubeflow_ns" {
 
 
 module "acm_cognito" {
+  depends_on = [aws_route53_record.kubeflow_ns]
   source = "terraform-aws-modules/acm/aws"
-  version = ">= 3.0"
   providers = {
     aws = aws.us_east_1 # cognito needs us-east-1
   }
@@ -40,7 +40,6 @@ module "acm_cognito" {
 module "acm_kubeflow" {
   depends_on = [aws_route53_record.kubeflow_ns]
   source = "terraform-aws-modules/acm/aws"
-  version = ">= 3.0"
 
   domain_name               = aws_route53_zone.kubeflow_zone.name
   zone_id                   = aws_route53_zone.kubeflow_zone.zone_id
