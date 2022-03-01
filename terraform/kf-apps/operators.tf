@@ -1,21 +1,21 @@
 data "kustomization_build" "tf" {
-  path = "./apps/tf-training/upstream/overlays/kubeflow"
+  path = "./../../apps/tf-training/upstream/overlays/kubeflow"
 }
 
 data "kustomization_build" "pytorch" {
-  path = "./apps/pytorch-job/upstream/overlays/kubeflow"
+  path = "./../../apps/pytorch-job/upstream/overlays/kubeflow"
 }
 
 data "kustomization_build" "mpi" {
-  path = "./apps/mpi-job/upstream/overlays/kubeflow"
+  path = "./../../apps/mpi-job/upstream/overlays/kubeflow"
 }
 
 data "kustomization_build" "mxnet" {
-  path = "./apps/mxnet-job/upstream/overlays/kubeflow"
+  path = "./../../apps/mxnet-job/upstream/overlays/kubeflow"
 }
 
 data "kustomization_build" "xgboost" {
-  path = "./apps/xgboost-job/upstream/overlays/kubeflow"
+  path = "./../../apps/xgboost-job/upstream/overlays/kubeflow"
 }
 
 

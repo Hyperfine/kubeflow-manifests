@@ -1,10 +1,10 @@
 
 resource "aws_s3_bucket" "source" {
-  bucket = "${var.region}-${var.cluster_name}-bucket"
+  bucket = "kf-${var.cluster_name}-bucket"
 }
 
 resource "aws_iam_user" "s3_user" {
-  name = "kf-${var.region}-${var.cluster_name}-s3"
+  name = "kf-${var.cluster_name}-s3"
 }
 
 resource "aws_iam_access_key" "s3_keys" {
@@ -38,7 +38,7 @@ resource "aws_iam_user_policy" "s3_user_policy" {
 }
 
 resource "aws_secretsmanager_secret" "s3-secret" {
-  name = "kubeflow-s3-secret"
+  name = "kf-s3-secret"
   recovery_window_in_days = 0
 }
 resource "aws_secretsmanager_secret_version" "s3-secret-version" {

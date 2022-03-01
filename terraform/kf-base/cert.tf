@@ -1,5 +1,5 @@
 data "kustomization_build" "cert" {
-  path = "./common/cert-manager/cert-manager/base"
+  path = "./../../common/cert-manager/cert-manager/base"
 }
 
 resource "kustomization_resource" "cert" {
@@ -8,8 +8,14 @@ resource "kustomization_resource" "cert" {
   manifest = data.kustomization_build.cert.manifests[each.value]
 }
 
-resource "kubectl_manifest" "kubeflow-issuer" {
+resource "time_sleep" "wait_30_seconds" {
   depends_on = [kustomization_resource.cert]
+
+  create_duration = "30s"
+}
+
+resource "kubectl_manifest" "kubeflow-issuer" {
+  depends_on = [time_sleep.wait_30_seconds]
 
     yaml_body = <<YAML
 apiVersion: cert-manager.io/v1alpha2

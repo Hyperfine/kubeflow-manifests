@@ -13,7 +13,7 @@ data aws_route53_zone "kubeflow" {
 
 data aws_lb "main" {
   tags = {
-    "ingress.k8s.aws/cluster": "${var.region}-${var.cluster_name}"
+    "ingress.k8s.aws/cluster": var.cluster_name
   }
 }
 
@@ -44,4 +44,11 @@ resource "aws_route53_record" "a_record" {
     zone_id                = data.aws_lb.main.zone_id
   }
   allow_overwrite = true
+}
+
+module "users" {
+  source = "./../users"
+  for_each = toset(["syoung"])
+  username = each.value
+  domain_name = "hyperfine-dev.com"
 }

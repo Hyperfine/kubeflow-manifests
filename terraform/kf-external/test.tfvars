@@ -1,0 +1,5 @@
+region = "us-east-2"
+cluster_name = "us-east-2-dl-demo"
+vpc_id = "vpc-08ba426d0c7fc4703"
+efs_name = "dl-demo-efs"
+domain_name = "hyperfine-dev.com"

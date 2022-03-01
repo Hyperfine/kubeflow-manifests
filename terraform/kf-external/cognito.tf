@@ -47,8 +47,9 @@ module "acm_kubeflow" {
   wait_for_validation       = true
 }
 
-
-# necessary for first time deploy
+resource "aws_cognito_user_pool" "pool" {
+  name = "${aws_route53_zone.kubeflow_zone.name}-user-pool"
+}
 
 resource "aws_route53_record" "dummy" {
   count = var.first_run ? 1 : 0
@@ -60,11 +61,15 @@ resource "aws_route53_record" "dummy" {
   allow_overwrite = true
 }
 
-resource "aws_cognito_user_pool" "pool" {
-  name = "${aws_route53_zone.kubeflow_zone.name}-user-pool"
+
+resource "time_sleep" "wait_30_seconds" {
+  depends_on = [aws_route53_record.dummy]
+
+  create_duration = "30s"
 }
 
 resource "aws_cognito_user_pool_domain" "main" {
+  depends_on = [time_sleep.wait_30_seconds]
   domain          = local.cognito_url
   certificate_arn = module.acm_cognito.acm_certificate_arn
   user_pool_id    = aws_cognito_user_pool.pool.id

@@ -15,7 +15,7 @@ locals {
 }
 
 resource "aws_security_group" "db" {
-  name   = "service-rds-access"
+  name   = "service-${var.cluster_name}-rds-access"
   vpc_id = var.vpc_id
 
   ingress {
@@ -41,7 +41,7 @@ resource aws_db_instance "rds" {
 }
 
 resource "aws_secretsmanager_secret" "rds-secret" {
-  name = "kubeflow-rds-secret"
+  name = "kf-rds-secret"
   recovery_window_in_days = 0
 
 }

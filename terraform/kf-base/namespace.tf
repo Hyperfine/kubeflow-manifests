@@ -1,10 +1,10 @@
 
 data "kustomization_build" "namespace" {
-  path = "./common/kubeflow-namespace/base"
+  path = "./../../common/kubeflow-namespace/base"
 }
 
 data "kustomization_build" "roles" {
-  path = "./common/kubeflow-roles/base"
+  path = "./../../common/kubeflow-roles/base"
 }
 
 resource "kustomization_resource" "namespace" {

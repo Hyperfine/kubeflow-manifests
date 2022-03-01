@@ -13,10 +13,11 @@ terraform {
 locals {
   key = var.username
 }
+
 data aws_caller_identity "current" {}
 
-data "kubectl_file_documents" "user" {
-  content = <<YAML
+resource "kubectl_manifest" "config" {
+        yaml_body = <<YAML
 apiVersion: v1
 data:
   profile-name: ${local.key}
@@ -24,7 +25,11 @@ data:
 kind: ConfigMap
 metadata:
   name: default-install-config-${local.key}
----
+YAML
+}
+
+resource "kubectl_manifest" "profile" {
+    yaml_body = <<YAML
 apiVersion: kubeflow.org/v1beta1
 kind: Profile
 metadata:
@@ -36,9 +41,21 @@ spec:
 YAML
 }
 
-resource "kubectl_manifest" "user" {
-    for_each = data.kubectl_file_documents.user.manifests
-    yaml_body = each.value
+resource "kubectl_manifest" "pvc" {
+  yaml_body = <<YAML
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "${local.key}-efs"
+  namespace: ${local.key}
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc
+  resources:
+    requests:
+      storage: 5Gi
+YAML
 }
 
 data aws_route53_zone "kubeflow_zone" {

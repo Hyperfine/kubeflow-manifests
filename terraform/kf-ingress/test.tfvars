@@ -1,0 +1,6 @@
+cert_arn = "arn:aws:acm:us-east-2:369500102003:certificate/6c6b989b-8a58-41c4-be6a-67eb6ebeca11"
+cognito_client_id = "ins8slsp8o0g8fboh8egoedk3"
+cognito_domain = "auth.platform.hyperfine-dev.com"
+pool_arn = "arn:aws:cognito-idp:us-east-2:369500102003:userpool/us-east-2_8lUEJTKLZ"
+region = "us-east-2"
+cluster_name = "us-east-2-dl-demo"

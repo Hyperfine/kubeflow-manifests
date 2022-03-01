@@ -6,8 +6,6 @@ locals {
   keys = jsondecode(data.aws_secretsmanager_secret_version.secret.secret_string)
 }
 
-
-
 resource "kubectl_manifest" "katib-secret" {
     yaml_body = <<YAML
 apiVersion: v1
@@ -26,15 +24,13 @@ type: Opaque
 YAML
 }
 
-
-data "kustomization_build" "katib" {
-  path = "./apps/katib/upstream/installs/katib-external-db-with-kubeflow"
+data "kubectl_file_documents" "katib" {
+  content =file("${path.module}/katib.yaml")
 }
 
-resource "kustomization_resource" "katib" {
+
+resource "kubectl_manifest" "katib" {
   depends_on = [kubectl_manifest.katib-secret]
-
-  for_each = data.kustomization_build.katib.ids
-
-  manifest = data.kustomization_build.katib.manifests[each.value]
+    for_each  = data.kubectl_file_documents.katib.manifests
+    yaml_body = each.value
 }

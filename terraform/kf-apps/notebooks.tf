@@ -1,8 +1,8 @@
 data "kustomization_build" "jupyter_app" {
-  path = "./apps/jupyter/jupyter-web-app/upstream/overlays/istio"
+  path = "./../../apps/jupyter/jupyter-web-app/upstream/overlays/istio"
 }
 data "kustomization_build" "jupyter_controller" {
-  path = "./apps/jupyter/notebook-controller/upstream/overlays/kubeflow"
+  path = "./../../apps/jupyter/notebook-controller/upstream/overlays/kubeflow"
 }
 
 resource "kustomization_resource" "jupyter_app" {

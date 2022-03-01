@@ -1,8 +1,8 @@
 data "kustomization_build" "tb_app" {
-  path = "./apps/tensorboard/tensorboards-web-app/upstream/overlays/istio"
+  path = "./../../apps/tensorboard/tensorboards-web-app/upstream/overlays/istio"
 }
 data "kustomization_build" "tb_controller" {
-  path = "./apps/tensorboard/tensorboard-controller/upstream/overlays/kubeflow"
+  path = "./../../apps/tensorboard/tensorboard-controller/upstream/overlays/kubeflow"
 }
 
 resource "kustomization_resource" "tb_app" {

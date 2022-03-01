@@ -1,17 +1,17 @@
 data "kustomization_build" "kfserving" {
-  path = "./apps/kfserving/upstream/overlays/kubeflow"
+  path = "./../../apps/kfserving/upstream/overlays/kubeflow"
 }
 
 data "kustomization_build" "centraldashboard" {
-  path = "./apps/centraldashboard/upstream/overlays/istio"
+  path = "./../../apps/centraldashboard/upstream/overlays/istio"
 }
 
 data "kustomization_build" "admission" {
-  path = "./apps/admission-webhook/upstream/overlays/cert-manager"
+  path = "./../../apps/admission-webhook/upstream/overlays/cert-manager"
 }
 
 data "kustomization_build" "volumes" {
-  path = "./apps/volumes-web-app/upstream/overlays/istio"
+  path = "./../../apps/volumes-web-app/upstream/overlays/istio"
 }
 
 

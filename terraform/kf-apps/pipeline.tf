@@ -7,11 +7,11 @@ locals {
 }
 
 data "kubectl_file_documents" "pipeline" {
-  content =file("./terraform/stage_2/pipeline.yaml")
+  content =file("${path.module}/pipeline.yaml")
 }
 
-resource "kubectl_manifest" "pipeline-config" {
-    yaml_body = <<YAML
+resource "kubectl_manifest" "pipeline-install-config" {
+  yaml_body = <<YAML
 apiVersion: v1
 data:
   ConMaxLifeTimeSec: "120"
@@ -36,7 +36,11 @@ metadata:
     application-crd-id: kubeflow-pipelines
   name: pipeline-install-config
   namespace: kubeflow
----
+YAML
+}
+
+resource "kubectl_manifest" "pipeline-config" {
+  yaml_body = <<YAML
 apiVersion: v1
 data:
   config: |
