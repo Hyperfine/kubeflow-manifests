@@ -15,14 +15,12 @@ variable "rds_secret_version_arn" {
 }
 
 
-# OPTIONAL PROVIDER CONFIG
+# PROVIDER CONFIG
 
 variable "eks_cert_data" {
   type  = string
-  nullable = true
 }
 
 variable "eks_endpoint" {
   type = string
-  nullable = true
 }
