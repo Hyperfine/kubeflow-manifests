@@ -13,3 +13,11 @@ output "pool_arn" {
 output "cognito_domain" {
   value = local.cognito_url
 }
+
+output "kubeflow_zone_id" {
+  value = aws_route53_zone.kubeflow_zone.zone_id
+}
+
+output "kubeflow_name" {
+  value = aws_route53_zone.kubeflow_zone.name
+}
