@@ -10,6 +10,6 @@ variable "bucket" {
   type = string
 }
 
-variable "secret_id" {
+variable "rds_secret_version_arn" {
   type = string
 }

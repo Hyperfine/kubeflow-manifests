@@ -1,5 +1,5 @@
 data aws_secretsmanager_secret_version "secret" {
-  secret_id = var.secret_id
+  secret_id = var.rds_secret_version_arn
 }
 
 locals {
@@ -30,7 +30,7 @@ data "kubectl_file_documents" "katib" {
 
 
 resource "kubectl_manifest" "katib" {
-  depends_on = [kubectl_manifest.katib-secret]
+    depends_on = [kubectl_manifest.katib-secret]
     for_each  = data.kubectl_file_documents.katib.manifests
     yaml_body = each.value
 }

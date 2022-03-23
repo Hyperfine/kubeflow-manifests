@@ -12,7 +12,7 @@ resource "aws_iam_access_key" "s3_keys" {
 }
 
 resource "aws_iam_user_policy" "s3_user_policy" {
-  name   = "s3-secret"
+  name   = "${var.cluster_name}-kf-s3-secret"
   user   = aws_iam_user.s3_user.name
   policy = jsonencode(
   {
@@ -38,9 +38,10 @@ resource "aws_iam_user_policy" "s3_user_policy" {
 }
 
 resource "aws_secretsmanager_secret" "s3-secret" {
-  name = "kf-s3-secret"
+  name = "${var.cluster_name}-kf-s3-secret"
   recovery_window_in_days = 0
 }
+
 resource "aws_secretsmanager_secret_version" "s3-secret-version" {
   secret_id = aws_secretsmanager_secret.s3-secret.id
   secret_string=jsonencode({

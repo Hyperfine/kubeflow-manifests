@@ -1,18 +1,5 @@
-provider "aws" {
-  alias = "us_east_1"
-  region = "us-east-1"
-}
-
-data "aws_route53_zone" "top" {
-    name = var.domain_name
-}
-
 resource "aws_route53_zone" "kubeflow_zone" {
   name = "platform.${var.domain_name}"
-}
-
-locals {
-  cognito_url = "auth.platform.${var.domain_name}"
 }
 
 resource "aws_route53_record" "kubeflow_ns" {
