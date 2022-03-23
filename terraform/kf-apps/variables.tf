@@ -14,13 +14,14 @@ variable "rds_secret_version_arn" {
   type = string
 }
 
-
 # PROVIDER CONFIG
 
 variable "eks_cert_data" {
   type  = string
+  default = ""
 }
 
 variable "eks_endpoint" {
   type = string
+  default = ""
 }

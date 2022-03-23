@@ -29,8 +29,10 @@ variable "cognito_domain" {
 
 variable "eks_cert_data" {
   type  = string
+  default = ""
 }
 
 variable "eks_endpoint" {
   type = string
+  default = ""
 }
