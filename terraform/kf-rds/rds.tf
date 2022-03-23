@@ -22,8 +22,8 @@ resource "aws_security_group" "db" {
 
 resource aws_db_instance "rds" {
   engine               = "mysql"
-  instance_class       = "db.t3.micro"
-  allocated_storage    = "10"
+  instance_class       = var.instance_type
+  allocated_storage    = var.instance_size
   username             = "admin"
   password             = "kubeFl0w"
   port = local.rds_port

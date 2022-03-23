@@ -43,8 +43,6 @@ resource "kustomization_resource" "resources" {
   manifest = data.kustomization_build.resources.manifests[each.value]
 }
 
-
-
 resource "kustomization_resource" "envoy" {
   depends_on = [kustomization_resource.resources]
   for_each = data.kustomization_build.envoy.ids
