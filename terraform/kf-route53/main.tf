@@ -8,7 +8,7 @@ terraform {
 }
 
 data aws_route53_zone "kubeflow" {
-  name = "platform.${var.domain_name}"
+  name = "${var.subdomain_name}.${var.domain_name}"
 }
 
 data aws_lb "main" {
@@ -44,11 +44,4 @@ resource "aws_route53_record" "a_record" {
     zone_id                = data.aws_lb.main.zone_id
   }
   allow_overwrite = true
-}
-
-module "users" {
-  source = "./../users"
-  for_each = toset(["syoung"])
-  username = each.value
-  domain_name = "hyperfine-dev.com"
 }

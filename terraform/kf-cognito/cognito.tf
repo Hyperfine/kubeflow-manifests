@@ -1,5 +1,5 @@
 resource "aws_route53_zone" "kubeflow_zone" {
-  name = "platform.${var.domain_name}"
+  name = "${var.subdomain_name}.${var.domain_name}"
 }
 
 resource "aws_route53_record" "kubeflow_ns" {
