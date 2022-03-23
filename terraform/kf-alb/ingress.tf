@@ -208,7 +208,7 @@ resource "kubectl_manifest" "alb-config" {
 yaml_body = <<YAML
 apiVersion: v1
 data:
-  clusterName: ${data.aws_eks_cluster.cluster.name}
+  clusterName: ${var.cluster_name}
   iamRole: ${aws_iam_role.ingress_role.arn}
 kind: ConfigMap
 metadata:

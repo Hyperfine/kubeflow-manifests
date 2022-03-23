@@ -87,7 +87,7 @@ spec:
       key: secretkey
   parameters:
     objects: |
-      - objectName: "${local.rds_secret}"
+      - objectName: "${var.rds_secret}"
         objectType: "secretsmanager"
         jmesPath:
             - path: "username"
@@ -100,7 +100,7 @@ spec:
               objectAlias: "database"
             - path: "port"
               objectAlias: "port"
-      - objectName: "${local.s3_secret}"
+      - objectName: "${var.s3_secret}"
         objectType: "secretsmanager"
         jmesPath:
             - path: "accesskey"
@@ -124,10 +124,10 @@ spec:
     name: secrets
     volumeMounts:
     - mountPath: /mnt/rds-store
-      name: "${local.rds_secret}"
+      name: "${var.rds_secret}"
       readOnly: true
     - mountPath: /mnt/aws-store
-      name: "${local.s3_secret}"
+      name: "${var.s3_secret}"
       readOnly: true
   serviceAccountName: kubeflow-secrets-manager-sa
   volumes:
@@ -136,12 +136,12 @@ spec:
       readOnly: true
       volumeAttributes:
         secretProviderClass: aws-secrets
-    name: "${local.rds_secret}"
+    name: "${var.rds_secret}"
   - csi:
       driver: secrets-store.csi.k8s.io
       readOnly: true
       volumeAttributes:
         secretProviderClass: aws-secrets
-    name: "${local.s3_secret}"
+    name: "${var.s3_secret}"
 YAML
 }
