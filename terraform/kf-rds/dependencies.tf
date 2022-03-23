@@ -2,7 +2,7 @@
 data "aws_subnets" "private" {
   filter {
     name = "vpc-id"
-    values = var.vpic_ids
+    values = [var.vpc_id]
   }
   tags = {
     "kubernetes.io/role/internal-elb": "1"

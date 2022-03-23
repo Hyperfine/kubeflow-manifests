@@ -9,7 +9,7 @@ locals {
 
 resource "aws_security_group" "db" {
   name   = "service-${var.cluster_name}-rds-access"
-  vpc_id = data.aws_eks_cluster.eks.vpc_config[0].vpc_id
+  vpc_id = var.vpc_id
 
   ingress {
     description = "mysql from VPC"
