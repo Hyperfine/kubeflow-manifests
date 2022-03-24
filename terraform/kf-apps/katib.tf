@@ -1,21 +1,14 @@
-data aws_secretsmanager_secret_version "secret" {
-  secret_id = var.rds_secret_version_arn
-}
-
-locals {
-  keys = jsondecode(data.aws_secretsmanager_secret_version.secret.secret_string)
-}
 
 resource "kubectl_manifest" "katib-secret" {
     yaml_body = <<YAML
 apiVersion: v1
 stringData:
-  DB_PASSWORD: ${local.keys["password"]}
-  DB_USER: ${local.keys["username"]}
+  DB_PASSWORD: ${var.rds_info["password"]}
+  DB_USER: ${var.rds_info["username"]}
   KATIB_MYSQL_DB_DATABASE: katib
-  KATIB_MYSQL_DB_HOST: ${local.keys["host"]}"
-  KATIB_MYSQL_DB_PORT: "${local.keys["port"]}"
-  MYSQL_ROOT_PASSWORD: ${local.keys["password"]}
+  KATIB_MYSQL_DB_HOST: ${var.rds_info["host"]}"
+  KATIB_MYSQL_DB_PORT: "${var.rds_info["port"]}"
+  MYSQL_ROOT_PASSWORD: ${var.rds_info["password"]}
 kind: Secret
 metadata:
   name: katib-mysql-secrets

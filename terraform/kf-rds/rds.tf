@@ -5,6 +5,14 @@ resource aws_db_subnet_group "private" {
 
 locals {
   rds_port = 3306
+
+  rds_info = {
+    "username" : aws_db_instance.rds.username,
+    "password" : aws_db_instance.rds.password,
+    "database" : aws_db_instance.rds.name,
+    "host" : aws_db_instance.rds.address,
+    "port" : tostring(aws_db_instance.rds.port)
+  }
 }
 
 resource "aws_security_group" "db" {
@@ -41,12 +49,5 @@ resource "aws_secretsmanager_secret" "rds-secret" {
 resource "aws_secretsmanager_secret_version" "rds_version" {
   secret_id = aws_secretsmanager_secret.rds-secret.id
 
-  secret_string=jsonencode({
-      "username": aws_db_instance.rds.username,
-      "password": aws_db_instance.rds.password,
-      "database": aws_db_instance.rds.name,
-      "host":aws_db_instance.rds.address,
-      "port":tostring(aws_db_instance.rds.port)
-    }
-  )
+  secret_string = jsonencode(local.rds_info)
 }

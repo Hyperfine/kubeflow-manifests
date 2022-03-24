@@ -1,11 +1,3 @@
-data aws_secretsmanager_secret_version "pipe-secret" {
-  secret_id = var.rds_secret_version_arn
-}
-
-locals {
-  pipe-keys = jsondecode(data.aws_secretsmanager_secret_version.pipe-secret.secret_string)
-}
-
 data "kubectl_file_documents" "pipeline" {
   content =file("${path.module}/pipeline.yaml")
 }
@@ -22,8 +14,8 @@ data:
   cacheDb: cachedb
   cacheImage: gcr.io/google-containers/busybox
   cronScheduleTimezone: UTC
-  dbHost: ${local.pipe-keys["host"]}
-  dbPort: "${local.pipe-keys["port"]}"
+  dbHost: ${var.rds_info["host"]}
+  dbPort: "${var.rds_info["port"]}"
   minioServiceHost: s3.amazonaws.com
   minioServiceRegion: ${var.region}
   mlmdDb: metadb

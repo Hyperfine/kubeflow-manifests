@@ -14,6 +14,11 @@ variable "rds_secret_version_arn" {
   type = string
 }
 
+variable "rds_info" {
+  type = object({string: string})
+}
+
+
 # PROVIDER CONFIG
 
 variable "eks_cert_data" {

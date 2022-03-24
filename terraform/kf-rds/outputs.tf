@@ -5,3 +5,7 @@ output "db_identifier" {
 output "rds_secret_version_arn" {
   value = aws_secretsmanager_secret_version.rds_version.arn
 }
+
+output "rds_info" {
+  value = local.rds_info
+}
