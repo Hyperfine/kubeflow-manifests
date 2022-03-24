@@ -15,7 +15,7 @@ variable "rds_secret_version_arn" {
 }
 
 variable "rds_info" {
-  type = object({string: string})
+  type = map
 }
 
 
