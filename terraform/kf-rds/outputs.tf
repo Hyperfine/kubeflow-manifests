@@ -8,4 +8,5 @@ output "rds_secret_version_arn" {
 
 output "rds_info" {
   value = local.rds_info
+  sensitive = true
 }
