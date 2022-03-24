@@ -7,12 +7,6 @@ terraform {
   }
 }
 
-data aws_lb "main" {
-  tags = {
-    "ingress.k8s.aws/cluster": var.cluster_name
-  }
-}
-
 resource "aws_route53_record" "main" {
   name    = "*.${var.kubeflow_name}"
   type    = "CNAME"
@@ -36,8 +30,8 @@ resource "aws_route53_record" "a_record" {
 
   alias {
     evaluate_target_health = false
-    name                   = data.aws_lb.main.dns_name
-    zone_id                = data.aws_lb.main.zone_id
+    name                   = var.alb_dns_name
+    zone_id                = var.zone_id
   }
   allow_overwrite = true
 }
