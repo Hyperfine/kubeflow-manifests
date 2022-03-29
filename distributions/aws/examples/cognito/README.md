@@ -10,7 +10,7 @@ This guide assumes that you have:
     - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) - A command line tool for interacting with AWS services.
     - [eksctl](https://eksctl.io/introduction/#installation) - A command line tool for working with EKS clusters.
     - [kubectl](https://kubernetes.io/docs/tasks/tools) - A command line tool for working with Kubernetes clusters.
-    - [yq](https://mikefarah.gitbook.io/yq) - A command line tool for YAML processing. (For Linux environments, use the [wget plain binary installation](https://mikefarah.gitbook.io/yq/#wget))
+    - [yq](https://mikefarah.gitbook.io/yq) - A command line tool for YAML processing. (For Linux environments, use the [wget plain binary installation](https://github.com/mikefarah/yq/#install))
     - [jq](https://stedolan.github.io/jq/download/) - A command line tool for processing JSON.
     - [kustomize version 3.2.0](https://github.com/kubernetes-sigs/kustomize/releases/tag/v3.2.0) - A command line tool to customize Kubernetes objects through a kustomization file.
       - :warning: Kubeflow 1.3.0 is not compatible with the latest versions of of kustomize 4.x. This is due to changes in the order resources are sorted and printed. Please see [kubernetes-sigs/kustomize#3794](https://github.com/kubernetes-sigs/kustomize/issues/3794) and [kubeflow/manifests#1797](https://github.com/kubeflow/manifests/issues/1797). We know this is not ideal and are working with the upstream kustomize team to add support for the latest versions of kustomize as soon as we can.
@@ -32,16 +32,18 @@ This guide assumes that you have:
         --nodes-max 10 \
         --managed
         ```
-1. AWS IAM permissions to create roles and attach policies to roles.
 
-1. Clone the `awslabs/kubeflow-manifest` repo and checkout release branch.
-    1. ```
-        git clone https://github.com/awslabs/kubeflow-manifests.git
-        cd kubeflow-manifests
-        git checkout v1.3-branch
-        ```
+1. Clone the `awslabs/kubeflow-manifest` repo and checkout a release.
+    1. Substitute the value for `AWS_RELEASE_VERSION`(e.g. v1.3.1-b1.0.0). Read more about [releases and versioning](../README.md#releases-and-versioning) policy if you are unsure about what the value of `AWS_RELEASE_VERSION` should be.
+        1. ```
+            export AWS_RELEASE_VERSION=<>
+            git clone https://github.com/awslabs/kubeflow-manifests.git
+            cd kubeflow-manifests
+            git checkout ${AWS_RELEASE_VERSION}
+            ```
 
-**Tip:** The following sections in this guide walks you through each step for setting up domain, certificates and Cognito userpool and is good for a new user to understand the setup. If you prefer a automated setup for setting up these pre-requisites for deploying Kubeflow with Cognito, follow this [README](./README-automated.md)
+## (Optional) Automated setup
+The rest of the sections in this guide walks you through each step for setting up domain, certificates and Cognito userpool using AWS Console and is good for a new user to understand the design and details. If you prefer to use automated scripts and avoid human error for setting up the resources for deploying Kubeflow with Cognito, follow this [README](./README-automated.md) instead.
 
 ## 1.0 Custom domain
 
