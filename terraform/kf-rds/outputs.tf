@@ -1,5 +1,5 @@
 output "db_identifier" {
-  value = aws_db_instance.rds.identifier
+  value = module.rds.outputs.primary_id
 }
 
 output "rds_secret_version_arn" {

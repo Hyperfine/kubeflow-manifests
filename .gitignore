@@ -5,4 +5,5 @@
 terraform.tfstate
 terraform.tfstate.backup
 .terraform.lock.hcl
+.external_modules
 __pycache__

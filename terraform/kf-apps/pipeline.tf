@@ -31,6 +31,8 @@ metadata:
 YAML
 }
 
+
+# https://github.com/kubeflow/manifests/issues/2061 minio proxy access
 resource "kubectl_manifest" "pipeline-config" {
   yaml_body = <<YAML
 apiVersion: v1
