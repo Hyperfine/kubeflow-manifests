@@ -1,3 +1,7 @@
+locals {
+  sa_name = "kubeflow-secrets-manager-sa"
+}
+
 resource "aws_iam_role" "irsa" {
   name  = "${var.cluster_name}-kf-secrets-manager-sa"
   assume_role_policy = jsonencode({
@@ -12,7 +16,7 @@ resource "aws_iam_role" "irsa" {
       "Condition": {
         "StringEquals": {
           "${local.oidc_id}:sub": [
-             "system:serviceaccount:kubeflow:kubeflow-secrets-manager-sa"
+             "system:serviceaccount:kubeflow:${local.sa_name}"
             ]
         }
       }
@@ -20,14 +24,50 @@ resource "aws_iam_role" "irsa" {
   })
 }
 
-resource aws_iam_role_policy_attachment "secret" {
-  role = aws_iam_role.irsa.name
-  policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+data aws_iam_policy_document "ssm" {
+  version = "2012-10-17"
+
+  statement {
+    effect = "Allow"
+    actions = ["kms:Decrypt", "kms:DescribeKey"]
+    resources = var.kms_key_ids
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret"
+    ]
+    resources = [data.aws_secretsmanager_secret.rds.arn]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret"
+    ]
+    resources = [data.aws_secretsmanager_secret.s3.arn]
+  }
 }
 
-resource aws_iam_role_policy_attachment "ssm" {
+resource aws_iam_policy "ssm" {
+  name = "${local.sa_name}-ssm-policy"
+  policy = data.aws_iam_policy_document.ssm.json
+}
+
+resource aws_iam_role_policy_attachment "secret" {
   role = aws_iam_role.irsa.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
+  policy_arn = aws_iam_policy.ssm.arn
+}
+
+resource aws_kms_grant "grant" {
+  for_each = toset(var.kms_key_ids)
+  name = "${local.sa_name}-ssm-grant"
+  grantee_principal = aws_iam_role.irsa.arn
+  key_id = each.value
+  operations = ["Decrypt", "DescribeKey"]
 }
 
 resource "kubectl_manifest" "irsa" {
@@ -44,18 +84,24 @@ resource "kubectl_manifest" "irsa" {
   })
 }
 
-data "kustomization_build" "secrets-driver" {
-  path = "./../../common/secrets-driver/base"
+resource "helm_release" "secrets" {
+  repository = "https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts"
+  name       = "secrets-store-csi-driver"
+  chart      = "secrets-store-csi-driver"
+  version    = "1.1.2"
+  namespace  = "kube-system"
 }
 
-
-resource "kustomization_resource" "secrets-driver" {
-  for_each = data.kustomization_build.secrets-driver.ids
-
-  manifest = data.kustomization_build.secrets-driver.manifests[each.value]
+data "kubectl_file_documents" "aws" {
+  content =file("${path.module}/aws.yaml")
+}
+resource "kubectl_manifest" "aws" {
+    for_each  = data.kubectl_file_documents.aws.manifests
+    yaml_body = each.value
 }
 
 resource "kubectl_manifest" "secret-class" {
+  depends_on = [helm_release.secrets]
   yaml_body = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
@@ -87,7 +133,7 @@ spec:
       key: secretkey
   parameters:
     objects: |
-      - objectName: "${var.rds_secret}"
+      - objectName: "${var.rds_secret_name}"
         objectType: "secretsmanager"
         jmesPath:
             - path: "username"
@@ -100,7 +146,7 @@ spec:
               objectAlias: "database"
             - path: "port"
               objectAlias: "port"
-      - objectName: "${var.s3_secret}"
+      - objectName: "${var.s3_secret_name}"
         objectType: "secretsmanager"
         jmesPath:
             - path: "accesskey"
@@ -124,24 +170,24 @@ spec:
     name: secrets
     volumeMounts:
     - mountPath: /mnt/rds-store
-      name: "${var.rds_secret}"
+      name: "${var.rds_secret_name}"
       readOnly: true
     - mountPath: /mnt/aws-store
-      name: "${var.s3_secret}"
+      name: "${var.s3_secret_name}"
       readOnly: true
-  serviceAccountName: kubeflow-secrets-manager-sa
+  serviceAccountName: "${local.sa_name}"
   volumes:
   - csi:
       driver: secrets-store.csi.k8s.io
       readOnly: true
       volumeAttributes:
         secretProviderClass: aws-secrets
-    name: "${var.rds_secret}"
+    name: "${var.rds_secret_name}"
   - csi:
       driver: secrets-store.csi.k8s.io
       readOnly: true
       volumeAttributes:
         secretProviderClass: aws-secrets
-    name: "${var.s3_secret}"
+    name: "${var.s3_secret_name}"
 YAML
 }

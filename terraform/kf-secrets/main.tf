@@ -10,7 +10,7 @@ terraform {
     }
         kustomization = {
       source  = "kbst/kustomization"
-      version = "0.7.2"
+      version = "0.8.1"
     }
   }
 }
