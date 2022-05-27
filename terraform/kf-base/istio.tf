@@ -15,7 +15,7 @@ data "kustomization_build" "envoy" {
   path = "./../../distributions/aws/aws-istio-envoy-filter/base"
 }
 
-
+/*
 resource "kustomization_resource" "istio_crds" {
   depends_on = [kustomization_resource.cert]
   for_each = data.kustomization_build.istio_crds.ids
@@ -42,9 +42,8 @@ resource "kustomization_resource" "resources" {
 
   manifest = data.kustomization_build.resources.manifests[each.value]
 }
-
+*/
 resource "kustomization_resource" "envoy" {
-  depends_on = [kustomization_resource.resources]
   for_each = data.kustomization_build.envoy.ids
 
   manifest = data.kustomization_build.envoy.manifests[each.value]

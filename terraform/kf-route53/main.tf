@@ -7,6 +7,7 @@ terraform {
   }
 }
 
+/*
 resource "aws_route53_record" "main" {
   name    = "*.${var.kubeflow_name}"
   type    = "CNAME"
@@ -35,3 +36,4 @@ resource "aws_route53_record" "a_record" {
   }
   allow_overwrite = true
 }
+*/

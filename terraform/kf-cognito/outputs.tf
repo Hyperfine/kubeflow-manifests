@@ -1,5 +1,5 @@
 output "cert_arn" {
-  value = module.acm_kubeflow.acm_certificate_arn
+  value = local.cert_arn
 }
 
 output "cognito_client_id" {

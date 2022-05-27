@@ -1,5 +1,5 @@
 resource "aws_route53_zone" "kubeflow_zone" {
-  name = "${var.subdomain_name}.${var.domain_name}"
+  name = "${var.subdomain_name}.${local.domain_name}"
 }
 
 resource "aws_route53_record" "kubeflow_ns" {
@@ -12,8 +12,11 @@ resource "aws_route53_record" "kubeflow_ns" {
 
 
 module "acm_cognito" {
+  count = var.public_acm ? 1 : 0
+
   depends_on = [aws_route53_record.kubeflow_ns]
   source = "terraform-aws-modules/acm/aws"
+  version = "3.4.1"
   providers = {
     aws = aws.us_east_1 # cognito needs us-east-1
   }
@@ -25,9 +28,11 @@ module "acm_cognito" {
 }
 
 module "acm_kubeflow" {
+  count = var.public_acm ? 1 : 0
+
   depends_on = [aws_route53_record.kubeflow_ns]
   source = "terraform-aws-modules/acm/aws"
-
+  version = "3.4.1"
   domain_name               = aws_route53_zone.kubeflow_zone.name
   zone_id                   = aws_route53_zone.kubeflow_zone.zone_id
   subject_alternative_names = ["*.${aws_route53_zone.kubeflow_zone.name}"]
@@ -58,7 +63,7 @@ resource "time_sleep" "wait_30_seconds" {
 resource "aws_cognito_user_pool_domain" "main" {
   depends_on = [time_sleep.wait_30_seconds]
   domain          = local.cognito_url
-  certificate_arn = module.acm_cognito.acm_certificate_arn
+  certificate_arn = local.cert_arn
   user_pool_id    = aws_cognito_user_pool.pool.id
 }
 
@@ -100,4 +105,6 @@ resource "aws_cognito_user_pool_client" "client" {
   ]
 }
 
-
+locals {
+  cert_arn = var.public_acm ? module.acm_kubeflow.acm_certificate_arn : null
+}

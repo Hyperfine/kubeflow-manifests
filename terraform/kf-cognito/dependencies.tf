@@ -1,7 +1,8 @@
 data "aws_route53_zone" "top" {
-    name = var.domain_name
+    zone_id = var.top_zone_id
 }
 
 locals {
-  cognito_url = "auth.platform.${var.domain_name}"
+  domain_name = data.aws_route53_zone.top.name
+  cognito_url = "auth.${var.subdomain_name}.${local.domain_name}"
 }

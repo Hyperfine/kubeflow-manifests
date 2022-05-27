@@ -13,19 +13,24 @@ resource "aws_kms_key" "kms" {
   description             = "s3-kf-${var.cluster_name}"
   deletion_window_in_days = 7
   enable_key_rotation = true
-  policy = <<JSON
-{
-  "Sid": "Allow use of the key",
-  "Effect": "Allow",
-  "Principal": {"AWS": [
-    ${aws_iam_user.s3_user.arn}
-  ]},
-  "Action": [
-    "kms:*"
-  ],
-  "Resource": "*"
-}
-  JSON
+  policy = jsonencode({
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid" : "Allow Access to S3",
+      "Effect" : "Allow",
+      "Principal" : {
+        "AWS" : [
+          "${aws_iam_role.s3_role.arn}",
+          "${data.aws_caller_identity.current.arn}"
+        ]
+      },
+      "Action" : [
+        "kms:*"
+      ],
+      "Resource" : "*"
+    }]
+  })
 }
 
 resource "aws_iam_user" "s3_user" {
@@ -73,7 +78,7 @@ resource "aws_iam_policy" "s3_policy" {
         "s3:GetObject",
         "s3:DeleteObject"
       ],
-      "Resource": ["${module.s3.outputs.arn}/*"]
+      "Resource": ["${module.s3.arn}/*"]
     }
   ]
 }

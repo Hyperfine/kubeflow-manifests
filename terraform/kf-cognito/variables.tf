@@ -2,7 +2,7 @@ variable "region" {
   type = string
 }
 
-variable "domain_name" {
+variable "top_zone_id" {
   type = string
 }
 
@@ -14,7 +14,14 @@ variable "cluster_name" {
   type = string
 }
 
+# OPTIONAL
+
 variable "first_run" {
   type = bool
   default = false
+}
+
+variable "public_acm" {
+  type = bool
+  default = true
 }
