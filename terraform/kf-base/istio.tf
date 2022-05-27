@@ -11,11 +11,6 @@ data "kustomization_build" "resources" {
   path = "./../../common/istio-1-9/kubeflow-istio-resources/base"
 }
 
-data "kustomization_build" "envoy" {
-  path = "./../../distributions/aws/aws-istio-envoy-filter/base"
-}
-
-/*
 resource "kustomization_resource" "istio_crds" {
   depends_on = [kustomization_resource.cert]
   for_each = data.kustomization_build.istio_crds.ids
@@ -42,9 +37,4 @@ resource "kustomization_resource" "resources" {
 
   manifest = data.kustomization_build.resources.manifests[each.value]
 }
-*/
-resource "kustomization_resource" "envoy" {
-  for_each = data.kustomization_build.envoy.ids
 
-  manifest = data.kustomization_build.envoy.manifests[each.value]
-}
