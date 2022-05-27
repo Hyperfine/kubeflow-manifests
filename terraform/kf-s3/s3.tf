@@ -35,7 +35,7 @@ resource "aws_kms_key" "kms" {
 
 resource aws_kms_alias "alias" {
   target_key_id = aws_kms_key.kms.key_id
-  name = "s3-kf-${var.cluster_name}-kms"
+  name = "alias/s3-kf-${var.cluster_name}-kms"
 }
 
 resource "aws_iam_user" "s3_user" {
