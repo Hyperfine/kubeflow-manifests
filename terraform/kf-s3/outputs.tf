@@ -1,6 +1,6 @@
 
 output "bucket" {
-  value = module.s3.name
+  value = module.bucket.primary_bucket_name
 }
 
 output "secret_id" {

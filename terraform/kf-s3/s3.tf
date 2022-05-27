@@ -1,5 +1,5 @@
 
-module "s3" {
+module "bucket" {
   source = "git::git@github.com:Hyperfine/terraform-aws-service-catalog//modules/data-stores/s3-bucket?ref=v0.67.2"
 
 
@@ -61,7 +61,7 @@ EOF
 }
 
 resource "aws_iam_policy" "s3_policy" {
-  depends_on = [module.s3]
+  depends_on = [module.bucket]
   name   = "${var.cluster_name}-kf-s3-secret"
   policy = jsonencode(
   {
@@ -70,7 +70,7 @@ resource "aws_iam_policy" "s3_policy" {
     {
       "Effect": "Allow",
       "Action": ["s3:ListBucket"],
-      "Resource": [module.s3.arn]
+      "Resource": [module.bucket.primary_bucket_arn]
     },
     {
       "Effect": "Allow",
@@ -79,7 +79,7 @@ resource "aws_iam_policy" "s3_policy" {
         "s3:GetObject",
         "s3:DeleteObject"
       ],
-      "Resource": ["${module.s3.arn}/*"]
+      "Resource": ["${module.bucket.primary_bucket_arn}/*"]
     }
   ]
 }
