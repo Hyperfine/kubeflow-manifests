@@ -7,6 +7,5 @@ data aws_secretsmanager_secret_version "rds_info" {
 }
 
 locals {
-  rds_info = jsonencode(data.aws_secretsmanager_secret_version.rds_info.secret_string)
+  rds_info = jsondecode(data.aws_secretsmanager_secret_version.rds_info.secret_string)
 }
-
