@@ -1,6 +1,6 @@
 
 module "s3" {
-  source = "git::git@github.com:Hyperfine/terraform-aws-service-catalog//modules/data-stores/s3-bucket?ref=v0.66.2"
+  source = "git::git@github.com:Hyperfine/terraform-aws-service-catalog//modules/data-stores/s3-bucket?ref=v0.67.2"
 
 
   primary_bucket = "kf-${var.cluster_name}"
