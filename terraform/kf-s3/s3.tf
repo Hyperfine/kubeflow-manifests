@@ -97,7 +97,7 @@ resource "aws_iam_role_policy_attachment" "attach" {
 }
 
 resource "aws_secretsmanager_secret" "s3-secret" {
-  name = "${var.cluster_name}-kf-s3-secret"
+  name = "kf-s3-secret"
   recovery_window_in_days = 0
   kms_key_id = aws_kms_key.kms.arn
 }
