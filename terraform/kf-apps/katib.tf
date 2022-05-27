@@ -1,14 +1,15 @@
 
+
 resource "kubectl_manifest" "katib-secret" {
     yaml_body = <<YAML
 apiVersion: v1
 stringData:
-  DB_PASSWORD: ${var.rds_info["password"]}
-  DB_USER: ${var.rds_info["username"]}
+  DB_PASSWORD: ${local.rds_info["password"]}
+  DB_USER: ${local.rds_info["username"]}
   KATIB_MYSQL_DB_DATABASE: katib
-  KATIB_MYSQL_DB_HOST: ${var.rds_info["host"]}"
-  KATIB_MYSQL_DB_PORT: "${var.rds_info["port"]}"
-  MYSQL_ROOT_PASSWORD: ${var.rds_info["password"]}
+  KATIB_MYSQL_DB_HOST: ${local.rds_info["host"]}"
+  KATIB_MYSQL_DB_PORT: "${local.rds_info["port"]}"
+  MYSQL_ROOT_PASSWORD: ${local.rds_info["password"]}
 kind: Secret
 metadata:
   name: katib-mysql-secrets

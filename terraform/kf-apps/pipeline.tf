@@ -14,8 +14,8 @@ data:
   cacheDb: cachedb
   cacheImage: gcr.io/google-containers/busybox
   cronScheduleTimezone: UTC
-  dbHost: ${var.rds_info["host"]}
-  dbPort: "${var.rds_info["port"]}"
+  dbHost: ${local.rds_info["host"]}
+  dbPort: "${local.rds_info["port"]}"
   minioServiceHost: s3.amazonaws.com
   minioServiceRegion: ${var.region}
   mlmdDb: metadb
