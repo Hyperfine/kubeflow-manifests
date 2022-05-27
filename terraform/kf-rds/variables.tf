@@ -6,16 +6,8 @@ variable "vpc_id" {
   type = string
 }
 
-variable "username" {
-  type = string
-}
-
-variable "password" {
-  type = string
-}
-
-variable "kms_key_id" {
-  type = string
+variable "private_subnet_ids" {
+  type = list(string)
 }
 
 variable "instance_type" {
@@ -23,8 +15,17 @@ variable "instance_type" {
   default = "db.t3.micro"
 }
 
-variable "instance_size" {
-  type = string
-  default = "10"
+variable "allocated_storage" {
+  type = number
+  default = 10
 }
 
+
+variable "cmk_administrator_iam_arns" {
+  type = list(string)
+}
+
+variable "cmk_user_iam_arns" {
+  type = any
+
+}
