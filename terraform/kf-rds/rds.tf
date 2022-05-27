@@ -4,7 +4,7 @@ resource aws_db_subnet_group "private" {
 }
 
 module "rds" {
-  source = "git::git@github.com:Hyperfine/terraform-aws-service-catalog//modules/data-stores/rds?ref=v0.66.2.0"
+  source = "git::git@github.com:Hyperfine/terraform-aws-service-catalog//modules/data-stores/rds?ref=v0.67.2"
 
   name = "kf-${var.cluster_name}-rds"
   engine = "mysql"
@@ -35,7 +35,7 @@ locals {
     "username" : var.username,
     "password" : var.password,
     "database" : "kubeflow",
-    "host" : module.rds.outputs.primary_host,
+    "host" : module.rds.primary_host,
     "port" : "3306"
   }
 }

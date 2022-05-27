@@ -1,5 +1,5 @@
 output "db_identifier" {
-  value = module.rds.outputs.primary_id
+  value = module.rds.primary_id
 }
 
 output "rds_secret_version_arn" {
