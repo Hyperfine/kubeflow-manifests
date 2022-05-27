@@ -61,6 +61,7 @@ EOF
 }
 
 resource "aws_iam_policy" "s3_policy" {
+  depends_on = [module.s3]
   name   = "${var.cluster_name}-kf-s3-secret"
   policy = jsonencode(
   {
@@ -69,7 +70,7 @@ resource "aws_iam_policy" "s3_policy" {
     {
       "Effect": "Allow",
       "Action": ["s3:ListBucket"],
-      "Resource": [module.s3.outputs.arn]
+      "Resource": [module.s3.arn]
     },
     {
       "Effect": "Allow",
