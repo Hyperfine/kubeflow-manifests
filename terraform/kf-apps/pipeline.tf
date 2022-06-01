@@ -156,10 +156,20 @@ spec:
         - mountPath: /etc/webhook/certs
           name: webhook-tls-certs
           readOnly: true
+        - name: kf-rds-secret
+          mountPath: "/mnt/rds-store"
+          readOnly: true
       serviceAccountName: kubeflow-pipelines-cache
       volumes:
       - name: webhook-tls-certs
         secret:
           secretName: webhook-server-tls
+      - name: kf-rds-secret
+        csi:
+          readOnly: true
+          driver: secrets-store.csi.k8s.io
+          volumeAttributes:
+            secretProviderClass: "aws-secrets"
+
 EOF
 }

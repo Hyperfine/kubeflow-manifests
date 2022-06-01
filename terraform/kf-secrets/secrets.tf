@@ -135,6 +135,8 @@ spec:
     objects: |
       - objectName: "${var.rds_secret_name}"
         objectType: "secretsmanager"
+        objectAlias: "rds-secret"
+        objectVersionLabel: "AWSCURRENT"
         jmesPath:
             - path: "username"
               objectAlias: "user"
@@ -148,6 +150,8 @@ spec:
               objectAlias: "port"
       - objectName: "${var.s3_secret_name}"
         objectType: "secretsmanager"
+        objectAlias: "s3-secret"
+        objectVersionLabel: "AWSCURRENT"
         jmesPath:
             - path: "accesskey"
               objectAlias: "access"
@@ -169,10 +173,10 @@ spec:
   - image: public.ecr.aws/xray/aws-xray-daemon:latest
     name: secrets
     volumeMounts:
-    - mountPath: /mnt/rds-store
+    - mountPath: "/mnt/rds-store"
       name: "${var.rds_secret_name}"
       readOnly: true
-    - mountPath: /mnt/aws-store
+    - mountPath: "/mnt/aws-store"
       name: "${var.s3_secret_name}"
       readOnly: true
   serviceAccountName: "${local.sa_name}"

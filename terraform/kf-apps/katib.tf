@@ -1,4 +1,83 @@
-
+resource "kubectl_manifest" "katib_deployment" {
+  yaml_body = <<YAML
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: katib-db-manager
+  name: katib-db-manager
+  namespace: kubeflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: katib-db-manager
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      labels:
+        app: katib-db-manager
+    spec:
+      containers:
+      - command:
+        - ./katib-db-manager
+        env:
+        - name: DB_NAME
+          value: mysql
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: mysql-secret
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: mysql-secret
+        - name: KATIB_MYSQL_DB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: database
+              name: mysql-secret
+        - name: KATIB_MYSQL_DB_HOST
+          valueFrom:
+            secretKeyRef:
+              key: host
+              name: mysql-secret
+        - name: KATIB_MYSQL_DB_PORT
+          valueFrom:
+            secretKeyRef:
+              key: port
+              name: mysql-secret
+        image: docker.io/kubeflowkatib/katib-db-manager:v0.11.1
+        livenessProbe:
+          exec:
+            command:
+            - /bin/grpc_health_probe
+            - -addr=:6789
+          failureThreshold: 5
+          initialDelaySeconds: 10
+          periodSeconds: 60
+        name: katib-db-manager
+        ports:
+        - containerPort: 6789
+          name: api
+        readinessProbe:
+          exec:
+            command:
+            - /bin/grpc_health_probe
+            - -addr=:6789
+          initialDelaySeconds: 5
+      volumes:
+      - name: kf-rds-secret
+        csi:
+          readOnly: true
+          driver: secrets-store.csi.k8s.io
+          volumeAttributes:
+            secretProviderClass: "aws-secrets"
+YAML
+}
 
 resource "kubectl_manifest" "katib-secret" {
     yaml_body = <<YAML
