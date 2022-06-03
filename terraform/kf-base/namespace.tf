@@ -11,6 +11,8 @@ resource "kustomization_resource" "namespace" {
   for_each = data.kustomization_build.namespace.ids
 
   manifest = data.kustomization_build.namespace.manifests[each.value]
+
+
 }
 
 

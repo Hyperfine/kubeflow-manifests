@@ -3,7 +3,8 @@ locals {
 }
 
 resource "aws_iam_role" "irsa" {
-  name  = "${var.cluster_name}-kf-secrets-manager-sa"
+  force_detach_policies = true
+  name  = "${var.eks_cluster_name}-kf-secrets-manager-sa"
   assume_role_policy = jsonencode({
     "Version": "2012-10-17"
 
@@ -88,7 +89,7 @@ resource "helm_release" "secrets" {
   repository = "https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts"
   name       = "secrets-store-csi-driver"
   chart      = "secrets-store-csi-driver"
-  version    = "1.1.2"
+  version    = var.secret_driver_version
   namespace  = "kube-system"
 }
 
@@ -161,7 +162,7 @@ YAML
 }
 
 resource "kubectl_manifest" "secret-pod" {
-  depends_on = [kubectl_manifest.irsa]
+  depends_on = [kubectl_manifest.secret-class]
   yaml_body = <<YAML
 apiVersion: v1
 kind: Pod
