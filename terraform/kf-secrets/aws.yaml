@@ -1,3 +1,4 @@
+# https://raw.githubusercontent.com/aws/secrets-store-csi-driver-provider-aws/main/deployment/aws-provider-installer.yaml
 # https://kubernetes.io/docs/reference/access-authn-authz/rbac
 apiVersion: v1
 kind: ServiceAccount

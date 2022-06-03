@@ -91,6 +91,10 @@ resource "helm_release" "secrets" {
   chart      = "secrets-store-csi-driver"
   version    = var.secret_driver_version
   namespace  = "kube-system"
+  set {
+    name = "syncSecret.enabled"
+    value = "true"
+  }
 }
 
 data "kubectl_file_documents" "aws" {
@@ -171,7 +175,10 @@ metadata:
   namespace: kubeflow
 spec:
   containers:
-  - image: public.ecr.aws/xray/aws-xray-daemon:latest
+  - image: k8s.gcr.io/e2e-test-images/busybox:1.29
+    command:
+    - "/bin/sleep"
+    - "10000"
     name: secrets
     volumeMounts:
     - mountPath: "/mnt/rds-store"
