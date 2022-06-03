@@ -20,9 +20,10 @@ resource "aws_kms_key" "kms" {
       "Effect" : "Allow",
       "Principal" : {
         "AWS" : [
-          aws_iam_group.minio-group.arn,
+          data.aws_caller_identity.current.arn,
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+          aws_iam_user.s3_user.arn,
           # "${aws_iam_role.s3_role.arn}",
-          "${data.aws_caller_identity.current.arn}"
         ]
       },
       "Action" : [
