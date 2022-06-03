@@ -82,14 +82,13 @@ resource "aws_iam_group" "minio-group" {
 
 resource "aws_iam_group_membership" "minio-group-membership" {
   group = aws_iam_group.minio-group.arn
-  users = [aws_iam_user.s3_user.arn]
+  users = [aws_iam_user.s3_user.name]
   name = "minio-group-membership"
 }
 
-resource "aws_iam_policy_attachment" "s3-policy" {
-  name = "kf-s3-policy-attachment"
+resource "aws_iam_group_policy_attachment" "s3-policy" {
+  group = aws_iam_group.minio-group.name
   policy_arn = aws_iam_policy.s3_policy.arn
-  groups = [aws_iam_group.minio-group.arn]
 }
 
 /*
