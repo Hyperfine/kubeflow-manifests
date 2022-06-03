@@ -81,7 +81,7 @@ resource "aws_iam_group" "minio-group" {
 }
 
 resource "aws_iam_group_membership" "minio-group-membership" {
-  group = aws_iam_group.minio-group.arn
+  group = aws_iam_group.minio-group.name
   users = [aws_iam_user.s3_user.name]
   name = "minio-group-membership"
 }
