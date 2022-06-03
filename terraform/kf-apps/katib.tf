@@ -69,13 +69,6 @@ spec:
             - /bin/grpc_health_probe
             - -addr=:6789
           initialDelaySeconds: 5
-      volumes:
-      - name: kf-rds-secret
-        csi:
-          readOnly: true
-          driver: secrets-store.csi.k8s.io
-          volumeAttributes:
-            secretProviderClass: "aws-secrets"
 YAML
 }
 

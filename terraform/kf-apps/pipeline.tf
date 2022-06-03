@@ -17,7 +17,7 @@ data:
   dbHost: ${local.rds_info["host"]}
   dbPort: "${local.rds_info["port"]}"
   minioServiceHost: s3.amazonaws.com
-  minioServiceRegion: ${var.region}
+  minioServiceRegion: ${var.aws_region}
   mlmdDb: metadb
   pipelineDb: mlpipeline
 kind: ConfigMap
@@ -140,36 +140,22 @@ spec:
           valueFrom:
             secretKeyRef:
               key: username
-              name: kf-rds-secret
+              name: mysql-secret
         - name: DBCONFIG_PASSWORD
           valueFrom:
             secretKeyRef:
               key: password
-              name: kf-rds-secret
+              name: mysql-secret
         image: gcr.io/ml-pipeline/cache-server:1.5.1
         imagePullPolicy: Always
         name: server
         ports:
         - containerPort: 8443
           name: webhook-api
-        volumeMounts:
-        - mountPath: /etc/webhook/certs
-          name: webhook-tls-certs
-          readOnly: true
-        - name: kf-rds-secret
-          mountPath: "/mnt/rds-store"
-          readOnly: true
       serviceAccountName: kubeflow-pipelines-cache
       volumes:
       - name: webhook-tls-certs
         secret:
           secretName: webhook-server-tls
-      - name: kf-rds-secret
-        csi:
-          readOnly: true
-          driver: secrets-store.csi.k8s.io
-          volumeAttributes:
-            secretProviderClass: "aws-secrets"
-
 EOF
 }

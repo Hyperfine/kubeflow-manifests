@@ -80,9 +80,11 @@ resource "aws_iam_policy" "s3_policy" {
     {
       "Effect": "Allow",
       "Action": [
+        "s3:ListObjectsv2",
         "s3:PutObject",
         "s3:GetObject",
-        "s3:DeleteObject"
+        "s3:DeleteObject",
+        "s3:HeadObject"
       ],
       "Resource": ["${module.bucket.primary_bucket_arn}/*"]
     }
