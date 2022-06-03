@@ -1,16 +1,15 @@
-
 module "bucket" {
   source = "git::git@github.com:Hyperfine/terraform-aws-service-catalog//modules/data-stores/s3-bucket?ref=v0.67.2"
 
 
-  primary_bucket = "kf-${var.cluster_name}"
-  access_logging_bucket = "kf-${var.cluster_name}-access-logs"
+  primary_bucket = "kf-${var.eks_cluster_name}"
+  access_logging_bucket = "kf-${var.eks_cluster_name}-access-logs"
   enable_versioning = false
   bucket_kms_key_arn = aws_kms_key.kms.arn
 }
 
 resource "aws_kms_key" "kms" {
-  description             = "s3-kf-${var.cluster_name}"
+  description             = "s3-kf-${var.eks_cluster_name}"
   deletion_window_in_days = 7
   enable_key_rotation = true
   policy = jsonencode({
@@ -35,11 +34,11 @@ resource "aws_kms_key" "kms" {
 
 resource aws_kms_alias "alias" {
   target_key_id = aws_kms_key.kms.key_id
-  name = "alias/s3-kf-${var.cluster_name}-kms"
+  name = "alias/s3-kf-${var.eks_cluster_name}-kms"
 }
 
 resource "aws_iam_user" "s3_user" {
-  name = "kf-${var.cluster_name}-s3"
+  name = "kf-${var.eks_cluster_name}-s3"
 }
 
 resource "aws_iam_access_key" "s3_keys" {
@@ -47,7 +46,7 @@ resource "aws_iam_access_key" "s3_keys" {
 }
 
 resource "aws_iam_role" "s3_role" {
-  name = "kf-${var.cluster_name}-s3-role"
+  name = "kf-${var.eks_cluster_name}-s3-role"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -67,14 +66,17 @@ EOF
 
 resource "aws_iam_policy" "s3_policy" {
   depends_on = [module.bucket]
-  name   = "${var.cluster_name}-kf-s3-secret"
+  name   = "${var.eks_cluster_name}-kf-s3-secret"
   policy = jsonencode(
   {
   "Version": "2012-10-17",
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": ["s3:ListBucket"],
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetBucketLocation"
+      ],
       "Resource": [module.bucket.primary_bucket_arn]
     },
     {
