@@ -85,18 +85,6 @@ resource "kubectl_manifest" "irsa" {
   })
 }
 
-resource "helm_release" "secrets" {
-  repository = "https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts"
-  name       = "secrets-store-csi-driver"
-  chart      = "secrets-store-csi-driver"
-  version    = var.secret_driver_version
-  namespace  = "kube-system"
-  set {
-    name = "syncSecret.enabled"
-    value = "true"
-  }
-}
-
 data "kubectl_file_documents" "aws" {
   content =file("${path.module}/aws.yaml")
 }

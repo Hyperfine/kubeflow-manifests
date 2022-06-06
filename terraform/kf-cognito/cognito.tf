@@ -1,5 +1,8 @@
 resource "aws_route53_zone" "kubeflow_zone" {
   name = "${var.subdomain_name}.${local.domain_name}"
+  vpc {
+    vpc_id = var.vpc_id
+  }
 }
 
 resource "aws_route53_record" "kubeflow_ns" {
@@ -43,6 +46,8 @@ resource "aws_cognito_user_pool" "pool" {
   name = "${aws_route53_zone.kubeflow_zone.name}-user-pool"
 }
 
+
+# message: Custom domain is not a valid subdomain: Was not able to resolve the root domain, please ensure an A record exists for the root domain.
 resource "aws_route53_record" "dummy" {
   count = var.first_run ? 1 : 0
   name    = aws_route53_zone.kubeflow_zone.name
@@ -62,22 +67,9 @@ resource "time_sleep" "wait_30_seconds" {
 
 resource "aws_cognito_user_pool_domain" "main" {
   depends_on = [time_sleep.wait_30_seconds]
-  domain          = local.cognito_url
+  domain          = "auth.platform.hyperfine.aws"
   certificate_arn = local.cert_arn
   user_pool_id    = aws_cognito_user_pool.pool.id
-}
-
-resource "aws_route53_record" "auth_cognito_A" {
-  depends_on = [aws_cognito_user_pool_domain.main]
-  name    = local.cognito_url
-  type    = "A"
-  zone_id = aws_route53_zone.kubeflow_zone.zone_id
-
-  alias {
-    name                   = aws_cognito_user_pool_domain.main.cloudfront_distribution_arn
-    zone_id                = "Z2FDTNDATAQYW2"
-    evaluate_target_health = false
-  }
 }
 
 resource "aws_cognito_user_pool_client" "client" {
