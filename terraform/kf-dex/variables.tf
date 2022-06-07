@@ -2,6 +2,16 @@ variable "aws_region" {
   type = string
 }
 
+variable subdomain {
+  type = string
+  default = "platform"
+}
+
+variable zone_id {
+  type = string
+}
+
+
 # PROVIDER CONFIG
 
 variable "eks_cluster_name" {
