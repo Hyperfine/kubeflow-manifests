@@ -51,8 +51,8 @@ config:
     config:
       insecureSkipEmailVerified: true
       issuer: https://dev-4870369.okta.com
-      clientID: 0oa5bdyi22l49gUwq5d7
-      clientSecret: XfuuFuVhJaT9al8PphZJfAmbS0SengbYFywvdyZ6
+      clientID: asdf
+      clientSecret: zxcvzxcv
       redirectURI: http://platform.hyperfine-dev.io/dex/callback
   enablePasswordDB: true
   staticClients:
