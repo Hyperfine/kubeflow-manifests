@@ -12,6 +12,11 @@ variable zone_id {
 }
 
 
+variable dex_version {
+  type = string
+  default = "0.8.3"
+}
+
 # PROVIDER CONFIG
 
 variable "eks_cluster_name" {

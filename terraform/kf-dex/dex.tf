@@ -1,17 +1,17 @@
-data "kustomization_build" "oidc-auth" {
-  path = "./../../common/oidc-authservice/base"
+locals {
+  url = "http://${var.subdomain}.${data.aws_route53_zone.top_level.name}"
 }
 
 data "kustomization_build" "profiles" {
   path = "./../../apps/profiles/upstream/overlays/kubeflow"
 }
 
-resource "kubectl_manifest" "secret" {
+resource "kubectl_manifest" "secret_dex" {
   yaml_body = <<YAML
 apiVersion: v1
 data:
-  OIDC_CLIENT_ID: a3ViZWZsb3ctb2lkYy1hdXRoc2VydmljZQ==
-  OIDC_CLIENT_SECRET: cFVCbkJPWTgwU25YZ2ppYlRZTTlaV056WTJ4cmVOR1Fvaw==
+  OIDC_CLIENT_ID:
+  OIDC_CLIENT_SECRET:
 kind: Secret
 metadata:
   name: dex-oidc-client
@@ -20,16 +20,55 @@ type: Opaque
 YAML
 }
 
+resource "kubectl_manifest" "secret_oidc_auth" {
+  yaml_body = <<YAML
+apiVersion: v1
+data:
+  CLIENT_ID:
+  CLIENT_SECRET:
+kind: Secret
+metadata:
+  name: oidc-authservice-client
+  namespace: istio-system
+type: Opaque
+YAML
+}
+
+resource "kubectl_manifest" "oidc_auth_config" {
+  yaml_body = <<YAML
+apiVersion: v1
+data:
+  OIDC_AUTH_URL: /dex/auth
+  OIDC_PROVIDER: "${local.url}/dex"
+  OIDC_SCOPES: profile email groups
+  PORT: '"8080"'
+  REDIRECT_URL: /login/oidc
+  SKIP_AUTH_URI: /dex
+  STORE_PATH: /var/lib/authservice/data.db
+  USERID_CLAIM: email
+  USERID_HEADER: kubeflow-userid
+  USERID_PREFIX: ""
+kind: ConfigMap
+metadata:
+  name: oidc-authservice-parameters
+  namespace: istio-system
+YAML
+}
 
 resource "helm_release" "dex" {
-  depends_on = [kubectl_manifest.secret]
+  depends_on = [kubectl_manifest.secret_oidc_auth]
   repository = "https://charts.dexidp.io"
   name       = "dex"
   chart      = "dex"
-  version    = "0.8.3"
+  version    = var.dex_version
   namespace  = "auth"
   create_namespace = true
   values = [<<YAML
+envVars:
+- name: KUBERNETES_POD_NAMESPACE
+  valueFrom:
+    fieldRef:
+      fieldPath: metadata.namespace
 envFrom:
 - secretRef:
     name: dex-oidc-client
@@ -38,12 +77,14 @@ config:
     type: kubernetes
     config:
       inCluster: true
+  oauth2:
+    skipApprovalScreen: true
   web:
     http: 0.0.0.0:5556
   logger:
     level: "debug"
     format: text
-  issuer: http://platform.hyperfine-dev.io/dex
+  issuer: ${local.url}/dex
   connectors:
   - type: oidc
     id: okta
@@ -51,9 +92,9 @@ config:
     config:
       insecureSkipEmailVerified: true
       issuer: https://dev-4870369.okta.com
-      clientID: asdf
-      clientSecret: zxcvzxcv
-      redirectURI: http://platform.hyperfine-dev.io/dex/callback
+      clientID: 0oa5bdyi22l49gUwq5d7
+      clientSecret: 7h5ONORPnrGyOicacxaH6I0F44Pg07sj-ZcVPyD9
+      redirectURI: "${local.url}/dex/callback"
   enablePasswordDB: true
   staticClients:
   - idEnv: OIDC_CLIENT_ID
@@ -88,10 +129,13 @@ spec:
 YAML
 }
 
-resource "kustomization_resource" "oidc-auth" {
-  for_each = data.kustomization_build.oidc-auth.ids
+data "kubectl_file_documents" "oidc" {
+  content =file("${path.module}/oidc.yaml")
+}
 
-  manifest = data.kustomization_build.oidc-auth.manifests[each.value]
+resource "kubectl_manifest" "oidc" {
+    for_each  = data.kubectl_file_documents.oidc.manifests
+    yaml_body = each.value
 }
 
 resource "kustomization_resource" "profiles" {
