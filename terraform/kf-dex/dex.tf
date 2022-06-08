@@ -92,9 +92,9 @@ config:
     name: Okta
     config:
       insecureSkipEmailVerified: true
-      issuer: https://dev-4870369.okta.com
-      clientID: 0oa5bdyi22l49gUwq5d7
-      clientSecret:
+      issuer: "${var.okta_issuer_url}"
+      clientID: "${var.okta_client_id}"
+      clientSecret: "${var.okta_client_secret}"
       redirectURI: "${local.url}/dex/callback"
   enablePasswordDB: true
   staticClients:

@@ -17,6 +17,18 @@ variable dex_version {
   default = "0.8.3"
 }
 
+varible okta_issuer_url {
+  type = string
+}
+
+variable okta_client_id {
+  type = string
+}
+
+variable okta_client_secret {
+  type = string
+}
+
 # PROVIDER CONFIG
 
 variable "eks_cluster_name" {
