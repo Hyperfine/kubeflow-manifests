@@ -6,12 +6,13 @@ data "kustomization_build" "profiles" {
   path = "./../../apps/profiles/upstream/overlays/kubeflow"
 }
 
+
 resource "kubectl_manifest" "secret_dex" {
   yaml_body = <<YAML
 apiVersion: v1
 data:
-  OIDC_CLIENT_ID:
-  OIDC_CLIENT_SECRET:
+  OIDC_CLIENT_ID: a3ViZWZsb3ctb2lkYy1hdXRoc2VydmljZQ==
+  OIDC_CLIENT_SECRET: cFVCbkJPWTgwU25YZ2ppYlRZTTlaV056WTJ4cmVOR1Fvaw==
 kind: Secret
 metadata:
   name: dex-oidc-client
@@ -24,8 +25,8 @@ resource "kubectl_manifest" "secret_oidc_auth" {
   yaml_body = <<YAML
 apiVersion: v1
 data:
-  CLIENT_ID:
-  CLIENT_SECRET:
+  CLIENT_ID: a3ViZWZsb3ctb2lkYy1hdXRoc2VydmljZQ==
+  CLIENT_SECRET: cFVCbkJPWTgwU25YZ2ppYlRZTTlaV056WTJ4cmVOR1Fvaw==
 kind: Secret
 metadata:
   name: oidc-authservice-client
@@ -93,7 +94,7 @@ config:
       insecureSkipEmailVerified: true
       issuer: https://dev-4870369.okta.com
       clientID: 0oa5bdyi22l49gUwq5d7
-      clientSecret: 7h5ONORPnrGyOicacxaH6I0F44Pg07sj-ZcVPyD9
+      clientSecret:
       redirectURI: "${local.url}/dex/callback"
   enablePasswordDB: true
   staticClients:
