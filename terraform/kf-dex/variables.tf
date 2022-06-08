@@ -11,13 +11,7 @@ variable zone_id {
   type = string
 }
 
-
-variable dex_version {
-  type = string
-  default = "0.8.3"
-}
-
-varible okta_issuer_url {
+variable okta_issuer_url {
   type = string
 }
 
@@ -27,6 +21,12 @@ variable okta_client_id {
 
 variable okta_client_secret {
   type = string
+}
+
+
+variable dex_version {
+  type = string
+  default = "0.8.3"
 }
 
 # PROVIDER CONFIG
