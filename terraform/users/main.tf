@@ -16,6 +16,7 @@ locals {
 
 data aws_caller_identity "current" {}
 
+
 resource "kubectl_manifest" "config" {
         yaml_body = <<YAML
 apiVersion: v1
@@ -56,22 +57,4 @@ spec:
     requests:
       storage: 5Gi
 YAML
-}
-
-data aws_route53_zone "kubeflow_zone" {
-  name = "platform.${var.domain_name}"
-}
-
-data aws_cognito_user_pools "pool" {
-  name = "${data.aws_route53_zone.kubeflow_zone.name}-user-pool"
-}
-
-resource "aws_cognito_user" "users" {
-  user_pool_id = tolist(data.aws_cognito_user_pools.pool.ids)[0]
-  username = local.key
-  attributes = {
-    email = "${local.key}@hyperfine.io"
-    email_verified = true
-  }
-  temporary_password = "Password1!"
 }
