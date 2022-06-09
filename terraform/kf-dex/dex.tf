@@ -6,35 +6,6 @@ data "kustomization_build" "profiles" {
   path = "./../../apps/profiles/upstream/overlays/kubeflow"
 }
 
-
-resource "kubectl_manifest" "secret_dex" {
-  yaml_body = <<YAML
-apiVersion: v1
-data:
-  OIDC_CLIENT_ID: a3ViZWZsb3ctb2lkYy1hdXRoc2VydmljZQ==
-  OIDC_CLIENT_SECRET: cFVCbkJPWTgwU25YZ2ppYlRZTTlaV056WTJ4cmVOR1Fvaw==
-kind: Secret
-metadata:
-  name: dex-oidc-client
-  namespace: auth
-type: Opaque
-YAML
-}
-
-resource "kubectl_manifest" "secret_oidc_auth" {
-  yaml_body = <<YAML
-apiVersion: v1
-data:
-  CLIENT_ID: a3ViZWZsb3ctb2lkYy1hdXRoc2VydmljZQ==
-  CLIENT_SECRET: cFVCbkJPWTgwU25YZ2ppYlRZTTlaV056WTJ4cmVOR1Fvaw==
-kind: Secret
-metadata:
-  name: oidc-authservice-client
-  namespace: istio-system
-type: Opaque
-YAML
-}
-
 resource "kubectl_manifest" "oidc_auth_config" {
   yaml_body = <<YAML
 apiVersion: v1
@@ -57,7 +28,7 @@ YAML
 }
 
 resource "helm_release" "dex" {
-  depends_on = [kubectl_manifest.secret_oidc_auth]
+  depends_on = [kubectl_manifest.secret-pod]
   repository = "https://charts.dexidp.io"
   name       = "dex"
   chart      = "dex"
@@ -73,6 +44,8 @@ envVars:
 envFrom:
 - secretRef:
     name: dex-oidc-client
+- secretRef:
+    name: okta-oidc-secrets
 config:
   storage:
     type: kubernetes
@@ -85,16 +58,16 @@ config:
   logger:
     level: "debug"
     format: text
-  issuer: ${local.url}/dex
+  issuer: "${local.url}/dex"
   connectors:
   - type: oidc
     id: okta
     name: Okta
     config:
       insecureSkipEmailVerified: true
-      issuer: "${var.okta_issuer_url}"
-      clientID: "${var.okta_client_id}"
-      clientSecret: "${var.okta_client_secret}"
+      issuer: '{{ .Env.SSO_ISSUER_URL }}'
+      clientID: '{{ .Env.SSO_CLIENT_ID }}'
+      clientSecret: '{{ .Env.SSO_CLIENT_SECRET }}'
       redirectURI: "${local.url}/dex/callback"
   enablePasswordDB: true
   staticClients:
@@ -135,6 +108,7 @@ data "kubectl_file_documents" "oidc" {
 }
 
 resource "kubectl_manifest" "oidc" {
+  depends_on = [kubectl_manifest.authservice-secret-pod]
     for_each  = data.kubectl_file_documents.oidc.manifests
     yaml_body = each.value
 }

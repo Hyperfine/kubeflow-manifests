@@ -11,18 +11,13 @@ variable zone_id {
   type = string
 }
 
-variable okta_issuer_url {
+variable okta_secret_name {
   type = string
 }
 
-variable okta_client_id {
+variable oidc_secret_name {
   type = string
 }
-
-variable okta_client_secret {
-  type = string
-}
-
 
 variable dex_version {
   type = string

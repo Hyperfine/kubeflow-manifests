@@ -1,10 +1,12 @@
+
 locals {
-  sa_name = "kubeflow-secrets-manager-sa"
+  sa_name = "kf-secrets-manager-sa"
+  namespace = "kubeflow"
 }
 
 resource "aws_iam_role" "irsa" {
   force_detach_policies = true
-  name  = "${var.eks_cluster_name}-kf-secrets-manager-sa"
+  name  = "${var.eks_cluster_name}-${local.sa_name}"
   assume_role_policy = jsonencode({
     "Version": "2012-10-17"
 
@@ -17,13 +19,14 @@ resource "aws_iam_role" "irsa" {
       "Condition": {
         "StringEquals": {
           "${local.oidc_id}:sub": [
-             "system:serviceaccount:kubeflow:${local.sa_name}"
+             "system:serviceaccount:${local.namespace}:${local.sa_name}"
             ]
         }
       }
     }]
   })
 }
+
 
 data aws_iam_policy_document "ssm" {
   version = "2012-10-17"
@@ -40,21 +43,12 @@ data aws_iam_policy_document "ssm" {
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
     ]
-    resources = [data.aws_secretsmanager_secret.rds.arn]
-  }
-
-  statement {
-    effect    = "Allow"
-    actions   = [
-      "secretsmanager:GetSecretValue",
-      "secretsmanager:DescribeSecret"
-    ]
-    resources = [data.aws_secretsmanager_secret.s3.arn]
+    resources = [for k, v in data.aws_secretsmanager_secret.secrets: v.arn]
   }
 }
 
 resource aws_iam_policy "ssm" {
-  name = "${local.sa_name}-ssm-policy"
+  name = "kf-secrets-manager-sa-ssm-policy"
   policy = data.aws_iam_policy_document.ssm.json
 }
 
@@ -63,44 +57,25 @@ resource aws_iam_role_policy_attachment "secret" {
   policy_arn = aws_iam_policy.ssm.arn
 }
 
-resource aws_kms_grant "grant" {
-  for_each = toset(var.kms_key_ids)
-  name = "${local.sa_name}-ssm-grant"
-  grantee_principal = aws_iam_role.irsa.arn
-  key_id = each.value
-  operations = ["Decrypt", "DescribeKey"]
-}
-
 resource "kubectl_manifest" "irsa" {
-    yaml_body = yamlencode({
-  "apiVersion": "v1"
-  "kind": "ServiceAccount"
-  "metadata": {
-      "name": "kubeflow-secrets-manager-sa",
-      "namespace": "kubeflow"
-      "annotations": {
-        "eks.amazonaws.com/role-arn": aws_iam_role.irsa.arn
-      }
-  }
-  })
-}
-
-data "kubectl_file_documents" "aws" {
-  content =file("${path.module}/aws.yaml")
-}
-resource "kubectl_manifest" "aws" {
-    for_each  = data.kubectl_file_documents.aws.manifests
-    yaml_body = each.value
+  yaml_body = <<YAML
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ${local.sa_name}
+  namespace: ${local.namespace}
+  annotations:
+    eks.amazonaws.com/role-arn: ${aws_iam_role.irsa.arn}
+YAML
 }
 
 resource "kubectl_manifest" "secret-class" {
-  depends_on = [helm_release.secrets]
   yaml_body = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
 metadata:
   name: aws-secrets
-  namespace: kubeflow
+  namespace: ${local.namespace}
 spec:
   provider: aws
   secretObjects:
@@ -153,6 +128,7 @@ spec:
 YAML
 }
 
+
 resource "kubectl_manifest" "secret-pod" {
   depends_on = [kubectl_manifest.secret-class]
   yaml_body = <<YAML
@@ -175,7 +151,7 @@ spec:
     - mountPath: "/mnt/aws-store"
       name: "${var.s3_secret_name}"
       readOnly: true
-  serviceAccountName: "${local.sa_name}"
+  serviceAccountName: ${local.sa_name}
   volumes:
   - csi:
       driver: secrets-store.csi.k8s.io
