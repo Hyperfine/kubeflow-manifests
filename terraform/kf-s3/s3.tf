@@ -92,31 +92,6 @@ resource "aws_iam_group_policy_attachment" "s3-policy" {
   policy_arn = aws_iam_policy.s3_policy.arn
 }
 
-/*
-# https://github.com/kubeflow/pipelines/issues/3398 minio support for roles
-data "aws_iam_policy_document" "assume_role" {
-  version = "2012-10-17"
-  statement {
-    actions = ["sts:AssumeRole"]
-    effect = "Allow"
-    principals {
-      identifiers = [aws_iam_user.s3_user.arn]
-      type        = "AWS"
-    }
-  }
-}
-
-resource "aws_iam_role" "s3_role" {
-  name = "kf-${var.eks_cluster_name}-s3-role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
-}
-
-resource "aws_iam_role_policy_attachment" "attach" {
-  role       = aws_iam_role.s3_role.name
-  policy_arn = aws_iam_policy.s3_policy.arn
-}
-*/
-
 resource "aws_secretsmanager_secret" "s3-secret" {
   name = "kf-s3-secret"
   recovery_window_in_days = 0

@@ -24,6 +24,11 @@ variable dex_version {
   default = "0.8.3"
 }
 
+variable "acm_certificate" {
+  type = string
+  default = ""
+}
+
 # PROVIDER CONFIG
 
 variable "eks_cluster_name" {
