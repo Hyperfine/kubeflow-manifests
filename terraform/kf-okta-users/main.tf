@@ -1,16 +1,12 @@
 terraform {
   required_providers {
+    okta = {
+      source = "okta/okta"
+      version = "~> 3.20"
+    }
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 3.0"
-    }
-    kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = ">= 1.7.0"
-    }
-        kustomization = {
-      source  = "kbst/kustomization"
-      version = "0.8.1"
+      version = "< 4.0"
     }
   }
 }
@@ -51,46 +47,18 @@ provider "kubectl" {
   }
 }
 
-locals {
-  # non-default context name to protect from using wrong kubeconfig
-  kubeconfig_context = "_terraform-kustomization-${var.eks_cluster_name}_"
-
-  kubeconfig = {
-    apiVersion = "v1"
-    clusters = [
-      {
-        name = local.kubeconfig_context
-        cluster = {
-          certificate-authority-data = data.aws_eks_cluster.cluster.certificate_authority.0.data
-          server                     = data.aws_eks_cluster.cluster.endpoint
-        }
-      }
-    ]
-    users = [
-      {
-        name = local.kubeconfig_context
-        user = {
-          exec = {
-            apiVersion = "client.authentication.k8s.io/v1alpha1",
-            command = "aws"
-            args = ["--region", var.aws_region, "eks", "get-token", "--cluster-name", var.eks_cluster_name]
-          }
-        }
-      }
-    ]
-    contexts = [
-      {
-        name = local.kubeconfig_context
-        context = {
-          cluster = local.kubeconfig_context
-          user    = local.kubeconfig_context
-        }
-      }
-    ]
-  }
+provider "okta" {
+  org_name  = var.org_name
+  base_url  = var.base_url
+  api_token = var.api_token
 }
 
-provider "kustomization" {
-  kubeconfig_raw = yamlencode(local.kubeconfig)
-  context        = local.kubeconfig_context
+data okta_users "okta_users" {
+  group_id = var.okta_group_id
+}
+
+module "user" {
+  for_each =  data.okta_users.okta_users.users
+  source = "./../users"
+  username = each.value["email"]
 }

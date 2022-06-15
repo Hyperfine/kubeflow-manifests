@@ -29,6 +29,12 @@ YAML
 
 resource "helm_release" "dex" {
   depends_on = [kubectl_manifest.secret-pod]
+  /*
+  lifecycle {
+    replace_triggered_by = [
+    kubectl_manifest.secret-pod.id
+    ]
+  }*/
   repository = "https://charts.dexidp.io"
   name       = "dex"
   chart      = "dex"
@@ -145,4 +151,3 @@ spec:
         path: /*
 YAML
 }
-

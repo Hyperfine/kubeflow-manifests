@@ -6,6 +6,6 @@ output "kms-key-id" {
   value = var.kms_key_id
 }
 
-output "okta_id" {
-  value = okta_app_oauth.kf.id
+output "okta_group_id" {
+  value = okta_group.kf-group.id
 }

@@ -26,6 +26,16 @@ resource "okta_app_oauth" "kf" {
   post_logout_redirect_uris = var.logout_uris
 }
 
+resource "okta_group" "kf-group" {
+  name = "kf-group"
+  description = "kubeflow users"
+}
+
+resource "okta_app_group_assignment" "kf-assign" {
+  app_id = okta_app_oauth.kf.id
+  group_id = okta_group.kf-group.id
+}
+
 resource "aws_secretsmanager_secret" "okta-secret" {
   name = "kf-okta-secret"
   recovery_window_in_days = 0
@@ -40,3 +50,4 @@ resource "aws_secretsmanager_secret_version" "okta-version" {
       "okta_issuer_url": okta_app_oauth.kf.issuer_mode == "ORG_URL" ? "${var.org_name}.okta.com" : var.base_url
   })
 }
+

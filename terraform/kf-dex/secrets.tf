@@ -136,11 +136,12 @@ YAML
 
 resource "kubectl_manifest" "secret-pod" {
   depends_on = [kubectl_manifest.secret-class]
+  force_new = true
   yaml_body = <<YAML
 apiVersion: v1
 kind: Pod
 metadata:
-  name: okta-secrets-pod
+  name: okta-secret-pod
   namespace: auth
 spec:
   containers:
