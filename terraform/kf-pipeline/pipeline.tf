@@ -45,7 +45,7 @@ data:
             bucket: ${var.bucket},
             keyPrefix: artifacts,
             endpoint: s3.amazonaws.com,
-            insecure: true,
+            insecure: false,
             accessKeySecret: {
                 name: mlpipeline-minio-artifact,
                 key: accesskey
