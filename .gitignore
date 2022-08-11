@@ -1,5 +1,10 @@
 *.idea
 .vscode
 .DS_Store
-
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.lock.hcl
+.terraform.tfstate.lock.info
+.external_modules
 __pycache__
