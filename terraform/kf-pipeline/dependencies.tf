@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 data "aws_eks_cluster" "cluster" {
   name = var.eks_cluster_name
 }
@@ -17,4 +19,5 @@ data aws_secretsmanager_secret_version "rds_info" {
 
 locals {
   rds_info = jsondecode(data.aws_secretsmanager_secret_version.rds_info.secret_string)
+  oidc_id = trimprefix(data.aws_eks_cluster.cluster.identity.0.oidc.0.issuer, "https://")
 }

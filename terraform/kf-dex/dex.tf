@@ -1,5 +1,5 @@
 locals {
-  url = "http://${var.subdomain}.${data.aws_route53_zone.top_level.name}"
+  url = "https://${var.subdomain}.${data.aws_route53_zone.top_level.name}"
 }
 
 data "kustomization_build" "profiles" {

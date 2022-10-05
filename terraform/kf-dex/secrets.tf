@@ -134,47 +134,6 @@ spec:
 YAML
 }
 
-resource "kubectl_manifest" "secret-pod" {
-  depends_on = [kubectl_manifest.secret-class]
-  force_new = true
-  yaml_body = <<YAML
-apiVersion: v1
-kind: Pod
-metadata:
-  name: okta-secret-pod
-  namespace: auth
-spec:
-  containers:
-  - image: k8s.gcr.io/e2e-test-images/busybox:1.29
-    command:
-    - "/bin/sleep"
-    - "10000"
-    name: secrets
-    volumeMounts:
-    - mountPath: "/mnt/okta-store"
-      name: "${var.okta_secret_name}"
-      readOnly: true
-    - mountPath: "/mnt/oidc-store"
-      name: "${var.oidc_secret_name}"
-      readOnly: true
-  serviceAccountName: ${local.sa_name}
-  volumes:
-  - csi:
-      driver: secrets-store.csi.k8s.io
-      readOnly: true
-      volumeAttributes:
-        secretProviderClass: oidc-secrets
-    name: "${var.oidc_secret_name}"
-  - csi:
-      driver: secrets-store.csi.k8s.io
-      readOnly: true
-      volumeAttributes:
-        secretProviderClass: oidc-secrets
-    name: "${var.okta_secret_name}"
-YAML
-}
-
-
 
 resource "kubectl_manifest" "auth-secret-class" {
   yaml_body = <<YAML
@@ -207,32 +166,96 @@ spec:
 YAML
 }
 
+
+resource "kubectl_manifest" "secret-pod" {
+  depends_on = [kubectl_manifest.secret-class]
+  force_new = true
+  yaml_body = <<YAML
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-secrets
+  namespace: auth
+  labels:
+    app: auth-secrets-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-secrets-deployment
+  template:
+    metadata:
+      labels:
+        app: auth-secrets-deployment
+    spec:
+      containers:
+      - image: k8s.gcr.io/e2e-test-images/busybox:1.29
+        command:
+        - "/bin/sleep"
+        - "10000"
+        name: secrets
+        volumeMounts:
+        - mountPath: "/mnt/okta-store"
+          name: "${var.okta_secret_name}"
+          readOnly: true
+        - mountPath: "/mnt/oidc-store"
+          name: "${var.oidc_secret_name}"
+          readOnly: true
+      serviceAccountName: ${local.sa_name}
+      volumes:
+      - csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: oidc-secrets
+        name: "${var.oidc_secret_name}"
+      - csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: oidc-secrets
+        name: "${var.okta_secret_name}"
+YAML
+}
+
+
 resource "kubectl_manifest" "authservice-secret-pod" {
   depends_on = [kubectl_manifest.auth-secret-class]
   yaml_body = <<YAML
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: authservice-secrets-pod
+  name: authservice-secrets-deployment
   namespace: istio-system
+  labels:
+    app: authservice-secrets
 spec:
-  containers:
-  - image: k8s.gcr.io/e2e-test-images/busybox:1.29
-    command:
-    - "/bin/sleep"
-    - "10000"
-    name: secrets
-    volumeMounts:
-    - mountPath: "/mnt/auth-store"
-      name: "${var.oidc_secret_name}"
-      readOnly: true
-  serviceAccountName: oidc-secrets-manager-sa
-  volumes:
-  - csi:
-      driver: secrets-store.csi.k8s.io
-      readOnly: true
-      volumeAttributes:
-        secretProviderClass: authservice-secrets
-    name: "${var.oidc_secret_name}"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authservice-secrets
+  template:
+    metadata:
+      labels:
+        app: authservice-secrets
+    spec:
+      containers:
+      - image: k8s.gcr.io/e2e-test-images/busybox:1.29
+        command:
+        - "/bin/sleep"
+        - "10000"
+        name: secrets
+        volumeMounts:
+        - mountPath: "/mnt/auth-store"
+          name: "${var.oidc_secret_name}"
+          readOnly: true
+      serviceAccountName: oidc-secrets-manager-sa
+      volumes:
+      - csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: authservice-secrets
+        name: "${var.oidc_secret_name}"
 YAML
 }

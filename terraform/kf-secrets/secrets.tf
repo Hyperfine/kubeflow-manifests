@@ -132,38 +132,49 @@ YAML
 resource "kubectl_manifest" "secret-pod" {
   depends_on = [kubectl_manifest.secret-class]
   yaml_body = <<YAML
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: kubeflow-secrets-pod
+  name: kf-secrets-deployment
   namespace: kubeflow
+  labels:
+    app: kf-secrets
 spec:
-  containers:
-  - image: k8s.gcr.io/e2e-test-images/busybox:1.29
-    command:
-    - "/bin/sleep"
-    - "10000"
-    name: secrets
-    volumeMounts:
-    - mountPath: "/mnt/rds-store"
-      name: "${var.rds_secret_name}"
-      readOnly: true
-    - mountPath: "/mnt/aws-store"
-      name: "${var.s3_secret_name}"
-      readOnly: true
-  serviceAccountName: ${local.sa_name}
-  volumes:
-  - csi:
-      driver: secrets-store.csi.k8s.io
-      readOnly: true
-      volumeAttributes:
-        secretProviderClass: aws-secrets
-    name: "${var.rds_secret_name}"
-  - csi:
-      driver: secrets-store.csi.k8s.io
-      readOnly: true
-      volumeAttributes:
-        secretProviderClass: aws-secrets
-    name: "${var.s3_secret_name}"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kf-secrets
+  template:
+    metadata:
+      labels:
+        app: kf-secrets
+    spec:
+      containers:
+      - image: k8s.gcr.io/e2e-test-images/busybox:1.29
+        command:
+        - "/bin/sleep"
+        - "10000"
+        name: secrets
+        volumeMounts:
+        - mountPath: "/mnt/rds-store"
+          name: "${var.rds_secret_name}"
+          readOnly: true
+        - mountPath: "/mnt/aws-store"
+          name: "${var.s3_secret_name}"
+          readOnly: true
+      serviceAccountName: ${local.sa_name}
+      volumes:
+      - csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: aws-secrets
+        name: "${var.rds_secret_name}"
+      - csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: aws-secrets
+        name: "${var.s3_secret_name}"
 YAML
 }
