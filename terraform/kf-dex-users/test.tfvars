@@ -1,6 +1,7 @@
 users = {
   "syoung" : "kf-syoung-ssh"
   "lyao": "kf-lyao-ssh"
+  "dedmunds": "kf-edmunds-ssh"
 }
 
 s3_secret_name = "kf-s3-secret"

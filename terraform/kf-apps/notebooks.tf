@@ -10,6 +10,7 @@ resource "kustomization_resource" "jupyter_app" {
 
   manifest = data.kustomization_build.jupyter_app.manifests[each.value]
 }
+
 resource "kustomization_resource" "jupyter_controller" {
   for_each = data.kustomization_build.jupyter_controller.ids
 

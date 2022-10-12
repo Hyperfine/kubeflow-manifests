@@ -133,7 +133,7 @@ spec:
 YAML
 }
 
-resource "kubectl_manifest" "poddefault" {
+resource "kubectl_manifest" "ssh-default" {
   yaml_body = <<YAML
 apiVersion: "kubeflow.org/v1alpha1"
 kind: PodDefault
@@ -156,6 +156,53 @@ spec:
 YAML
 }
 
+
+resource "kubectl_manifest" "annotation-default" {
+  yaml_body = <<YAML
+apiVersion: "kubeflow.org/v1alpha1"
+kind: PodDefault
+metadata:
+  name: "add-iam-role"
+  namespace: ${local.key}
+spec:
+ desc: "add iam-role"
+ selector:
+   matchLabels:
+     add-iam-role: "true"
+ annotations:
+   iam.amazonaws.com/role: arn:aws:iam::369500102003:role/hyperfine-dev-eks-cluster-kf-dl-dl-data-lake-sa
+YAML
+}
+
+resource "kubectl_manifest" "config-map" {
+  yaml_body = <<YAML
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-config
+  namespace: ${local.key}
+data:
+  NAMESPACE: ${local.key}
+YAML
+}
+
+resource "kubectl_manifest" "env-default" {
+  yaml_body = <<YAML
+apiVersion: "kubeflow.org/v1alpha1"
+kind: PodDefault
+metadata:
+  name: "add-env"
+  namespace: ${local.key}
+spec:
+ desc: "add env"
+ selector:
+   matchLabels:
+     add-env: "true"
+ envFrom:
+ - configMapRef:
+     name: env-config
+YAML
+}
 
 resource "kubectl_manifest" "secret-pod" {
   depends_on = [kubectl_manifest.secret-class]
