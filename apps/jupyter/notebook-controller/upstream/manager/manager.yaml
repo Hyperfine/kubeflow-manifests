@@ -16,7 +16,7 @@ spec:
         app: notebook-controller
         kustomize.component: notebook-controller
       annotations:
-        sidecar.istio.io/inject: "false"
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
       - name: manager
@@ -24,6 +24,12 @@ spec:
         command:
           - /manager
         env:
+          - name: ENABLE_CULLING
+            value: "true"
+          - name: IDLE_TIME
+            value: "4320" # In minutes (3 days)
+          - name: CULLING_CHECK_PERIOD
+            value: "30" # Check every 30 minutes
           - name: USE_ISTIO
             valueFrom:
               configMapKeyRef:
@@ -42,3 +48,16 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 30
       serviceAccountName: service-account
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: notebooks-controller-culling
+  namespace: istio-system
+spec:
+  action: ALLOW
+  rules:
+  - to:
+    - operation:
+        methods: ["GET"]
+        paths: ["*/api/status"]

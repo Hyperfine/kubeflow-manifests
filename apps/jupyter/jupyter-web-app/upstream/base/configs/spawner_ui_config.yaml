@@ -17,10 +17,10 @@
 spawnerFormDefaults:
   image:
     # The container Image for the user's Jupyter Notebook
-    value: 369500102003.dkr.ecr.us-east-1.amazonaws.com/kubeflow-dl-research:0b60266f347b
+    value: 369500102003.dkr.ecr.us-east-1.amazonaws.com/kubeflow-dl-research:9782b86d3bae
     # The list of available standard container Images
     options:
-    - 369500102003.dkr.ecr.us-east-1.amazonaws.com/kubeflow-dl-research:0b60266f347b
+    - 369500102003.dkr.ecr.us-east-1.amazonaws.com/kubeflow-dl-research:9782b86d3bae
     - public.ecr.aws/c9e4w0g3/notebook-servers/jupyter-tensorflow:2.6.0-gpu-py38-cu112
     - public.ecr.aws/c9e4w0g3/notebook-servers/jupyter-tensorflow:2.6.0-cpu-py38
     - public.ecr.aws/c9e4w0g3/notebook-servers/jupyter-pytorch:1.9.0-gpu-py38-cu111
@@ -31,10 +31,10 @@ spawnerFormDefaults:
     # The annotation `notebooks.kubeflow.org/http-rewrite-uri: /`
     # is applied to notebook in this group, configuring
     # the Istio rewrite for containers that host their web UI at `/`
-    value: 369500102003.dkr.ecr.us-east-1.amazonaws.com/kubeflow-dl-research:6990e22b7443
+    value: 369500102003.dkr.ecr.us-east-1.amazonaws.com/kubeflow-dl-research:d8da381bab84
     # The list of available standard container Images
     options:
-    - 369500102003.dkr.ecr.us-east-1.amazonaws.com/kubeflow-dl-research:6990e22b7443
+    - 369500102003.dkr.ecr.us-east-1.amazonaws.com/kubeflow-dl-research:d8da381bab84
     - public.ecr.aws/j1r0q0g6/notebooks/notebook-servers/codeserver-python:v1.3.1-rc.0
   imageGroupTwo:
     # The container Image for the user's Group Two Server
@@ -86,7 +86,7 @@ spawnerFormDefaults:
         value: '10Gi'
       mountPath:
         # The Path that the Workspace Volume will be mounted
-        value: /home/jovyan
+        value: /home/dl-user
       accessModes:
         # The Access Mode of the Workspace Volume
         # Supported values: 'ReadWriteOnce', 'ReadWriteMany', 'ReadOnlyMany'
