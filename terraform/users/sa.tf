@@ -63,3 +63,37 @@ metadata:
     eks.amazonaws.com/role-arn: ${aws_iam_role.irsa.arn}
 YAML
 }
+resource "kubectl_manifest" "role" {
+  yaml_body = <<YAML
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: ${local.key}-access
+  namespace: ${local.key}
+rules:
+- apiGroups: [""]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["extensions"]
+  resources: ["*"]
+  verbs: ["*"]
+YAML
+}
+
+resource "kubectl_manifest" "binding" {
+  yaml_body = <<YAML
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ${local.key}-role-binding
+  namespace: ${local.key}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ${local.key}-access
+subjects:
+  - kind: ServiceAccount
+    name:  ${local.sa_name}
+    namespace: ${local.key}
+YAML
+}
