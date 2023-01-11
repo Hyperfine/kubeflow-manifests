@@ -97,3 +97,21 @@ subjects:
     namespace: ${local.key}
 YAML
 }
+
+
+resource "kubectl_manifest" "group-role-binding" {
+  yaml_body = <<YAML
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ${local.key}-access-dashboard-cluster-role-binding
+subjects:
+- kind: Group
+  name: kubernetes-dashboard
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: ${local.key}-access
+  apiGroup: rbac.authorization.k8s.io
+YAML
+}
