@@ -58,6 +58,23 @@ spec:
 YAML
 }
 
+resource "kubectl_manifest" "efs-home" {
+  yaml_body = <<YAML
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "${local.key}-efs-home"
+  namespace: ${local.key}
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc
+  resources:
+    requests:
+      storage: 30Gi
+YAML
+}
+
 resource "kubectl_manifest" "secret-class" {
   yaml_body = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
