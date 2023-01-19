@@ -100,11 +100,13 @@ YAML
 
 
 resource "kubectl_manifest" "group-role-binding" {
+  depends_on = [time_sleep.wait_for_namespace]
   yaml_body = <<YAML
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: ${local.key}-access-dashboard-cluster-role-binding
+  namespace: ${local.key}
 subjects:
 - kind: Group
   name: kubernetes-dashboard

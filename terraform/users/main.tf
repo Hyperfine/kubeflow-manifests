@@ -40,42 +40,15 @@ spec:
 YAML
 }
 
-
-resource "kubectl_manifest" "pvc" {
-  yaml_body = <<YAML
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: "${local.key}-efs"
-  namespace: ${local.key}
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: efs-sc
-  resources:
-    requests:
-      storage: 20Gi
-YAML
+resource "time_sleep" "wait_for_namespace" {
+  depends_on = [kubectl_manifest.profile]
+  create_duration = '30s'
 }
 
-resource "kubectl_manifest" "efs-home" {
-  yaml_body = <<YAML
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: "${local.key}-efs-home"
-  namespace: ${local.key}
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: efs-sc
-  resources:
-    requests:
-      storage: 30Gi
-YAML
-}
 
 resource "kubectl_manifest" "secret-class" {
+    depends_on = [time_sleep.wait_for_namespace]
+
   yaml_body = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
@@ -151,6 +124,8 @@ YAML
 }
 
 resource "kubectl_manifest" "ssh-default" {
+    depends_on = [time_sleep.wait_for_namespace]
+
   yaml_body = <<YAML
 apiVersion: "kubeflow.org/v1alpha1"
 kind: PodDefault
@@ -175,6 +150,8 @@ YAML
 
 
 resource "kubectl_manifest" "annotation-default" {
+    depends_on = [time_sleep.wait_for_namespace]
+
   yaml_body = <<YAML
 apiVersion: "kubeflow.org/v1alpha1"
 kind: PodDefault
@@ -192,6 +169,8 @@ YAML
 }
 
 resource "kubectl_manifest" "config-map" {
+    depends_on = [time_sleep.wait_for_namespace]
+
   yaml_body = <<YAML
 apiVersion: v1
 kind: ConfigMap
@@ -204,6 +183,8 @@ YAML
 }
 
 resource "kubectl_manifest" "env-default" {
+    depends_on = [time_sleep.wait_for_namespace]
+
   yaml_body = <<YAML
 apiVersion: "kubeflow.org/v1alpha1"
 kind: PodDefault

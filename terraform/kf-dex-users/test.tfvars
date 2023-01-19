@@ -5,7 +5,10 @@ users = {
   "kdmitriev": "kf-dmitriev-ssh"
   "msofka": "kf-msofka-ssh"
   "jschlemper": "kf-jschlemper-ssh"
-  "aballantyne": "kf-aballantyne-ssh"
+  "aballantyne": "kf-aballantyne-ssh",
+  "dzhang": "kf-dzhang-ssh",
+  "ekaye": "kf-ekaye-ssh",
+  "mhaskell": "kf-mhaskell-ssh"
 }
 
 s3_secret_name = "kf-s3-secret"
