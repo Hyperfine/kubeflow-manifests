@@ -1,8 +1,27 @@
 resource "aws_iam_policy" "sagemaker_ack_controller_studio_access" {
   name_prefix        = "${local.service}-ack-controller-policy"
   description = "IAM policy for the ${local.service} ack controller"
-  policy        = "${file("../../../awsconfigs/infra_configs/iam_ack_oidc_sm_studio_policy.json")}"
+  policy        = <<JSON
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "SagemakerStudioAccess",
+      "Effect": "Allow",
+      "Action": [
+        "sagemaker:*"
+      ],
+      "Resource": [
+        "arn:aws:sagemaker:*:*:domain/*",
+        "arn:aws:sagemaker:*:*:user-profile/*",
+        "arn:aws:sagemaker:*:*:app/*"
+      ]
+    }
+  ]
 }
+JSON
+}
+
 
 module "irsa" {
   source            = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/irsa?ref=v4.12.1"
@@ -10,7 +29,7 @@ module "irsa" {
   create_kubernetes_namespace = true
   create_kubernetes_service_account = false
   kubernetes_service_account = local.name
-  irsa_iam_role_name = format("%s-%s-%s-%s", "ack-sagemaker-controller", "irsa", var.addon_context.eks_cluster_id, var.addon_context.aws_region_name)
+  irsa_iam_role_name = format("%s-%s-%s-%s", "ack-sg-controller", "irsa", var.addon_context.eks_cluster_id, var.addon_context.aws_region_name)
   irsa_iam_policies = ["arn:aws:iam::aws:policy/AmazonSageMakerFullAccess", aws_iam_policy.sagemaker_ack_controller_studio_access.arn]
   irsa_iam_role_path                = var.addon_context.irsa_iam_role_path
   irsa_iam_permissions_boundary     = var.addon_context.irsa_iam_permissions_boundary
