@@ -61,11 +61,12 @@ provider "helm" {
   }
 }
 
-
 module context {
   source = "../../iaac/terraform/utils/blueprints-extended-outputs"
   eks_cluster_id = var.eks_cluster_name
 }
+
+
 output test {
   value = module.context.addon_context
 }
