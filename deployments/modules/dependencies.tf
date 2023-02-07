@@ -13,6 +13,19 @@ data "aws_eks_cluster_auth" "kubernetes_token" {
   name  = var.eks_cluster_name
 }
 
-locals {
-  oidc_id = data.aws_eks_cluster.eks_cluster.identity.0.oidc.0.issuer
+data "aws_route53_zone" "top_level" {
+  zone_id = var.zone_id
 }
+
+
+data aws_secretsmanager_secret "secrets" {
+  for_each = local.secret_names
+  name = each.key
+}
+
+
+locals {
+  oidc_id = trimprefix(data.aws_eks_cluster.eks_cluster.identity.0.oidc.0.issuer, "https://")
+  secret_names = toset([var.oidc_secret_name, var.okta_secret_name])
+}
+

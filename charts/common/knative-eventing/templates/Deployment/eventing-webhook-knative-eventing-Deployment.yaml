@@ -60,7 +60,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        image: gcr.io/knative-releases/knative.dev/eventing/cmd/webhook@sha256:b7faf7d253bd256dbe08f1cac084469128989cf39abbe256ecb4e1d4eb085a31
+        image: gcr.io/knative-releases/knative.dev/eventing/cmd/webhook@sha256:1036ddfc1827f38763908f401a325cba1e45875bf5ba3c07e32cbeb7b750889c
         livenessProbe:
           httpGet:
             httpHeaders:
@@ -68,7 +68,7 @@ spec:
               value: webhook
             port: 8443
             scheme: HTTPS
-          initialDelaySeconds: 20
+          initialDelaySeconds: 300
           periodSeconds: 1
         name: eventing-webhook
         ports:

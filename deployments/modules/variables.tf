@@ -4,6 +4,28 @@ variable kf_helm_repo_path {
   default = "../.."
 }
 
+variable subdomain {
+  type = string
+  default = "platform"
+}
+
+variable dex_version {
+  type = string
+  default = "0.8.3"
+}
+
+variable zone_id {
+  type = string
+}
+
+variable okta_secret_name {
+  type = string
+}
+
+variable oidc_secret_name {
+  type = string
+}
+
 variable "enable_aws_telemetry" {
   description = "Enable AWS telemetry component"
   type = bool
