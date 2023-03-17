@@ -1,0 +1,92 @@
+version: 2.1
+defaults: &defaults
+  machine: true
+env: &env
+  environment:
+    GRUNTWORK_INSTALLER_VERSION: v0.0.30
+    TERRATEST_LOG_PARSER_VERSION: v0.30.23
+    MODULE_CI_VERSION: v0.29.1
+    TERRAFORM_VERSION: 0.13.3
+    TERRAGRUNT_VERSION: NONE
+    PACKER_VERSION: NONE
+    GOLANG_VERSION: 1.13.8
+jobs:
+  precommit:
+    <<: *env
+    docker:
+      - image: circleci/python:3.8.1
+    steps:
+      - checkout
+      - run:
+          name: install dependencies
+          command: |
+            curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/master/bootstrap-gruntwork-installer.sh | bash /dev/stdin --version "${GRUNTWORK_INSTALLER_VERSION}"
+            gruntwork-install --module-name "gruntwork-module-circleci-helpers" --repo "https://github.com/gruntwork-io/module-ci" --tag "${MODULE_CI_VERSION}"
+            configure-environment-for-gruntwork-module \
+              --terraform-version ${TERRAFORM_VERSION} \
+              --terragrunt-version NONE \
+              --packer-version NONE \
+              --go-version ${GOLANG_VERSION}
+      # Fail the build if the pre-commit hooks don't pass. Note: if you run pre-commit install locally, these hooks will
+      # execute automatically every time before you commit, ensuring the build never fails at this step!
+      - run:
+          command: |
+            pip install pre-commit==1.21.0 cfgv==2.0.1 zipp==1.1.0 yapf
+            pre-commit install
+            pre-commit run --all-files
+  test:
+    <<: *defaults
+    <<: *env
+    steps:
+      - checkout
+      - run: &install_gruntwork_tooling
+          name: install gruntwork tooling
+          command: |
+            sudo apt-get -y update
+            curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/master/bootstrap-gruntwork-installer.sh | bash /dev/stdin --version "${GRUNTWORK_INSTALLER_VERSION}"
+            gruntwork-install --module-name "gruntwork-module-circleci-helpers" --repo "https://github.com/gruntwork-io/module-ci" --tag "${MODULE_CI_VERSION}"
+            gruntwork-install --binary-name "terratest_log_parser" --repo "https://github.com/gruntwork-io/terratest" --tag "${TERRATEST_LOG_PARSER_VERSION}"
+            configure-environment-for-gruntwork-module \
+              --go-src-path ./test \
+              --terraform-version ${TERRAFORM_VERSION} \
+              --terragrunt-version ${TERRAGRUNT_VERSION} \
+              --packer-version ${PACKER_VERSION} \
+              --go-version ${GOLANG_VERSION}
+      - run:
+          name: run tests
+          command: |
+            mkdir -p /tmp/logs
+            run-go-tests --path test --timeout 60m | tee /tmp/logs/all.log
+          no_output_timeout: 3600s
+      - run:
+          name: parse test output
+          command: terratest_log_parser --testlog /tmp/logs/all.log --outputdir /tmp/logs
+          when: always
+      - store_artifacts:
+          path: /tmp/logs
+      - store_test_results:
+          path: /tmp/logs
+workflows:
+  version: 2
+  test:
+    jobs:
+      # We have to explicitly tell CircleCI to run on all tags and branches, or tag commits/pushes will not trigger
+      # builds: https://circleci.com/docs/2.0/workflows/#git-tag-job-execution.
+      - precommit:
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
+          context:
+            - Gruntwork Admin
+      - test:
+          requires:
+            - precommit
+          # We have to explicitly tell CircleCI to run on all tags and branches, or tag commits/pushes will not trigger
+          # builds: https://circleci.com/docs/2.0/workflows/#git-tag-job-execution.
+          filters:
+            tags:
+              only: /^v.*/
+          context:
+            - Gruntwork Admin

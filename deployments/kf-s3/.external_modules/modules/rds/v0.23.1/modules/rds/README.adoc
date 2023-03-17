@@ -1,0 +1,112 @@
+// AsciiDoc TOC settings
+:toc:
+:toc-placement!:
+:toc-title:
+
+// GitHub specific settings. See https://gist.github.com/dcode/0cfbf2699a1fe9b46ff04c41721dda74 for details.
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+= RDS Module
+
+image:https://img.shields.io/badge/maintained%20by-gruntwork.io-%235849a6.svg[link="https://gruntwork.io/?ref=repo_aws_data_storage"]
+image:https://img.shields.io/badge/tf-%3E%3D1.1.0-blue.svg[Terraform version]
+
+This module creates an Amazon Relational Database Service (RDS) cluster that can run MySQL, Postgres, MariaDB, Oracle,
+or SQL Server. The cluster is managed by AWS and automatically handles standby failover, read replicas, backups,
+patching, and encryption.
+
+// tag::main-content[]
+
+image::../../_docs/rds-architecture.png?raw=true[RDS architecture]
+
+toc::[]
+
+
+== Features
+
+* Deploy a fully-managed relational database
+* Supports MySQL, PostgreSQL, MariaDB, Oracle, and SQL Server
+* Automatic failover to a standby in another availability zone
+* Read replicas
+* Automatic nightly snapshots
+
+
+
+== Learn
+
+NOTE: This repo is a part of https://gruntwork.io/infrastructure-as-code-library/[the Gruntwork Infrastructure as Code
+Library], a collection of reusable, battle-tested, production ready infrastructure code. If you've never used the
+Infrastructure as Code Library before, make sure to read
+https://gruntwork.io/guides/foundations/how-to-use-gruntwork-infrastructure-as-code-library/[How to use the Gruntwork Infrastructure as Code Library]!
+
+=== Core concepts
+
+* link:/modules/rds/core-concepts.md#what-is-amazon-rds[What is Amazon RDS?]
+* link:/modules/rds/core-concepts.md#common-gotchas[Common gotchas with RDS]
+* https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html[RDS documentation]: Amazon's docs for RDS that
+  cover core concepts such as the types of databases supported, security, backup & restore, and monitoring.
+* _https://dataintensive.net[Designing Data Intensive Applications]_: the best book we've found for understanding data
+  systems, including relational databases, NoSQL, replication, sharding, consistency, and so on.
+
+== Deploy
+
+=== Non-production deployment (quick start for learning)
+
+If you just want to try this repo out for experimenting and learning, check out the following resources:
+
+* link:/examples[examples folder]: The `examples` folder contains sample code optimized for learning, experimenting,
+  and testing (but not production usage).
+
+=== Production deployment
+
+If you want to deploy this repo in production, check out the following resources:
+
+* https://github.com/gruntwork-io/infrastructure-modules-multi-account-acme/tree/master/data-stores/rds[rds module in the Acme example Reference Architecture]: Production-ready sample code from the Acme Reference Architecture examples.
+
+
+
+
+== Manage
+
+=== Day-to-day operations
+
+* link:/modules/rds/core-concepts.md#how-do-you-connect-to-the-database[How to connect to an RDS instance]
+* https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAM.html[How to authenticate to RDS with IAM]
+* link:/modules/rds/core-concepts.md#how-do-you-scale-this-database[How to scale RDS]
+* link:/modules/lambda-create-snapshot#how-do-you-backup-your-rds-snapshots-to-a-separate-aws-account[How to backup RDS snapshots to a separate AWS account]
+
+=== Major changes
+
+* https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_UpgradeDBInstance.Upgrading.html[Upgrading a DB instance]
+* https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_RestoreFromSnapshot.html[Restoring from a DB snapshot]
+
+
+
+
+== Support
+
+If you need help with this repo or anything else related to infrastructure or DevOps, Gruntwork offers https://gruntwork.io/support/[Commercial Support] via Slack, email, and phone/video. If you're already a Gruntwork customer, hop on Slack and ask away! If not, https://www.gruntwork.io/pricing/[subscribe now]. If you're not sure, feel free to email us at link:mailto:support@gruntwork.io[support@gruntwork.io].
+
+
+
+
+== Contributions
+
+Contributions to this repo are very welcome and appreciated! If you find a bug or want to add a new feature or even contribute an entirely new module, we are very happy to accept pull requests, provide feedback, and run your changes through our automated test suite.
+
+Please see https://gruntwork.io/guides/foundations/how-to-use-gruntwork-infrastructure-as-code-library/#contributing-to-the-gruntwork-infrastructure-as-code-library[Contributing to the Gruntwork Infrastructure as Code Library] for instructions.
+
+
+
+
+== License
+
+Please see link:/LICENSE.txt[LICENSE.txt] for details on how the code in this repo is licensed.
+
+// end::main-content[]

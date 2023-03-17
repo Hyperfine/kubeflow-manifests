@@ -1,6 +1,10 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
+  annotations:
+    "helm.sh/hook": "pre-install"
+    "helm.sh/hook-weight": "-10"
+    # "helm.sh/hook-delete-policy": hook-succeeded
   labels:
     app: cache-server-cert-manager
     application-crd-id: kubeflow-pipelines

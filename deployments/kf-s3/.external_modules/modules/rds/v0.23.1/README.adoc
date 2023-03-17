@@ -1,0 +1,138 @@
+// AsciiDoc TOC settings
+:toc:
+:toc-placement!:
+:toc-title:
+
+// GitHub specific settings. See https://gist.github.com/dcode/0cfbf2699a1fe9b46ff04c41721dda74 for details.
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+= Data Storage Modules
+
+image:https://img.shields.io/badge/maintained%20by-gruntwork.io-%235849a6.svg[link="https://gruntwork.io/?ref=repo_aws_data_storage"]
+image:https://img.shields.io/badge/tf-%3E%3D1.1.0-blue.svg[Terraform version]
+
+This repo contains modules for deploying and managing relational databases such as MySQL, PostgreSQL, Oracle, and
+Aurora on AWS using Amazon's https://aws.amazon.com/rds/[Relational Database Service (RDS)]. It also contains a module
+for creating network-attached filesystems on AWS using Amazon's https://aws.amazon.com/efs/[Elastic File System (EFS)], and modules for
+configuring https://aws.amazon.com/backup/[AWS Backup].
+
+image::_docs/rds-architecture.png?raw=true[RDS architecture]
+
+toc::[]
+
+
+
+
+== Features
+
+* Deploy a fully-managed relational database
+* Supports MySQL, PostgreSQL, MariaDB, Oracle, SQL Server, Aurora, and Aurora Serverless
+* Automatic failover to a standby in another availability zone
+* Read replicas
+* Automatic nightly snapshots
+* Automatic copying of snapshots to other AWS accounts and regions for disaster recovery
+* Scale to zero with Aurora Serverless
+* Create a managed NFSv4-compliant file system
+* Create an configure Backup vaults, plans and selections for central, automated and customizable
+management of recovery points
+
+
+
+
+== Learn
+
+NOTE: This repo is a part of https://gruntwork.io/infrastructure-as-code-library/[the Gruntwork Infrastructure as Code
+Library], a collection of reusable, battle-tested, production ready infrastructure code. If you've never used the
+Infrastructure as Code Library before, make sure to read
+https://gruntwork.io/guides/foundations/how-to-use-gruntwork-infrastructure-as-code-library/[How to use the Gruntwork Infrastructure as Code Library]!
+
+=== Core concepts
+
+* link:/modules/rds/core-concepts.md#what-is-amazon-rds[What is Amazon RDS?]
+* link:/modules/rds/core-concepts.md#common-gotchas[Common gotchas with RDS]
+* https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html[RDS documentation]: Amazon's docs for RDS that
+  cover core concepts such as the types of databases supported, security, backup & restore, and monitoring.
+* _https://dataintensive.net[Designing Data Intensive Applications]_: the best book we've found for understanding data
+  systems, including relational databases, NoSQL, replication, sharding, consistency, and so on.
+* link:/modules/backup-vault/core-concepts.md/#what-is-aws-backup[What is AWS Backup?]
+
+=== Repo organization
+
+* link:/modules[modules]: the main implementation code for this repo, broken down into multiple standalone, orthogonal submodules.
+** link:/modules/aurora[modules/aurora]: use this module to deploy all Amazon's Aurora and Aurora Serverless databases.
+** link:/modules/efs[modules/efs]: use this module to deploy Amazon Elastic File System (EFS), a file system that
+provides NFSv4-compatible storage that can be used with other AWS services, such as EC2 instances.
+** link:/modules/backup-vault[modules/backup-vault]: use this module to create and configure AWS Backup vaults, notifications, locks.
+** link:/modules/backup-plan[modules/backup-plan]: use this module to create and configure AWS Backup plans, schedules and resource selections.
+** link:/modules/lambda-create-snapshot[modules/lambda-create-snapshot]: use this module and the other
+`lambda-xxx-snapshot` modules to create custom snapshots of your databases and copy those snapshots to other AWS accounts.
+** link:/modules/rds[modules/rds]: use this module to deploy all non-Amazon databases, including MySQL, PostgreSQL,
+   MariaDB, Oracle, and SQL Server.
+** link:/modules/redshift[modules/redshift]: use this module to deploy Amazon Redshift cluster that you can use as a data warehouse.
+* link:/examples[examples]: This folder contains working examples of how to use the submodules.
+* link:/test[test]: Automated tests for the modules and examples.
+
+
+
+== Deploy
+
+=== Non-production deployment (quick start for learning)
+
+If you just want to try this repo out for experimenting and learning, check out the following resources:
+
+* link:/examples[examples folder]: The `examples` folder contains sample code optimized for learning, experimenting,
+  and testing (but not production usage).
+
+=== Production deployment
+
+If you want to deploy this repo in production, check out the following resources:
+
+* https://github.com/gruntwork-io/terraform-aws-service-catalog/blob/master/examples/for-production/infrastructure-live/dev/us-west-2/dev/data-stores/rds/terragrunt.hcl[rds module in the Service Catalog for-production examples]: Production-ready sample code from the Service Catalog examples.
+
+
+
+
+== Manage
+
+=== Day-to-day operations
+
+* link:/modules/rds/core-concepts.md#how-do-you-connect-to-the-database[How to connect to an RDS instance]
+* https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAM.html[How to authenticate to RDS with IAM]
+* link:/modules/aurora/core-concepts.md#how-do-you-connect-to-the-database[How to connect to an Aurora instance]
+* link:/modules/rds/core-concepts.md#how-do-you-scale-this-database[How to scale RDS]
+* link:/modules/aurora/core-concepts.md#how-do-you-scale-this-database[How to scale Aurora]
+* link:/modules/lambda-create-snapshot#how-do-you-backup-your-rds-snapshots-to-a-separate-aws-account[How to backup RDS snapshots to a separate AWS account]
+
+=== Major changes
+
+* https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_UpgradeDBInstance.Upgrading.html[Upgrading a DB instance]
+* https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_RestoreFromSnapshot.html[Restoring from a DB snapshot]
+
+
+
+
+== Support
+
+If you need help with this repo or anything else related to infrastructure or DevOps, Gruntwork offers https://gruntwork.io/support/[Commercial Support] via Slack, email, and phone/video. If you're already a Gruntwork customer, hop on Slack and ask away! If not, https://www.gruntwork.io/pricing/[subscribe now]. If you're not sure, feel free to email us at link:mailto:support@gruntwork.io[support@gruntwork.io].
+
+
+
+
+== Contributions
+
+Contributions to this repo are very welcome and appreciated! If you find a bug or want to add a new feature or even contribute an entirely new module, we are very happy to accept pull requests, provide feedback, and run your changes through our automated test suite.
+
+Please see https://gruntwork.io/guides/foundations/how-to-use-gruntwork-infrastructure-as-code-library/#contributing-to-the-gruntwork-infrastructure-as-code-library[Contributing to the Gruntwork Infrastructure as Code Library] for instructions.
+
+
+
+
+== License
+
+Please see link:LICENSE.txt[LICENSE.txt] for details on how the code in this repo is licensed.

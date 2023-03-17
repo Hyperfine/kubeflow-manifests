@@ -1,0 +1,26 @@
+// Front matter so this file shows up in the Gruntwork Service Catalog
+:type: service
+:name: Microsoft SQL Server
+:description: Deploy and manage Microsoft SQL Server on AWS using Amazon's Relational Database Service (RDS)
+:icon: ../../_docs/sqlserver.png
+:category: database
+:cloud: aws
+:tags: data, database, sql, rds, sqlserver
+:license: gruntwork
+:built-with: terraform
+
+// AsciiDoc TOC settings
+:toc:
+:toc-placement!:
+:toc-title:
+
+= Microsoft SQL Server
+
+image:https://img.shields.io/badge/maintained%20by-gruntwork.io-%235849a6.svg[link="https://gruntwork.io/?ref=repo_aws_data_storage"]
+image:https://img.shields.io/badge/tf-%3E%3D1.1.0-blue.svg[Terraform version]
+
+This module deploys Microsoft SQL Server on top of Amazon Relational Database Service (RDS). The cluster is managed by AWS
+and automatically handles standby failover, read replicas, backups, patching, and encryption.
+
+include::README.adoc[tags=main-content]
+

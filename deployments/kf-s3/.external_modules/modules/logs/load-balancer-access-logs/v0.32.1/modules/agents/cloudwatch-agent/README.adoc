@@ -1,0 +1,122 @@
+:type: service
+:name: AWS CloudWatch Unified Agent
+:description: A set of scripts that can be used to install and configure the CloudWatch Unified Agent to send metrics and logs to CloudWatch.
+:icon: /_docs/cloudwatch-icon.png
+:category: monitoring-and-alerting
+:cloud: aws
+:tags: packer, ec2
+:license: gruntwork
+:built-with: bash
+
+// AsciiDoc TOC settings
+:toc:
+:toc-placement!:
+:toc-title:
+
+// GitHub specific settings. See https://gist.github.com/dcode/0cfbf2699a1fe9b46ff04c41721dda74 for details.
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+= AWS CloudWatch Unified Agent
+
+image:https://img.shields.io/badge/maintained%20by-gruntwork.io-%235849a6.svg[link="https://gruntwork.io/?ref=repo_aws_monitoring"]
+
+This module contains scripts that can be used to install and configure the
+https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Install-CloudWatch-Agent.html[Unified CloudWatch Agent]
+to send server metrics and logs to CloudWatch for centralized access. Many metrics included in the agent such as
+memory/disk usage is not available by default from CloudWatch/EC2.
+
+
+
+toc::[]
+
+
+
+
+== Features
+
+* Install the agent on EC2 instances running Amazon Linux 1 & 2, Ubuntu 18.04 & 20.04, and CentOS 7.
+* Configure the agent to send system level metrics to CloudWatch.
+* Configure the agent to send any server log file to CloudWatch Logs.
+
+
+
+== Learn
+
+NOTE: This repo is a part of https://gruntwork.io/infrastructure-as-code-library/[the Gruntwork Infrastructure as Code
+Library], a collection of reusable, battle-tested, production ready infrastructure code. If you've never used the Infrastructure as Code Library before, make sure to read https://gruntwork.io/guides/foundations/how-to-use-gruntwork-infrastructure-as-code-library/[How to use the Gruntwork Infrastructure as Code Library]!
+
+
+* https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html[CloudWatch Documentation]:
+  Amazon's docs for AWS CloudWatch covering core concepts such as sending various metrics and logs, viewing the stored
+  metrics in graphs, how to configure dashboards, and how to browsing the logs.
+* https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Install-CloudWatch-Agent.html[CloudWatch Agent
+  Documentation]: Amazon's docs for the CloudWatch Agent covering core concepts such as what metrics are collected and
+  how to configure the agent to customize its behavior.
+
+
+
+== Deploy
+
+=== Non-production deployment (quick start for learning)
+
+If you just want to try this repo out for experimenting and learning, check out the following resources:
+
+* link:/examples[examples folder]: The `examples` folder contains sample code optimized for learning, experimenting, and testing (but not production usage).
+
+=== Production deployment
+
+If you want to deploy this repo in production, check out the following resources:
+
+* https://github.com/gruntwork-io/terraform-aws-service-catalog[The Gruntwork Service Catalog], a collection of
+  reusable, battle-tested, production ready infrastructure code that can be deployed directly.
+
+
+
+
+
+
+== Operate
+
+* link:core-concepts.md#how-to-install-the-cloudwatch-agent-on-your-ec2-instances[How to install the cloudwatch-agent on
+  your EC2 Instances?]
+* link:core-concepts.md#how-do-i-specify-what-logs-go-to-specific-streams[How do I specify what logs go to specific
+  streams?]
+* link:core-concepts.md#how-to-configure-the-cloudwatch-agent-on-your-ec2-instances[How to configure the
+  cloudwatch-agent on your EC2 Instances?]
+* link:core-concepts.md#what-iam-permissions-are-necessary-for-the-agent-to-operate[What IAM permissions are necessary
+  for the agent to operate?]
+
+
+
+== Support
+
+If you need help with this repo or anything else related to infrastructure or DevOps, Gruntwork offers
+https://gruntwork.io/support/[Commercial Support] via Slack, email, and phone/video. If you're already a Gruntwork
+customer, hop on Slack and ask away! If not, https://www.gruntwork.io/pricing/[subscribe now]. If you're not sure,
+feel free to email us at link:mailto:support@gruntwork.io[support@gruntwork.io].
+
+
+
+
+== Contributions
+
+Contributions to this repo are very welcome and appreciated! If you find a bug or want to add a new feature or even
+contribute an entirely new module, we are very happy to accept pull requests, provide feedback, and run your changes
+through our automated test suite.
+
+Please see
+https://gruntwork.io/guides/foundations/how-to-use-gruntwork-infrastructure-as-code-library#_contributing_to_the_gruntwork_infrastructure_as_code_library[Contributing to the Gruntwork Service Catalog]
+for instructions.
+
+
+
+
+== License
+
+Please see link:/LICENSE.txt[LICENSE.txt] for details on how the code in this repo is licensed.

@@ -14,5 +14,5 @@ data "aws_eks_cluster_auth" "kubernetes_token" {
 }
 
 locals {
-  oidc_id = data.aws_eks_cluster.eks_cluster.identity.0.oidc.0.issuer
+  oidc_id = trimprefix(data.aws_eks_cluster.eks_cluster.identity.0.oidc.0.issuer, "https://")
 }

@@ -1,0 +1,279 @@
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# DEPLOY AN RDS CLUSTER WITH AMAZON AURORA
+# This module deploys an RDS cluster with Amazon Aurora. The cluster is managed by AWS and automatically handles leader
+# election, replication, failover, backups, patching, and encryption.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ----------------------------------------------------------------------------------------------------------------------
+# REQUIRE A SPECIFIC TERRAFORM VERSION OR HIGHER
+# This module has been updated with 0.12 syntax, which means it is no longer compatible with any versions below 0.12.
+# ----------------------------------------------------------------------------------------------------------------------
+
+terraform {
+  required_version = ">= 0.12"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# SET MODULE DEPENDENCY RESOURCE
+# This works around a terraform limitation where we can not specify module dependencies natively.
+# See https://github.com/hashicorp/terraform/issues/1178 for more discussion.
+# By resolving and computing the dependencies list, we are able to make all the resources in this module depend on the
+# resources backing the values in the dependencies list.
+# ---------------------------------------------------------------------------------------------------------------------
+
+resource "null_resource" "dependency_getter" {
+  triggers = {
+    instance = join(",", var.dependencies)
+  }
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# LOCALS
+# ---------------------------------------------------------------------------------------------------------------------
+locals {
+  db_subnet_group_name          = var.aws_db_subnet_group_name == null ? var.name : var.aws_db_subnet_group_name
+  db_subnet_group_description   = var.aws_db_subnet_group_description == null ? "Subnet group for the ${var.name} DB" : var.aws_db_subnet_group_description
+  db_security_group_name        = var.aws_db_security_group_name == null ? var.name : var.aws_db_security_group_name
+  db_security_group_description = var.aws_db_security_group_description == null ? "Security group for the ${var.name} DB" : var.aws_db_security_group_description
+
+  # The link to the DB subnet group depending on if it was created in the module or not.
+  db_subnet_group_link = var.create_subnet_group ? aws_db_subnet_group.cluster[0].name : local.db_subnet_group_name
+}
+
+# ------------------------------------------------------------------------------
+# CREATE THE RDS CLUSTER
+# In Terraform, the aws_rds_cluster resource is used *only* for Aurora. See aws_db_instance for other types of RDS
+# databases.
+# ------------------------------------------------------------------------------
+
+resource "aws_rds_cluster" "cluster" {
+  cluster_identifier = var.name
+  port               = var.port
+
+  engine         = var.engine
+  engine_version = var.engine_version
+  engine_mode    = var.engine_mode
+
+  # Cluster identifier for global databases. 
+  global_cluster_identifier = var.global_cluster_identifier
+
+  # Replication source ID and region if the RDS cluster is a read replica or a secondary in a global database
+  replication_source_identifier = var.replication_source_identifier
+  source_region                 = var.source_region
+
+  db_subnet_group_name            = local.db_subnet_group_link
+  vpc_security_group_ids          = [aws_security_group.cluster.id]
+  db_cluster_parameter_group_name = var.db_cluster_parameter_group_name
+
+  database_name   = var.db_name
+  master_username = var.master_username
+
+  # If the RDS Cluster is being restored from a snapshot, the password entered by the user is ignored.
+  master_password              = var.snapshot_identifier == null ? var.master_password : null
+  preferred_maintenance_window = var.preferred_maintenance_window
+  preferred_backup_window      = var.preferred_backup_window
+  backup_retention_period      = var.backup_retention_period
+  backtrack_window             = var.backtrack_window
+
+  # Due to a bug in Terraform, there is no way to disable the final snapshot in Aurora, so we always create one (which
+  # is probably a safe default anyway, but a bit annoying for testing). For more info, see:
+  # https://github.com/hashicorp/terraform/issues/6786
+  final_snapshot_identifier = "${var.name}-final-snapshot"
+
+  snapshot_identifier = var.snapshot_identifier
+
+  enabled_cloudwatch_logs_exports = var.enabled_cloudwatch_logs_exports
+
+  apply_immediately = var.apply_immediately
+  storage_encrypted = var.storage_encrypted
+  kms_key_id        = var.kms_key_arn
+
+  iam_database_authentication_enabled = var.iam_database_authentication_enabled
+  deletion_protection                 = var.deletion_protection
+  skip_final_snapshot                 = var.skip_final_snapshot
+
+  iam_roles = var.cluster_iam_roles
+
+  tags                  = var.custom_tags
+  copy_tags_to_snapshot = var.copy_tags_to_snapshot
+
+  dynamic "scaling_configuration" {
+    # The contents of the list in this for_each are not used. All that matters is if the list has 1 item in it, which
+    # will result in the block being created, or 0 items, which will result in the block being omitted.
+    for_each = var.engine_mode == "serverless" ? ["include"] : []
+    content {
+      auto_pause               = var.scaling_configuration_auto_pause
+      max_capacity             = var.scaling_configuration_max_capacity
+      min_capacity             = var.scaling_configuration_min_capacity
+      seconds_until_auto_pause = var.scaling_configuration_seconds_until_auto_pause
+      timeout_action           = var.scaling_configuration_timeout_action
+    }
+  }
+
+  depends_on = [null_resource.dependency_getter]
+}
+
+# Get the current AWS region
+data "aws_region" "current" {}
+
+# Get the current AWS account
+data "aws_caller_identity" "current" {}
+
+# ------------------------------------------------------------------------------
+# CREATE THE AURORA INSTANCES THAT RUN IN THE CLUSTER
+# Note that in Terraform, the aws_rds_cluster_instance resource is used *only*
+# for Aurora. See aws_db_instance for other types of RDS databases.
+# ------------------------------------------------------------------------------
+
+# Optionally create a role that has permissions for enhanced monitoring
+# This is only created if var.monitoring_interval and a role isn't explicitily set with
+# var.monitoring_role_arn
+resource "aws_iam_role" "enhanced_monitoring_role" {
+  # The reason we use a count here is to ensure this resource is only created if var.monitoring_interval is set and
+  # var.monitoring_role_arn is not provided
+  count = var.monitoring_interval > 0 && var.monitoring_role_arn == null ? 1 : 0
+
+  name               = "${var.name}-monitoring-role"
+  assume_role_policy = data.aws_iam_policy_document.enhanced_monitoring_role.json
+
+  # Workaround for a bug where Terraform sometimes doesn't wait long enough for the IAM role to propagate.
+  # https://github.com/hashicorp/terraform/issues/4306
+  # Workaround for a bug where Terraform sometimes doesn't wait long enough for the IAM role to propagate.
+  # https://github.com/hashicorp/terraform/issues/4306
+  provisioner "local-exec" {
+    command = "echo 'Sleeping for 30 seconds to work around IAM Instance Profile propagation bug in Terraform' && sleep 30"
+  }
+}
+
+data "aws_iam_policy_document" "enhanced_monitoring_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["monitoring.rds.amazonaws.com"]
+    }
+  }
+}
+
+# Connect the role to the AWS default policy for enhanced monitoring
+resource "aws_iam_role_policy_attachment" "enhanced_monitoring_role_attachment" {
+  count      = var.monitoring_interval > 0 && var.monitoring_role_arn == null ? 1 : 0
+  depends_on = [aws_iam_role.enhanced_monitoring_role]
+  role = element(
+    concat(aws_iam_role.enhanced_monitoring_role.*.name, [""]),
+    0,
+  )
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+}
+
+data "template_file" "auto_created_monitoring_role_arn" {
+  template = var.monitoring_interval > 0 ? element(concat(aws_iam_role.enhanced_monitoring_role.*.arn, [""]), 0) : ""
+}
+
+# In order to calculate the maintenance window for each instance, the formula below is being used. After calculating the
+# result, each time will be formated to "day:hh:mm" and then concatenated to "${window_init_time}-${window_finish_time}",
+# e.g. "sat:17:50-sat:18:50".
+# window_init_time:   [window start timestamp + (minutes between windows * count)]
+# window_finish_time: {window start timestamp + [(minutes between windows * count) + maintenance duration]}
+data "template_file" "cluster_instances_maintenance_window" {
+  count    = var.instance_count
+  template = "${lower(formatdate("EEE:hh:mm", timeadd(var.cluster_instances_maintenance_window_start_timestamp, "${var.cluster_instances_minutes_between_maintenance_windows * count.index}m")))}-${lower(formatdate("EEE:hh:mm", timeadd(var.cluster_instances_maintenance_window_start_timestamp, "${(var.cluster_instances_minutes_between_maintenance_windows * count.index) + var.cluster_instances_maintenance_duration_minutes}m")))}"
+}
+
+resource "aws_rds_cluster_instance" "cluster_instances" {
+  count = var.instance_count * (var.engine_mode == "serverless" ? 0 : 1)
+
+  identifier = "${var.name}-${count.index}"
+  cluster_identifier = aws_rds_cluster.cluster.id
+  instance_class = var.instance_type
+
+  engine         = var.engine
+  engine_version = var.engine_version
+
+  # These DBs instances are not publicly accessible. They should live in a private subnet and only be accessible from
+  # specific apps.
+  publicly_accessible = var.publicly_accessible
+
+  preferred_maintenance_window = data.template_file.cluster_instances_maintenance_window[count.index].rendered
+  auto_minor_version_upgrade   = var.auto_minor_version_upgrade
+
+  db_subnet_group_name    = local.db_subnet_group_link
+  db_parameter_group_name = var.db_instance_parameter_group_name
+
+  tags = var.custom_tags
+
+  monitoring_interval = var.monitoring_interval
+  monitoring_role_arn = var.monitoring_role_arn != null ? var.monitoring_role_arn : data.template_file.auto_created_monitoring_role_arn.rendered
+
+  performance_insights_enabled    = var.performance_insights_enabled
+  performance_insights_kms_key_id = var.performance_insights_kms_key_id
+
+  ca_cert_identifier = var.ca_cert_identifier
+
+  apply_immediately = var.apply_immediately
+
+  lifecycle {
+    # Ensure if recreating instances that new ones are added first
+    create_before_destroy = true
+
+    # Updates to engine_version will flow from aws_rds_cluster instead (https://github.com/terraform-providers/terraform-provider-aws/issues/9401)
+    ignore_changes = [engine_version]
+  }
+
+  # Without this line, I consistently receive the following error: aws_rds_cluster.cluster: Error
+  # modifying DB Instance xxx: DBInstanceNotFound: DBInstance not found: xxx. However, I am not 100% sure this resolves
+  # the issue.
+  depends_on = [aws_rds_cluster.cluster]
+}
+
+# ------------------------------------------------------------------------------
+# CREATE THE SUBNET GROUP THAT SPECIFIES IN WHICH SUBNETS TO DEPLOY THE DB INSTANCES
+# ------------------------------------------------------------------------------
+
+resource "aws_db_subnet_group" "cluster" {
+  count = var.create_subnet_group ? 1 : 0
+
+  name        = local.db_subnet_group_name
+  description = local.db_subnet_group_description
+  subnet_ids  = var.subnet_ids
+  tags = merge(
+    {
+      Name = "The subnet group for the ${var.name} DB"
+    },
+    var.custom_tags,
+  )
+}
+
+# ------------------------------------------------------------------------------
+# CREATE THE SECURITY GROUP THAT CONTROLS WHAT TRAFFIC CAN CONNECT TO THE DB
+# ------------------------------------------------------------------------------
+
+resource "aws_security_group" "cluster" {
+  name        = local.db_security_group_name
+  description = local.db_security_group_description
+  vpc_id      = var.vpc_id
+  tags        = var.custom_tags
+}
+
+resource "aws_security_group_rule" "allow_connections_from_cidr_blocks" {
+  type        = "ingress"
+  from_port   = var.port
+  to_port     = var.port
+  protocol    = "tcp"
+  cidr_blocks = var.allow_connections_from_cidr_blocks
+
+  security_group_id = aws_security_group.cluster.id
+}
+
+resource "aws_security_group_rule" "allow_connections_from_security_group" {
+  count                    = length(var.allow_connections_from_security_groups)
+  type                     = "ingress"
+  from_port                = var.port
+  to_port                  = var.port
+  protocol                 = "tcp"
+  source_security_group_id = element(var.allow_connections_from_security_groups, count.index)
+
+  security_group_id = aws_security_group.cluster.id
+}

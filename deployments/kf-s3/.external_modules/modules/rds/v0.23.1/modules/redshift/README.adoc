@@ -1,0 +1,115 @@
+// Front matter so this file shows up in the Gruntwork Service Catalog
+:type: service
+:name: Redshift
+:description: Deploy and manage Amazon Redshift, a cloud data warehouse
+:icon: ../../_docs/redshift-icon.png
+:category: database
+:cloud: aws
+:tags: data, database, sql, redshift, data-warehouse
+:license: gruntwork
+:built-with: terraform
+
+// AsciiDoc TOC settings
+:toc:
+:toc-placement!:
+:toc-title:
+
+// GitHub specific settings. See https://gist.github.com/dcode/0cfbf2699a1fe9b46ff04c41721dda74 for details.
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+= Redshift Module
+
+image:https://img.shields.io/badge/maintained%20by-gruntwork.io-%235849a6.svg[link="https://gruntwork.io/?ref=repo_aws_data_storage"]
+image:https://img.shields.io/badge/tf-%3E%3D1.1.0-blue.svg[Terraform version]
+
+This module creates an Amazon Redshift cluster that you can use as a data warehouse. The cluster is managed by AWS and
+automatically handles leader nodes, worker nodes, backups, patching, and encryption.
+
+// tag::main-content[]
+
+image::../../_docs/redshift-architecture.png?raw=true[Redshift architecture]
+
+toc::[]
+
+
+== Features
+
+* Deploy a fully-managed data warehouse
+* Scalable worker nodes and storage
+* Automatic nightly snapshots
+
+
+
+== Learn
+
+NOTE: This repo is a part of https://gruntwork.io/infrastructure-as-code-library/[the Gruntwork Infrastructure as Code
+Library], a collection of reusable, battle-tested, production ready infrastructure code. If you've never used the
+Infrastructure as Code Library before, make sure to read
+https://gruntwork.io/guides/foundations/how-to-use-gruntwork-infrastructure-as-code-library/[How to use the Gruntwork Infrastructure as Code Library]!
+
+=== Core concepts
+
+* link:https://docs.aws.amazon.com/redshift/latest/mgmt/welcome.html[What is Amazon Redshift?]
+* https://docs.aws.amazon.com/redshift/index.html[Redshift documentation]
+
+== Deploy
+
+=== Non-production deployment (quick start for learning)
+
+If you just want to try this repo out for experimenting and learning, check out the following resources:
+
+* link:/examples[examples folder]: The `examples` folder contains sample code optimized for learning, experimenting,
+and testing (but not production usage).
+
+=== Production deployment
+
+If you want to deploy this repo in production, check out the following resources:
+
+* (coming soon)
+
+
+
+
+== Manage
+
+=== Day-to-day operations
+
+* https://docs.aws.amazon.com/redshift/latest/dg/t_Creating_tables.html[Designing tables]
+* https://docs.aws.amazon.com/redshift/latest/dg/t_Loading_data.html[Loading data]
+* https://docs.aws.amazon.com/redshift/latest/mgmt/query-databases.html[Querying Redshift]
+* https://docs.aws.amazon.com/redshift/latest/dg/best-practices.html[Redshift best practices]
+
+=== Major changes
+
+* https://docs.aws.amazon.com/redshift/latest/dg/r_Database_objects.html[Managing securitty]
+
+
+
+
+== Support
+
+If you need help with this repo or anything else related to infrastructure or DevOps, Gruntwork offers https://gruntwork.io/support/[Commercial Support] via Slack, email, and phone/video. If you're already a Gruntwork customer, hop on Slack and ask away! If not, https://www.gruntwork.io/pricing/[subscribe now]. If you're not sure, feel free to email us at link:mailto:support@gruntwork.io[support@gruntwork.io].
+
+
+
+
+== Contributions
+
+Contributions to this repo are very welcome and appreciated! If you find a bug or want to add a new feature or even contribute an entirely new module, we are very happy to accept pull requests, provide feedback, and run your changes through our automated test suite.
+
+Please see https://gruntwork.io/guides/foundations/how-to-use-gruntwork-infrastructure-as-code-library/#contributing-to-the-gruntwork-infrastructure-as-code-library[Contributing to the Gruntwork Infrastructure as Code Library] for instructions.
+
+
+
+
+== License
+
+Please see link:/LICENSE.txt[LICENSE.txt] for details on how the code in this repo is licensed.
+
+// end::main-content[]

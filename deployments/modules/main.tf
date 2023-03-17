@@ -46,8 +46,6 @@ locals {
 }
 
 
-
-
 module "kubeflow_knative_serving" {
   source            = "../../iaac/terraform/common/knative-serving"
   helm_config = {
@@ -96,10 +94,33 @@ module "kubeflow_istio_resources" {
 module "kubeflow_pipelines" {
   source            = "../../iaac/terraform/apps/kubeflow-pipelines"
   helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/kubeflow-pipelines/vanilla"
+    chart = "${var.kf_helm_repo_path}/charts/apps/kubeflow-pipelines/rds-s3"
+    set =[{
+          name =  "rds.dbHost",
+          value = "rds-hyperfine-dev-kf.cjxbmnlwhpcc.us-east-1.rds.amazonaws.com"
+    },
+      {
+        name = "rds.mlmdDb",
+        value = "kubeflow"
+      },
+      {
+        name = "s3.bucketName"
+        value = "kf-hyperfine-dev-eks-cluster-kf-dl"
+      },
+      {
+        name = "s3.minioServiceHost"
+        value = "s3.amazonaws.com"
+      },
+      {
+        name = "s3.minioServiceRegion"
+        value = "us-east-1"
+      }
+    ]
   }
+
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_istio_resources]
+
 }
 
 module "kubeflow_kserve" {
@@ -108,7 +129,7 @@ module "kubeflow_kserve" {
     chart = "${var.kf_helm_repo_path}/charts/common/kserve"
   }
   addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_pipelines]
+  depends_on = [module.kubeflow_istio_resources]
 }
 
 module "kubeflow_models_web_app" {
@@ -174,8 +195,6 @@ module "kubeflow_jupyter_web_app" {
   source            = "../../iaac/terraform/apps/jupyter-web-app"
   helm_config = {
     chart = "${var.kf_helm_repo_path}/charts/apps/jupyter-web-app"
-    values = []
-    version = "0.1.0"
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_notebook_controller]
@@ -187,7 +206,7 @@ module "kubeflow_profiles_and_kfam" {
     chart = "${var.kf_helm_repo_path}/charts/apps/profiles-and-kfam"
   }
   addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_jupyter_web_app]
+  depends_on = [module.kubeflow_central_dashboard]
 }
 
 module "kubeflow_volumes_web_app" {
@@ -216,6 +235,8 @@ module "kubeflow_tensorboard_controller" {
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_tensorboards_web_app]
 }
+
+
 
 module "kubeflow_training_operator" {
   source            = "../../iaac/terraform/apps/training-operator"

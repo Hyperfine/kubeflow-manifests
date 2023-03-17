@@ -1,0 +1,31 @@
+# This file configures logrotate to: rotate syslog files daily or if they exceed 1GB, keeping at most 7 log files. When
+# a log file is rotated, it gets a timestamp appended to its name and is compressed using gzip.
+
+/var/log/messages
+{
+  rotate 7
+  daily
+  maxsize 1G
+  missingok
+  notifempty
+  delaycompress
+  compress
+  copytruncate
+  dateext
+  dateformat -%Y-%m-%d.log
+  postrotate
+      /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+  endscript
+}
+
+/var/log/cron
+/var/log/maillog
+/var/log/secure
+/var/log/spooler
+{
+  copytruncate
+  sharedscripts
+  postrotate
+      /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+  endscript
+}

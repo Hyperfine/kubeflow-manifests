@@ -1,0 +1,102 @@
+{
+  "variables": {
+    "aws_region": "us-east-1",
+    "github_auth_token": "{{env `GITHUB_OAUTH_TOKEN`}}",
+    "gruntwork_installer_version": "v0.0.20",
+    "module_aws_montoring_branch": ""
+  },
+  "builders": [{
+    "name": "ubuntu-build",
+    "ami_name": "gruntwork-cloudwatch-memory-disk-metrics-example-ubuntu-{{isotime | clean_resource_name}}",
+    "ami_description": "An Ubuntu AMI that shows an example of how to install CloudWatch monitoring scripts that provide memory and disk metrics.",
+    "instance_type": "t2.micro",
+    "region": "{{user `aws_region`}}",
+    "type": "amazon-ebs",
+    "source_ami_filter": {
+      "filters": {
+        "virtualization-type": "hvm",
+        "architecture": "x86_64",
+        "name": "*ubuntu-xenial-16.04-amd64-server-*",
+        "block-device-mapping.volume-type": "gp2",
+        "root-device-type": "ebs"
+      },
+      "owners": ["099720109477"],
+      "most_recent": true
+    },
+    "ssh_username": "ubuntu"
+  },{
+    "name": "ubuntu-18-build",
+    "ami_name": "gruntwork-cloudwatch-memory-disk-metrics-example-ubuntu1804-{{isotime | clean_resource_name}}",
+    "ami_description": "An Ubuntu 18.04 AMI that shows an example of how to install CloudWatch monitoring scripts that provide memory and disk metrics.",
+    "instance_type": "t2.micro",
+    "region": "{{user `aws_region`}}",
+    "type": "amazon-ebs",
+    "source_ami_filter": {
+      "filters": {
+        "virtualization-type": "hvm",
+        "architecture": "x86_64",
+        "name": "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*",
+        "block-device-mapping.volume-type": "gp2",
+        "root-device-type": "ebs"
+      },
+      "owners": ["099720109477"],
+      "most_recent": true
+    },
+    "ssh_username": "ubuntu"
+  },{
+    "name": "amazon-linux-build",
+    "ami_name": "gruntwork-cloudwatch-memory-disk-metrics-example-amazon-linux-{{isotime | clean_resource_name}}",
+    "ami_description": "An Amazon Linux AMI that shows an example of how to install CloudWatch monitoring scripts that provide memory and disk metrics.",
+    "instance_type": "t2.micro",
+    "region": "{{user `aws_region`}}",
+    "type": "amazon-ebs",
+    "source_ami_filter": {
+      "filters": {
+        "virtualization-type": "hvm",
+        "architecture": "x86_64",
+        "name": "*amzn-ami-hvm-*",
+        "block-device-mapping.volume-type": "gp2",
+        "root-device-type": "ebs"
+      },
+      "owners": ["amazon"],
+      "most_recent": true
+    },
+    "ssh_username": "ec2-user"
+  },{
+    "name": "centos-build",
+    "ami_name": "gruntwork-cloudwatch-memory-disk-metrics-example-centos-{{isotime | clean_resource_name}}",
+    "ami_description": "A CentOS AMI that shows an example of how to install CloudWatch monitoring scripts that provide memory and disk metrics.",
+    "instance_type": "t2.micro",
+    "region": "{{user `aws_region`}}",
+    "type": "amazon-ebs",
+    "source_ami_filter": {
+      "filters": {
+        "virtualization-type": "hvm",
+        "architecture": "x86_64",
+        "name": "*CentOS Linux 7 x86_64 HVM EBS ENA*",
+        "product-code": "aw0evgkw8e5c1q413zgy5pjce",
+        "root-device-type": "ebs"
+      },
+      "owners": ["679593333241"],
+      "most_recent": true
+    },
+    "ssh_username": "centos",
+    "ssh_pty": true
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "inline": [
+      "echo 'Sleeping for 30 seconds to give the AMIs enough time to initialize (otherwise, packages may fail to install).'",
+      "sleep 30"
+    ]
+  },{
+    "type": "shell",
+    "inline": "curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/master/bootstrap-gruntwork-installer.sh | bash /dev/stdin --version {{user `gruntwork_installer_version`}}"
+  },{
+    "type": "shell",
+    "inline": "gruntwork-install --module-name 'metrics/cloudwatch-memory-disk-metrics-scripts' --tag '>v0.0.1' --branch '{{user `module_aws_montoring_branch`}}' --repo https://github.com/gruntwork-io/module-aws-monitoring",
+    "environment_vars": [
+      "GITHUB_OAUTH_TOKEN={{user `github_auth_token`}}"
+    ]
+  }]
+}

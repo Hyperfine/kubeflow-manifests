@@ -1,0 +1,65 @@
+defaults: &defaults
+  machine:
+    enabled: true
+    image: "ubuntu-1604:201903-01"
+  environment:
+    GRUNTWORK_INSTALLER_VERSION: v0.0.23
+    TERRATEST_LOG_PARSER_VERSION: v0.13.13
+    MODULE_CI_VERSION: v0.18.4
+    TERRAFORM_VERSION: 0.12.20
+    TERRAGRUNT_VERSION: NONE
+    PACKER_VERSION: NONE
+
+version: 2.0
+jobs:
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - run: &install_gruntwork_tooling
+          name: install gruntwork tooling
+          command: |
+            sudo apt-get -y update
+            curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/master/bootstrap-gruntwork-installer.sh | bash /dev/stdin --version "${GRUNTWORK_INSTALLER_VERSION}"
+            gruntwork-install --module-name "gruntwork-module-circleci-helpers" --repo "https://github.com/gruntwork-io/module-ci" --tag "${MODULE_CI_VERSION}"
+            gruntwork-install --binary-name "terratest_log_parser" --repo "https://github.com/gruntwork-io/terratest" --tag "${TERRATEST_LOG_PARSER_VERSION}"
+            configure-environment-for-gruntwork-module \
+              --terraform-version ${TERRAFORM_VERSION} \
+              --terragrunt-version ${TERRAGRUNT_VERSION} \
+              --packer-version ${PACKER_VERSION} \
+              --go-src-path ./test
+
+      - run:
+          name: run tests
+          command: |
+            mkdir -p /tmp/logs
+            run-go-tests --path test --timeout 2h | tee /tmp/logs/all.log
+          no_output_timeout: 3600s
+
+      - run:
+          command: terratest_log_parser --testlog /tmp/logs/all.log --outputdir /tmp/logs
+          when: always
+
+      - store_artifacts:
+          path: /tmp/logs
+      - store_test_results:
+          path: /tmp/logs
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /^v.*/
+
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 6 * * *"
+          filters:
+            branches:
+              only: master
+    jobs:
+      - test

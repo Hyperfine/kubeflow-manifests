@@ -1,0 +1,55 @@
+version: 2.1
+
+defaults: &defaults
+  working_directory: /home/circleci/.go_workspace/src/github.com/gruntwork-io/module-load-balancer
+  machine:
+    image: circleci/classic:201808-01
+
+orbs:
+  aws-cli: circleci/aws-cli@0.1.13
+
+jobs:
+  test_aws:
+    <<: *defaults
+    steps:
+      - checkout
+      - run: &install_gruntwork_tooling
+          name: install gruntwork tooling
+          command: |
+            sudo apt-get -y update
+            curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/master/bootstrap-gruntwork-installer.sh | bash /dev/stdin --version v0.0.21
+            gruntwork-install --module-name "gruntwork-module-circleci-helpers" --repo "https://github.com/gruntwork-io/module-ci" --tag "v0.13.14"
+            gruntwork-install --binary-name 'terratest_log_parser' --repo 'https://github.com/gruntwork-io/terratest' --tag 'v0.16.0'
+            configure-environment-for-gruntwork-module --circle-ci-2 --use-go-dep --go-src-path test --terraform-version 0.12.2
+
+      - run:
+          name: run tests
+          command: |
+            mkdir -p /tmp/logs
+            run-go-tests --path test --timeout 1h --circle-ci-2 | tee /tmp/logs/all.log
+          no_output_timeout: 3600s
+
+      - run:
+          name: parse test output
+          command: terratest_log_parser --testlog /tmp/logs/all.log --outputdir /tmp/logs
+          when: always
+      - store_artifacts:
+          path: /tmp/logs
+      - store_test_results:
+          path: /tmp/logs
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - test_aws
+  nightly-test:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - test_aws

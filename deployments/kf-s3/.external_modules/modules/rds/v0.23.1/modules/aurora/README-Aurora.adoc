@@ -1,0 +1,27 @@
+// Front matter so this file shows up in the Gruntwork Service Catalog
+:type: service
+:name: Amazon Aurora
+:description: Deploy and manage Amazon Aurora using Amazon's Relational Database Service (RDS)
+:icon: ../../_docs/aurora.png
+:category: database
+:cloud: aws
+:tags: data, database, sql, rds, aurora
+:license: gruntwork
+:built-with: terraform
+
+// AsciiDoc TOC settings
+:toc:
+:toc-placement!:
+:toc-title:
+
+= Amazon Aurora
+
+image:https://img.shields.io/badge/maintained%20by-gruntwork.io-%235849a6.svg[link="https://gruntwork.io/?ref=repo_aws_data_storage"]
+image:https://img.shields.io/badge/tf-%3E%3D1.1.0-blue.svg[Terraform version]
+
+This module creates an Amazon Relational Database Service (RDS) cluster that can run
+https://aws.amazon.com/rds/aurora/[Amazon Aurora], Amazon's cloud-native relational database. The cluster is managed by
+AWS and automatically handles standby failover, read replicas, backups, patching, and encryption.
+
+include::README.adoc[tags=main-content]
+
