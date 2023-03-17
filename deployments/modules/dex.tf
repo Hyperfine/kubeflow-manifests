@@ -1,10 +1,5 @@
-locals {
-  sa_name = "okta-secrets-manager-sa"
-  namespace = "auth"
-}
-
 resource "helm_release" "dex" {
-  depends_on = [kubectl_manifest.secret-pod]
+  depends_on = [kubectl_manifest.oidc-secret-pod]
   repository = "https://charts.dexidp.io"
   name       = "dex"
   chart      = "dex"

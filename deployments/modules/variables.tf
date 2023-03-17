@@ -26,6 +26,20 @@ variable oidc_secret_name {
   type = string
 }
 
+variable "rds_secret_name" {
+  type = string
+}
+
+variable "s3_secret_name" {
+  type = string
+}
+
+variable "kms_key_ids" {
+  type = list(string)
+  default = []
+}
+
+
 variable "enable_aws_telemetry" {
   description = "Enable AWS telemetry component"
   type = bool
