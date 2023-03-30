@@ -97,7 +97,7 @@ module "kubeflow_pipelines" {
     chart = "${var.kf_helm_repo_path}/charts/apps/kubeflow-pipelines/rds-s3"
     set =[{
           name =  "rds.dbHost",
-          value = "rds-hyperfine-dev-kf.cjxbmnlwhpcc.us-east-1.rds.amazonaws.com"
+          value = var.rds_host
     },
       {
         name = "rds.mlmdDb",
@@ -105,7 +105,7 @@ module "kubeflow_pipelines" {
       },
       {
         name = "s3.bucketName"
-        value = "kf-hyperfine-dev-eks-cluster-kf-dl"
+        value = var.s3_bucket
       },
       {
         name = "s3.minioServiceHost"
@@ -113,7 +113,7 @@ module "kubeflow_pipelines" {
       },
       {
         name = "s3.minioServiceRegion"
-        value = "us-east-1"
+        value = var.s3_region
       }
     ]
   }

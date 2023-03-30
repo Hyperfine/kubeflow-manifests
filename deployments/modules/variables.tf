@@ -34,6 +34,18 @@ variable "s3_secret_name" {
   type = string
 }
 
+variable rds_host {
+  type = string
+}
+
+variable "s3_bucket" {
+  type = string
+}
+variable "s3_region" {
+  type = string
+  default = "us-east-1"
+}
+
 variable "kms_key_ids" {
   type = list(string)
   default = []
