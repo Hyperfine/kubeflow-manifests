@@ -1,36 +1,15 @@
 
-resource "kubectl_manifest" "pvc" {
-  depends_on = [time_sleep.wait_for_namespace]
-  yaml_body = <<YAML
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: "${local.key}-efs"
-  namespace: ${local.key}
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: efs-sc
-  resources:
-    requests:
-      storage: 20Gi
-YAML
-}
-
-
 resource "kubectl_manifest" "efs-home" {
-    depends_on = [time_sleep.wait_for_namespace]
-
   yaml_body = <<YAML
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: "${local.key}-efs-home"
+  name: "${local.key}-home"
   namespace: ${local.key}
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: efs-sc
+  storageClassName: dl-efs-home-sc
   resources:
     requests:
       storage: 30Gi

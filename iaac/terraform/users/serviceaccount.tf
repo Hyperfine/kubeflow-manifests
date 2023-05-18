@@ -66,7 +66,7 @@ YAML
 resource "kubectl_manifest" "role" {
   yaml_body = <<YAML
 kind: Role
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: ${local.key}-access
   namespace: ${local.key}

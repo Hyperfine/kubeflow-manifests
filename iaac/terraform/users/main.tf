@@ -42,7 +42,7 @@ YAML
 
 resource "time_sleep" "wait_for_namespace" {
   depends_on = [kubectl_manifest.profile]
-  create_duration = '30s'
+  create_duration = "30s"
 }
 
 
@@ -289,5 +289,22 @@ spec:
   env:
     - name: KF_PIPELINES_SA_TOKEN_PATH
       value: /var/run/secrets/kubeflow/pipelines/token
+YAML
+}
+
+resource "kubectl_manifest" "eviction-pd" {
+  yaml_body = <<YAML
+apiVersion: kubeflow.org/v1alpha1
+kind: PodDefault
+metadata:
+  name: prevent-eviction
+  namespace: ${local.key}
+spec:
+  desc: prevent eviction
+  selector:
+    matchLabels:
+      prevent-eviction: "true"
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
 YAML
 }

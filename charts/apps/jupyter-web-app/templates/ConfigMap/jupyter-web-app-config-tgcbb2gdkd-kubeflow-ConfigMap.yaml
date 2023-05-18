@@ -63,7 +63,7 @@ data:
       workspaceVolume:
         # Workspace Volume to be attached to user's Notebook
         # If you don't want a workspace volume then delete the 'value' key
-        value:
+        # value:
         #  mount: /home/dl-user
         #  existingSource:
         #    persistentVolumeClaim:
@@ -74,7 +74,7 @@ data:
           - mount: /data
             newPvc:
               metadata:
-                name: 'data-vol-1'
+                name: '{notebook-name}-vol-1'
               spec:
                 resources:
                   requests:
@@ -151,6 +151,8 @@ data:
         value:
           - add-secret-volume
           - add-env
+          - prevent-eviction
+          - access-ml-pipeline
         readOnly: false
 kind: ConfigMap
 metadata:

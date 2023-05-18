@@ -188,17 +188,19 @@ module "kubeflow_notebook_controller" {
     ]
   }
   addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_admission_webhook]
+  depends_on = [module.kubeflow_central_dashboard]
 }
 
 module "kubeflow_jupyter_web_app" {
   source            = "../../iaac/terraform/apps/jupyter-web-app"
   helm_config = {
     chart = "${var.kf_helm_repo_path}/charts/apps/jupyter-web-app"
+    version = "0.1.2"
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_notebook_controller]
 }
+
 
 module "kubeflow_profiles_and_kfam" {
   source            = "../../iaac/terraform/apps/profiles-and-kfam"

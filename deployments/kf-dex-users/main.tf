@@ -3,7 +3,7 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
     }
-            kubectl = {
+    kubectl = {
       source  = "gavinbunney/kubectl"
       version = ">= 1.7.0"
     }
@@ -49,7 +49,7 @@ provider "kubectl" {
 
 module "user" {
   for_each = var.users
-  source = "./../users"
+  source = "../../iaac/terraform/users"
   username = each.key
   eks_cluster_name = var.eks_cluster_name
 

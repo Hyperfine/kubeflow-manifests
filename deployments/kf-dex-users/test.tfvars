@@ -1,6 +1,5 @@
 users = {
   "syoung" : "kf-syoung-ssh"
-  "lyao": "kf-lyao-ssh"
   "dedmunds": "kf-edmunds-ssh"
   "kdmitriev": "kf-dmitriev-ssh"
   "msofka": "kf-msofka-ssh"
