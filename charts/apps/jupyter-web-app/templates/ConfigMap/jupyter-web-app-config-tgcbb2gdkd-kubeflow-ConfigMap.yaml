@@ -63,11 +63,11 @@ data:
       workspaceVolume:
         # Workspace Volume to be attached to user's Notebook
         # If you don't want a workspace volume then delete the 'value' key
-        # value:
-        #  mount: /home/dl-user
-        #  existingSource:
-        #    persistentVolumeClaim:
-        #      claimName: '{namespace}-home'
+        value:
+        # mount: /home/dl-user
+        # existingSource:
+        #   persistentVolumeClaim:
+        #     claimName: '-home'
         readOnly: false
       dataVolumes:
         value:
