@@ -1,18 +1,13 @@
 
-locals {
-  sa_name   = "kf-secrets-manager-sa"
-  namespace = "kubeflow"
-}
-
 resource "aws_iam_policy" "ssm-access" {
-  name   = "${var.eks_cluster_name}-${local.sa_name}-policy"
+  name   = "${var.eks_cluster_name}-kf-secrets-manager-sa-policy"
   policy = data.aws_iam_policy_document.kf-ssm.json
 }
 
 module "irsa" {
   source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.1"
-  kubernetes_namespace       = local.namespace
-  kubernetes_service_account = local.sa_name
+  kubernetes_namespace       = "kubeflow"
+  kubernetes_service_account = "kf-secrets-manager-sa"
   irsa_iam_policies          = [aws_iam_policy.ssm-access.arn]
   eks_cluster_id             = var.eks_cluster_name
 
@@ -22,13 +17,13 @@ module "irsa" {
 
 
 resource "kubectl_manifest" "kf-secret-class" {
-  depends_on = [module.irsa]
+  depends_on = [module.irsa.*.]
   yaml_body  = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
 metadata:
   name: aws-secrets
-  namespace: ${local.namespace}
+  namespace: "${module.irsa.namespace}"
 spec:
   provider: aws
   secretObjects:
@@ -89,7 +84,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kf-secrets-deployment
-  namespace: kubeflow
+  namespace: "${module.irsa.namespace}"
   labels:
     app: kf-secrets
 spec:
@@ -115,7 +110,7 @@ spec:
         - mountPath: "/mnt/aws-store"
           name: "${aws_secretsmanager_secret.s3-secret.name}"
           readOnly: true
-      serviceAccountName: ${local.sa_name}
+      serviceAccountName: "${module.irsa.service_account}"
       volumes:
       - csi:
           driver: secrets-store.csi.k8s.io
