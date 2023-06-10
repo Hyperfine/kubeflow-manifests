@@ -10,8 +10,6 @@ data "aws_eks_cluster_auth" "kubernetes_token" {
 }
 
 
-data "aws_caller_identity" "current" {}
-
 data "aws_s3_bucket" "bucket" {
   bucket = var.s3_bucket_name
 }
