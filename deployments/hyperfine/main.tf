@@ -38,7 +38,9 @@ module "secrets" {
   rds_secret_name = var.rds_secret_name
   s3_bucket_name = var.s3_bucket_name
 
+  providers = {}
 }
+
 /*
 module "kubeflow" {
   depends_on = [module.secrets]
