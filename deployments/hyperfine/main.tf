@@ -18,7 +18,7 @@ terraform {
 }
 
 # create kubeflow namespace first
-resource "kubernetes_namespace" "kubeflow" {
+resource "kubernetes_namespace_v1" "kubeflow" {
   metadata {
     labels = {
       control-plane = "kubeflow"
@@ -29,7 +29,7 @@ resource "kubernetes_namespace" "kubeflow" {
   }
 }
 module "secrets" {
-  depends_on = [kubernetes_namespace.kubeflow]
+  depends_on = [kubernetes_namespace_v1.kubeflow]
   source = "../../iaac/terraform/hyperfine/secrets"
 
   eks_cluster_name = var.eks_cluster_name
