@@ -17,7 +17,6 @@ module "irsa" {
 
 
 resource "kubectl_manifest" "kf-secret-class" {
-  depends_on = [module.irsa.*.]
   yaml_body  = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
