@@ -1,9 +1,4 @@
 
-data aws_s3_bucket "bucket" {
-  bucket = var.s3_bucket_name
-}
-
-
 # create kubeflow namespace first
 resource "kubernetes_namespace" "kubeflow" {
   metadata {
@@ -26,7 +21,7 @@ module "secrets" {
   s3_bucket_name = var.s3_bucket_name
 
 }
-
+/*
 module "kubeflow" {
   depends_on = [module.secrets]
   source = "../../iaac/terraform/hyperfine/modules"
@@ -65,3 +60,4 @@ module "user" {
   s3_secret_name = module.secrets.s3_secret_name
   kms_key_ids = module.secrets.kms_key_ids
 }
+*/
