@@ -13,7 +13,7 @@ module "irsa" {
   source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.1"
   kubernetes_namespace       = local.namespace
   kubernetes_service_account = local.sa_name
-  irsa_iam_policies          = [aws_iam_policy.s3_policy.arn]
+  irsa_iam_policies          = [aws_iam_policy.ssm-access.arn]
   eks_cluster_id             = var.eks_cluster_name
 
   create_kubernetes_namespace = false
