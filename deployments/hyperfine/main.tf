@@ -37,11 +37,8 @@ module "secrets" {
   rds_host = var.rds_host
   rds_secret_name = var.rds_secret_name
   s3_bucket_name = var.s3_bucket_name
-
-  providers = {}
 }
 
-/*
 module "kubeflow" {
   depends_on = [module.secrets]
   source = "../../iaac/terraform/hyperfine/modules"
@@ -52,7 +49,7 @@ module "kubeflow" {
   s3_bucket = var.s3_bucket_name
 }
 
-
+/*
 module "dex" {
   depends_on = [module.kubeflow]
   source = "../../iaac/terraform/hyperfine/dex"
@@ -65,8 +62,6 @@ module "dex" {
 
   subdomain = "blue"
 }
-
-
 
 module "user" {
   for_each = var.users

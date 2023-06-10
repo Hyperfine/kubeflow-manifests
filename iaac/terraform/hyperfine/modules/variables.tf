@@ -6,6 +6,22 @@ variable kf_helm_repo_path {
   default = "../../.."
 }
 
+variable "rds_host" {
+  description = "rds host name to use"
+  type        = string
+}
+
+variable "s3_bucket" {
+  description = "s3 bucket name to use"
+  type = string
+}
+
+variable "s3_region" {
+  description = "region for s3 bucket"
+  type        = string
+  default     = "us-east-1"
+}
+
 ### notebook configurations
 
 variable "enable_aws_telemetry" {
