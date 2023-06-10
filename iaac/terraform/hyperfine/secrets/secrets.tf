@@ -76,7 +76,7 @@ spec:
 YAML
 }
 
-
+/*
 resource "kubectl_manifest" "kf-secret-pod" {
   depends_on = [kubectl_manifest.kf-secret-class]
   yaml_body  = <<YAML
@@ -126,3 +126,4 @@ spec:
         name: "${aws_secretsmanager_secret.s3-secret.name}"
 YAML
 }
+*/
