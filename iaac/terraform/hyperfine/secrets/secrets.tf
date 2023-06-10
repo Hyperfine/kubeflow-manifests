@@ -15,6 +15,9 @@ module "irsa" {
   kubernetes_service_account = local.sa_name
   irsa_iam_policies          = [aws_iam_policy.s3_policy.arn]
   eks_cluster_id             = var.eks_cluster_name
+
+  create_kubernetes_namespace = false
+  create_service_account_secret_token = true
 }
 
 
