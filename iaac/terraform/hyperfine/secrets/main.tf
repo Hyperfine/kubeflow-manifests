@@ -141,11 +141,13 @@ data "aws_iam_policy_document" "kf-ssm" {
     effect    = "Allow"
     actions   = ["kms:Decrypt", "kms:DescribeKey"]
     resources = concat([aws_kms_key.kms.arn], var.additional_kms_key_ids)
+    sid       = "Allow decryption of secrest"
   }
 
   statement {
-    effect = "Allow"
-    actions = [
+    sid      = "Allow access to secrets"
+    effect   = "Allow"
+    actions  = [
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
     ]
