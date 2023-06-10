@@ -1,27 +1,27 @@
 # access key info
 variable "s3_bucket_name" {
   description = "bucket to access"
-  type = string
+  type        = string
 }
 
 variable "rds_secret_name" {
   description = "secretmaanger for rds config"
-  type = string
+  type        = string
 }
 
 variable "rds_host" {
   description = "rds host name to use"
-  type = string
+  type        = string
 }
 
 variable "s3_region" {
   description = "region for s3 bucket"
-  type = string
-  default = "us-east-1"
+  type        = string
+  default     = "us-east-1"
 }
 
 # optional
-variable additional_kms_key_ids {
+variable "additional_kms_key_ids" {
   description = "list of kms keys to add to"
   type        = list(string)
   default     = []
@@ -31,7 +31,7 @@ variable additional_kms_key_ids {
 # PROVIDER CONFIGS
 variable "eks_cluster_name" {
   description = "cluster to install kubeflow to"
-  type = string
+  type        = string
 }
 
 variable "use_exec_plugin_for_auth" {

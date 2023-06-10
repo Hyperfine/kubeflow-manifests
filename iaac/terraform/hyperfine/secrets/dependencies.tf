@@ -24,6 +24,6 @@ data "aws_secretsmanager_secret_version" "rds_secret_version" {
 
 locals {
   rds_secret = jsondecode(data.aws_secretsmanager_secret_version.rds_secret_version.secret_string)
-  oidc_id = trimprefix(data.aws_eks_cluster.eks_cluster.identity.0.oidc.0.issuer, "https://")
+  oidc_id    = trimprefix(data.aws_eks_cluster.eks_cluster.identity.0.oidc.0.issuer, "https://")
 
 }

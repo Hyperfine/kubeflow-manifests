@@ -1,26 +1,26 @@
 
 locals {
-  sa_name = "kf-secrets-manager-sa"
+  sa_name   = "kf-secrets-manager-sa"
   namespace = "kubeflow"
 }
 
 resource "aws_iam_role" "kf-irsa" {
   force_detach_policies = true
-  name  = "${var.eks_cluster_name}-${local.sa_name}"
+  name                  = "${var.eks_cluster_name}-${local.sa_name}"
   assume_role_policy = jsonencode({
-    "Version": "2012-10-17"
+    "Version" : "2012-10-17"
 
-    "Statement": [{
-      "Action": "sts:AssumeRoleWithWebIdentity"
-      "Effect": "Allow"
-      "Principal": {
-        "Federated": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_id}"
+    "Statement" : [{
+      "Action" : "sts:AssumeRoleWithWebIdentity"
+      "Effect" : "Allow"
+      "Principal" : {
+        "Federated" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_id}"
       }
-      "Condition": {
-        "StringEquals": {
-          "${local.oidc_id}:sub": [
-             "system:serviceaccount:${local.namespace}:${local.sa_name}"
-            ]
+      "Condition" : {
+        "StringEquals" : {
+          "${local.oidc_id}:sub" : [
+            "system:serviceaccount:${local.namespace}:${local.sa_name}"
+          ]
         }
       }
     }]
@@ -28,19 +28,19 @@ resource "aws_iam_role" "kf-irsa" {
 }
 
 
-resource aws_iam_policy "kf-ssm" {
-  name = "${local.sa_name}-ssm-policy"
+resource "aws_iam_policy" "kf-ssm" {
+  name   = "${local.sa_name}-ssm-policy"
   policy = data.aws_iam_policy_document.kf-ssm.json
 }
 
-resource aws_iam_role_policy_attachment "kf-secret" {
-  role = aws_iam_role.kf-irsa.name
+resource "aws_iam_role_policy_attachment" "kf-secret" {
+  role       = aws_iam_role.kf-irsa.name
   policy_arn = aws_iam_policy.kf-ssm.arn
 }
 
 resource "kubectl_manifest" "kf-irsa" {
   depends_on = [aws_iam_role.kf-irsa]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -53,7 +53,7 @@ YAML
 
 resource "kubectl_manifest" "kf-secret-class" {
   depends_on = [kubectl_manifest.kf-irsa]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
 metadata:
@@ -114,7 +114,7 @@ YAML
 
 resource "kubectl_manifest" "kf-secret-pod" {
   depends_on = [kubectl_manifest.kf-secret-class]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: apps/v1
 kind: Deployment
 metadata:

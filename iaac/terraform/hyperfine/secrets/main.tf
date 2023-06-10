@@ -2,29 +2,29 @@
 resource "aws_kms_key" "kms" {
   description             = "${var.eks_cluster_name}-kf-kms"
   deletion_window_in_days = 7
-  enable_key_rotation = true
+  enable_key_rotation     = true
   policy = jsonencode({
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid" : "Allow access to kubeflow secrets",
-      "Effect" : "Allow",
-      "Principal" : {
-        "AWS" : [
-          data.aws_caller_identity.current.arn,
-          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
-          aws_iam_user.s3_user.arn,
-        ]
-      },
-      "Action" : [
-        "kms:*"
-      ],
-      "Resource" : "*"
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "Allow access to kubeflow secrets",
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : [
+            data.aws_caller_identity.current.arn,
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+            aws_iam_user.s3_user.arn,
+          ]
+        },
+        "Action" : [
+          "kms:*"
+        ],
+        "Resource" : "*"
     }]
   })
 }
 
-resource aws_kms_alias "alias" {
+resource "aws_kms_alias" "alias" {
   target_key_id = aws_kms_key.kms.key_id
   name          = "alias/${var.eks_cluster_name}-kf-kms"
 }
@@ -39,31 +39,31 @@ resource "aws_iam_access_key" "s3_keys" {
 }
 
 resource "aws_iam_policy" "s3_policy" {
-  name   = "${var.eks_cluster_name}-${var.s3_bucket_name}-secret"
+  name = "${var.eks_cluster_name}-${var.s3_bucket_name}-secret"
   policy = jsonencode(
-  {
-  "Version": "2012-10-17",
-  "Statement": [
     {
-      "Effect": "Allow",
-      "Action": [
-        "s3:ListBucket",
-        "s3:GetBucketLocation"
-      ],
-      "Resource": [data.aws_s3_bucket.bucket.arn]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:GetBucketLocation",
-        "s3:PutObject",
-        "s3:GetObject",
-        "s3:DeleteObject"
-      ],
-      "Resource": ["${data.aws_s3_bucket.bucket.arn}/*"]
+      "Version" : "2012-10-17",
+      "Statement" : [
+        {
+          "Effect" : "Allow",
+          "Action" : [
+            "s3:ListBucket",
+            "s3:GetBucketLocation"
+          ],
+          "Resource" : [data.aws_s3_bucket.bucket.arn]
+        },
+        {
+          "Effect" : "Allow",
+          "Action" : [
+            "s3:GetBucketLocation",
+            "s3:PutObject",
+            "s3:GetObject",
+            "s3:DeleteObject"
+          ],
+          "Resource" : ["${data.aws_s3_bucket.bucket.arn}/*"]
+        }
+      ]
     }
-  ]
-}
   )
 }
 
@@ -78,8 +78,8 @@ resource "aws_iam_group_membership" "minio-group-membership" {
 }
 
 resource "aws_iam_group_policy_attachment" "s3-policy" {
-  group       = aws_iam_group.minio-group.name
-  policy_arn  = aws_iam_policy.s3_policy.arn
+  group      = aws_iam_group.minio-group.name
+  policy_arn = aws_iam_policy.s3_policy.arn
 }
 
 resource "aws_secretsmanager_secret" "s3-secret" {
@@ -89,44 +89,44 @@ resource "aws_secretsmanager_secret" "s3-secret" {
 }
 
 resource "aws_secretsmanager_secret_version" "s3-secret-version" {
-  secret_id     = aws_secretsmanager_secret.s3-secret.id
+  secret_id = aws_secretsmanager_secret.s3-secret.id
   secret_string = jsonencode({
-      "accesskey":aws_iam_access_key.s3_keys.id,
-      "secretkey":aws_iam_access_key.s3_keys.secret
+    "accesskey" : aws_iam_access_key.s3_keys.id,
+    "secretkey" : aws_iam_access_key.s3_keys.secret
   })
 }
 
 resource "aws_secretsmanager_secret" "rds-secret" {
-  name                      = "${var.eks_cluster_name}-kf-rds-secret"
+  name                    = "${var.eks_cluster_name}-kf-rds-secret"
   recovery_window_in_days = 0
   kms_key_id              = aws_kms_key.kms.arn
 }
 
 # add additional info to rds secret and encrypt for kubeflow
 resource "aws_secretsmanager_secret_version" "rds-secret-version" {
-  secret_id     = aws_secretsmanager_secret.rds-secret.id
+  secret_id = aws_secretsmanager_secret.rds-secret.id
   secret_string = jsonencode({
-    "database": local.rds_secret["dbname"],
-    "host": var.rds_host,
-    "password": local.rds_secret["password"],
-    "port": local.rds_secret["port"],
-    "username": local.rds_secret["username"]
+    "database" : local.rds_secret["dbname"],
+    "host" : var.rds_host,
+    "password" : local.rds_secret["password"],
+    "port" : local.rds_secret["port"],
+    "username" : local.rds_secret["username"]
   })
 }
 
 
-data aws_iam_policy_document "kf-ssm" {
+data "aws_iam_policy_document" "kf-ssm" {
   version = "2012-10-17"
 
   statement {
-    effect = "Allow"
-    actions = ["kms:Decrypt", "kms:DescribeKey"]
+    effect    = "Allow"
+    actions   = ["kms:Decrypt", "kms:DescribeKey"]
     resources = concat([aws_kms_key.kms.key_id], var.additional_kms_key_ids)
   }
 
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
     ]
