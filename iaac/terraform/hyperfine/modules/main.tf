@@ -21,6 +21,9 @@ terraform {
 module context {
   source = "../../utils/blueprints-extended-outputs"
   eks_cluster_id = var.eks_cluster_name
+  providers = {
+    aws = aws
+  }
 }
 
 
@@ -31,6 +34,9 @@ module "kubeflow_issuer" {
   }
 
   addon_context = module.context.addon_context
+   providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_istio" {
@@ -40,6 +46,10 @@ module "kubeflow_istio" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_issuer]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_knative_serving" {
@@ -49,6 +59,10 @@ module "kubeflow_knative_serving" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_istio]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_cluster_local_gateway" {
@@ -58,6 +72,10 @@ module "kubeflow_cluster_local_gateway" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_knative_serving]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_knative_eventing" {
@@ -67,6 +85,10 @@ module "kubeflow_knative_eventing" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_cluster_local_gateway]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_roles" {
@@ -76,6 +98,10 @@ module "kubeflow_roles" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_knative_serving]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_istio_resources" {
@@ -85,6 +111,10 @@ module "kubeflow_istio_resources" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_roles]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_pipelines" {
@@ -116,7 +146,9 @@ module "kubeflow_pipelines" {
 
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_istio_resources]
-
+  providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_kserve" {
@@ -126,6 +158,10 @@ module "kubeflow_kserve" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_istio_resources]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_models_web_app" {
@@ -135,6 +171,10 @@ module "kubeflow_models_web_app" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_kserve]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_katib" {
@@ -144,6 +184,10 @@ module "kubeflow_katib" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_models_web_app]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_central_dashboard" {
@@ -153,6 +197,10 @@ module "kubeflow_central_dashboard" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_katib]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_admission_webhook" {
@@ -162,6 +210,10 @@ module "kubeflow_admission_webhook" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_central_dashboard]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_notebook_controller" {
@@ -185,6 +237,10 @@ module "kubeflow_notebook_controller" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_central_dashboard]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_jupyter_web_app" {
@@ -195,6 +251,10 @@ module "kubeflow_jupyter_web_app" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_notebook_controller]
+
+    providers = {
+    aws = aws
+  }
 }
 
 
@@ -205,6 +265,10 @@ module "kubeflow_profiles_and_kfam" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_central_dashboard]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_volumes_web_app" {
@@ -214,6 +278,10 @@ module "kubeflow_volumes_web_app" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_profiles_and_kfam]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_tensorboards_web_app" {
@@ -223,6 +291,10 @@ module "kubeflow_tensorboards_web_app" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_volumes_web_app]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_tensorboard_controller" {
@@ -232,6 +304,10 @@ module "kubeflow_tensorboard_controller" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_tensorboards_web_app]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_training_operator" {
@@ -241,6 +317,10 @@ module "kubeflow_training_operator" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_tensorboard_controller]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_aws_telemetry" {
@@ -251,6 +331,10 @@ module "kubeflow_aws_telemetry" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_training_operator]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "kubeflow_user_namespace" {
@@ -260,9 +344,17 @@ module "kubeflow_user_namespace" {
   }
   addon_context = module.context.addon_context
   depends_on = [module.kubeflow_aws_telemetry]
+
+    providers = {
+    aws = aws
+  }
 }
 
 module "ack_sagemaker" {
   source            = "../../common/ack-sagemaker-controller"
   addon_context = module.context.addon_context
+
+    providers = {
+    aws = aws
+  }
 }
