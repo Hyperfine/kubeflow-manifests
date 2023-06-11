@@ -1,3 +1,9 @@
+variable chart_root_folder {
+  description = "root folder of charts"
+  type = string
+  default = "../../charts"
+}
+
 
 variable "rds_host" {
   description = "rds host name to use"
