@@ -32,6 +32,7 @@ resource "kubernetes_namespace_v1" "kubeflow" {
     name = "kubeflow"
   }
 }
+
 module "secrets" {
   depends_on = [kubernetes_namespace_v1.kubeflow]
   source = "../../iaac/terraform/hyperfine/secrets"

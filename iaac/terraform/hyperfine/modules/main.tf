@@ -25,17 +25,21 @@ resource helm_release "kubeflow_issuer" {
   chart = "${var.chart_root_folder}/common/kubeflow-issuer"
 }
 
-/*
+
 resource helm_release "istio" {
   depends_on = [helm_release.kubeflow_issuer]
 
   name = "istio"
-  chart = "${var.kf_helm_repo_path}/charts/common/istio-1-14"
+  namespace = "kubeflow"
+  chart = "${var.chart_root_folder}/common/istio-1-14"
 }
 
 resource helm_release "cluster-local-gateway" {
+  depends_on = [helm_release.istio]
+
   name = "cluster-local-gateway"
-  chart = "${var.kf_helm_repo_path}/charts/common/cluster-local-gateway"
+  namespace = "kubeflow"
+  chart = "${var.chart_root_folder}/common/cluster-local-gateway"
 }
 
 
@@ -43,7 +47,8 @@ resource helm_release "knative-serving" {
   depends_on = [helm_release.istio]
 
   name = "knative-serving"
-  chart = "${var.kf_helm_repo_path}/charts/common/knative-serving"
+  namespace = "kubeflow"
+  chart = "${var.chart_root_folder}/charts/common/knative-serving"
 
 }
 
@@ -51,7 +56,8 @@ resource helm_release "kubeflow_knative_eventing" {
   depends_on = [helm_release.knative-serving]
 
   name = "knative-eventing"
-  chart = "${var.kf_helm_repo_path}/charts/common/knative-eventing"
+  namespace = "kubeflow"
+  chart = "${var.chart_root_folder}/charts/common/knative-eventing"
 }
 
 /*
