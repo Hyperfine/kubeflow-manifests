@@ -51,13 +51,16 @@ resource "helm_release" "istio-istiod" {
   wait = true
 }
 
-resource helm_release "gateway" {
+resource "helm_release" "gateway" {
   depends_on = [helm_release.istio-istiod]
 
-  namespace = "istio-system"
-  name = "istio-gateway"
-  chart = "gateway"
-  version = var.istio_version
+  repository = "https://istio-release.storage.googleapis.com/charts"
+  namespace  = "istio-system"
+  name       = "istio-gateway"
+  chart      = "gateway"
+  version    = var.istio_version
+
+  wait = true
 }
 
 /*
