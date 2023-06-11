@@ -48,8 +48,8 @@ resource "aws_kms_alias" "alias" {
   name          = "alias/${var.eks_cluster_name}-kf-kms"
 }
 
-# https://github.com/awslabs/kubeflow-manifests/issues/44 minio proxy access
 resource "aws_iam_user" "s3_user" {
+  #checkov:skip=CKV_AWS_273: https://github.com/awslabs/kubeflow-manifests/issues/44 minio proxy access
   name = "${var.eks_cluster_name}-${var.s3_bucket_name}-kf"
 }
 
