@@ -17,10 +17,8 @@ locals {
   azs      = slice(local.available_azs, 0, local.az_count)
 
   tags = {
-    Blueprint       = local.cluster_name
-    GithubRepo      = "github.com/awslabs/kubeflow-manifests"
     Platform        = "kubeflow-on-aws"
-    KubeflowVersion = "1.6"
+    KubeflowVersion = "1.7"
   }
 
   kf_helm_repo_path = var.kf_helm_repo_path
@@ -114,7 +112,7 @@ data "aws_ec2_instance_type_offerings" "availability_zones_gpu" {
 # EKS Blueprints
 #---------------------------------------------------------------
 module "eks_blueprints" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.28.0"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.31.0"
 
   cluster_name    = local.cluster_name
   cluster_version = local.eks_version
@@ -129,7 +127,7 @@ module "eks_blueprints" {
 }
 
 module "eks_blueprints_kubernetes_addons" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.28.0"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.31.0"
 
   eks_cluster_id       = module.eks_blueprints.eks_cluster_id
   eks_cluster_endpoint = module.eks_blueprints.eks_cluster_endpoint
@@ -145,14 +143,26 @@ module "eks_blueprints_kubernetes_addons" {
   # EKS Blueprints Add-ons
   enable_cert_manager                 = true
   enable_aws_load_balancer_controller = true
-  enable_aws_efs_csi_driver           = true
-  enable_aws_fsx_csi_driver           = true
+
+  aws_efs_csi_driver_helm_config = {
+    namespace = "kube-system"
+    version   = "2.4.1"
+  }
+
+  enable_aws_efs_csi_driver = true
+
+  aws_fsx_csi_driver_helm_config = {
+    namespace = "kube-system"
+    version   = "1.5.1"
+  }
+
+  enable_aws_fsx_csi_driver = true
 
   enable_nvidia_device_plugin = local.using_gpu
 
   secrets_store_csi_driver_helm_config = {
     namespace = "kube-system"
-    version = "1.3.2"
+    version   = "1.3.2"
     set = [
       {
         name  = "syncSecret.enabled",
@@ -222,11 +232,12 @@ module "kubeflow_components" {
   generate_db_password           = var.generate_db_password
 
   # s3
-  use_s3 = var.use_s3
-  minio_service_region = var.minio_service_region
-  force_destroy_s3_bucket = var.force_destroy_s3_bucket
-  minio_aws_access_key_id = var.minio_aws_access_key_id
-  minio_aws_secret_access_key = var.minio_aws_secret_access_key
+  use_s3                        = var.use_s3
+  pipeline_s3_credential_option = var.pipeline_s3_credential_option
+  minio_service_region          = var.minio_service_region
+  force_destroy_s3_bucket       = var.force_destroy_s3_bucket
+  minio_aws_access_key_id       = var.minio_aws_access_key_id
+  minio_aws_secret_access_key   = var.minio_aws_secret_access_key
 
   # cognito
   use_cognito                     = var.use_cognito
@@ -235,6 +246,8 @@ module "kubeflow_components" {
   create_subdomain                = var.create_subdomain
   cognito_user_pool_name          = var.cognito_user_pool_name
   load_balancer_scheme            = var.load_balancer_scheme
+
+  tags = local.tags
 
   providers = {
     aws          = aws
@@ -248,7 +261,7 @@ module "kubeflow_components" {
 #---------------------------------------------------------------
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "3.14.4"
+  version = "5.0.0"
 
   name = local.cluster_name
   cidr = local.vpc_cidr

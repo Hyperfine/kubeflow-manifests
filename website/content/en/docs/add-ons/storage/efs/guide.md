@@ -6,6 +6,8 @@ weight = 10
 
 This guide describes how to use Amazon EFS as Persistent storage on top of an existing Kubeflow deployment.  
 
+> Note: For Terraform deployment users, some steps that should be skipped will have a note indicating such below.
+
 ## 1.0 Prerequisites
 For this guide, we assume that you already have an EKS Cluster with Kubeflow installed. The FSx CSI Driver can be installed and configured as a separate resource on top of an existing Kubeflow deployment. See the [deployment options]({{< ref "/docs/deployment" >}}) and [general prerequisites]({{< ref "/docs/deployment/vanilla/guide.md" >}}) for more information.
 
@@ -40,6 +42,7 @@ export CLAIM_NAME=<efs-claim>
 You can either use Automated or Manual setup to set up the resources required. If you choose the manual route, you get another choice between **static and dynamic provisioning**, so pick whichever suits you. On the other hand, for the automated script we currently only support **dynamic provisioning**. Whichever combination you pick, be sure to continue picking the appropriate sections through the rest of this guide. 
 
 ### 2.1 [Option 1] Automated setup
+
 The script automates all the manual resource creation steps but is currently only available for **Dynamic Provisioning** option.  
 It performs the required cluster configuration, creates an EFS file system and it also takes care of creating a storage class for dynamic provisioning. Once done, move to section 3.0. 
 1. Run the following commands from the `tests/e2e` directory:
@@ -51,15 +54,22 @@ cd $GITHUB_ROOT/tests/e2e
 pip install -r requirements.txt
 ```
 
-3. Run the automated script.
+3. Run the appropriate automated script command for your deployment type.
 
 > Note: If you want the script to create a new security group for EFS, specify a name here. On the other hand, if you want to use an existing Security group, you can specify that name too. We have used the same name as the claim we are going to create. 
 
-```bash
+{{< tabpane persistLang=false >}}
+{{< tab header="Manifest" lang="toml" >}}
 export SECURITY_GROUP_TO_CREATE=$CLAIM_NAME
 
 python utils/auto-efs-setup.py --region $CLUSTER_REGION --cluster $CLUSTER_NAME --efs_file_system_name $CLAIM_NAME --efs_security_group_name $SECURITY_GROUP_TO_CREATE
-```
+{{< /tab >}}
+{{< tab header="Terraform" lang="toml" >}}
+export SECURITY_GROUP_TO_CREATE=$CLAIM_NAME
+
+python utils/auto-efs-setup.py --region $CLUSTER_REGION --cluster $CLUSTER_NAME --efs_file_system_name $CLAIM_NAME --efs_security_group_name $SECURITY_GROUP_TO_CREATE --skip-driver-installation
+{{< /tab >}}
+{{< /tabpane >}}
 
 4. The script above takes care of creating the `StorageClass (SC)` which is a cluster scoped resource. In order to create the `PersistentVolumeClaim (PVC)` you can either use the yaml file provided in this directory or use the Kubeflow UI directly. 
 The PVC needs to be in the namespace you will be accessing it from. Replace the `kubeflow-user-example-com` namespace specified the below with the namespace for your kubeflow user and edit the `efs/dynamic-provisioning/pvc.yaml` file accordingly. 
@@ -80,11 +90,15 @@ If you prefer to manually setup each component then you can follow this manual g
 export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 ```
 
-#### 1. Install the EFS CSI driver
-We recommend installing the EFS CSI Driver v1.3.4 directly from the [the aws-efs-csi-driver github repo](https://github.com/kubernetes-sigs/aws-efs-csi-driver) as follows:
+#### 1. Driver install and IAM configuration
+
+> Important: Skip this step if you are using a Terraform deployment since EFS CSI driver is installed by default unless you set `enable_aws_efs_csi_driver = false`.
+
+##### 1.1 Install the EFS CSI driver
+We recommend installing the EFS CSI Driver v1.5.4 directly from the [the aws-efs-csi-driver github repo](https://github.com/kubernetes-sigs/aws-efs-csi-driver) as follows:
 
 ```bash
-kubectl apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/stable/?ref=tags/v1.3.4"
+kubectl apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/stable/?ref=tags/v1.5.4"
 ```
 
 You can confirm that EFS CSI Driver was installed into the default kube-system namespace for you. You can check using the following command:
@@ -95,13 +109,13 @@ NAME              ATTACHREQUIRED   PODINFOONMOUNT   MODES        AGE
 efs.csi.aws.com   false            false            Persistent   5d17h
 ```
 
-#### 2. Create the IAM Policy for the CSI driver
+##### 1.2. Create the IAM Policy for the CSI driver
 The CSI driver's service account (created during installation) requires IAM permission to make calls to AWS APIs on your behalf. Here, we will be annotating the Service Account `efs-csi-controller-sa` with an IAM Role which has the required permissions.
 
 1. Download the IAM policy document from GitHub as follows.
 
 ```bash
-curl -o iam-policy-example.json https://raw.githubusercontent.com/kubernetes-sigs/aws-efs-csi-driver/v1.3.4/docs/iam-policy-example.json
+curl -o iam-policy-example.json https://raw.githubusercontent.com/kubernetes-sigs/aws-efs-csi-driver/v1.5.4/docs/iam-policy-example.json
 ```
 
 2. Create the policy.
@@ -129,7 +143,7 @@ eksctl create iamserviceaccount \
 kubectl describe -n kube-system serviceaccount efs-csi-controller-sa
 ```
 
-#### 3. Manually create an instance of the EFS filesystem
+#### 2. Manually create an instance of the EFS filesystem
 Please refer to the official [AWS EFS CSI Document](https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html#efs-create-filesystem) for detailed instructions on creating an EFS filesystem. 
 
 > Note: For this guide, we assume that you are creating your EFS Filesystem in the same VPC as your EKS Cluster. 
@@ -137,7 +151,7 @@ Please refer to the official [AWS EFS CSI Document](https://docs.aws.amazon.com/
 #### Choose between dynamic and static provisioning  
 In the following section, you have to choose between setting up [dynamic provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) or setting up static provisioning.
 
-#### 4. [Option 1] Dynamic provisioning  
+#### 3. [Option 1] Dynamic provisioning  
 1. Use the `$file_system_id` you recorded in section 3 above or use the AWS Console to get the filesystem id of the EFS file system you want to use. Now edit the `dynamic-provisioning/sc.yaml` file by chaning `<YOUR_FILE_SYSTEM_ID>` with your `fs-xxxxxx` file system id. You can also change it using the following command :  
 ```bash
 file_system_id=$file_system_id yq e '.parameters.fileSystemId = env(file_system_id)' -i $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/sc.yaml
@@ -161,7 +175,7 @@ kubectl apply -f $GITHUB_STORAGE_DIR/efs/dynamic-provisioning/pvc.yaml
 
 Note : The `StorageClass` is a cluster scoped resource which means we only need to do this step once per cluster. 
 
-#### 4. [Option 2] Static Provisioning
+#### 3. [Option 2] Static Provisioning
 Using [this sample](https://github.com/kubernetes-sigs/aws-efs-csi-driver/tree/master/examples/kubernetes/multiple_pods), we provided the required spec files in the sample subdirectory. However, you can create the PVC another way. 
 
 1. Use the `$file_system_id` you recorded in section 3 above or use the AWS Console to get the filesystem id of the EFS file system you want to use. Now edit the last line of the static-provisioning/pv.yaml file to specify the `volumeHandle` field to point to your EFS filesystem. Replace `$file_system_id` if it is not already set. 

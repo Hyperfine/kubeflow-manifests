@@ -36,6 +36,17 @@ variable "use_s3" {
   default = true
 }
 
+variable "pipeline_s3_credential_option" {
+  description = "The credential type to use to authenticate KFP to use S3. One of [irsa, static]"
+  type        = string
+  default     = "irsa"
+
+  validation {
+    condition     = "irsa" == var.pipeline_s3_credential_option || "static" == var.pipeline_s3_credential_option
+    error_message = "The pipeline_s3_credential_option must be one of [irsa, static]"
+  }
+}
+
 variable "use_cognito" {
   type    = bool
   default = true
@@ -222,4 +233,10 @@ variable "notebook_idleness_check_period" {
   description = "How frequently the controller should poll each Notebook to update its LAST_ACTIVITY_ANNOTATION (minutes)"
   type        = string
   default     = 5
+}
+
+variable "tags" {
+  description = "Additional tags (e.g. `map('BusinessUnit`,`XYZ`)"
+  type        = map(string)
+  default     = {}
 }

@@ -30,7 +30,7 @@ from e2e.conftest import (
 
 from e2e.fixtures.cluster import cluster
 from e2e.fixtures.secrets import aws_secrets_driver, create_secret_string
-from e2e.fixtures.installation import installation, clone_upstream
+from e2e.fixtures.installation import installation, clone_upstream, ebs_addon
 from e2e.fixtures.clients import (
     kfp_client,
     port_forward,
@@ -39,6 +39,7 @@ from e2e.fixtures.clients import (
     login,
     password,
     client_namespace,
+    account_id,
     create_k8s_admission_registration_api_client,
 )
 from e2e.utils import mysql_utils
@@ -56,7 +57,7 @@ from e2e.utils.custom_resources import (
 from kfp_server_api.exceptions import ApiException as KFPApiException
 from kubernetes.client.exceptions import ApiException as K8sApiException
 
-INSTALLATION_PATH_FILE = "./resources/installation_config/rds-s3.yaml"
+INSTALLATION_PATH_FILE = "./resources/installation_config/rds-s3-static.yaml"
 RDS_S3_CLOUDFORMATION_TEMPLATE_PATH = "./resources/cloudformation-templates/rds-s3.yaml"
 CUSTOM_RESOURCE_TEMPLATES_FOLDER = "./resources/custom-resource-templates"
 DISABLE_PIPELINE_CACHING_PATCH_FILE = (

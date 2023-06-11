@@ -2,6 +2,11 @@
 variable "cluster_name" {
   description = "Name of cluster"
   type        = string
+
+  validation {
+    condition     = length(var.cluster_name) > 0 && length(var.cluster_name) <= 19
+    error_message = "The cluster name must be between [1, 19] characters"
+  }
 }
 
 variable "cluster_region" {
@@ -12,7 +17,7 @@ variable "cluster_region" {
 variable "eks_version" {
   description = "The EKS version to use"
   type        = string
-  default     = "1.22"
+  default     = "1.25"
 }
 
 variable "node_instance_type" {

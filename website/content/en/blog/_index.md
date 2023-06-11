@@ -29,8 +29,6 @@ Find case studies, use cases, best practices, benchmarks, and more.
 
 4. [Build an hybrid distributed training architecture using Kubeflow on AWS and Amazon SageMaker](https://aws.amazon.com/blogs/machine-learning/build-flexible-and-scalable-distributed-training-architectures-using-kubeflow-on-aws-and-amazon-sagemaker/). This post further illustrates how you can use open-source libraries in your deep learning training script and still make it compatible to run on both Kubernetes and SageMaker in a platform agnostic way.
 
-5. [Use Amazon SageMaker Operators for Kubernetes (ACK) to train and deploy machine learning models](https://aws.amazon.com/blogs/machine-learning/use-amazon-sagemaker-ack-operators-to-train-and-deploy-machine-learning-models/).
-
 ## Watch 
 
 This section curates a list of recorded virtual workshops, demos, and general presentations illustrating how to leverage Kubeflow on AWS and SageMaker to build, run, and monitor scalable ML workflows on Kubernetes.
@@ -44,4 +42,4 @@ The workshop has further used this automated setup to demonstrate how Amazon Sag
 
 4. [Live at re:Mars Session "Deploy and scale your ML workflow on Kubernetes with Kubeflow on AWS"](https://www.linkedin.com/video/live/urn:li:ugcPost:6945501585447804929/). You will be prompted to log into LinkedIn. July, 2022
 
-5. [re:Mars Session “AWS Distribution of Kubeflow supporting Kubeflow v1.4”](https://www.youtube.com/watch?v=RfJcDhZ8PJY&list=PL2yQDdvlhXf8cfiry7ngFIK7hprDWGJp0&index=7) - Kubeflow on AWS value proposition and demo. July 8, 2022.
+1. [re:Mars Session “AWS Distribution of Kubeflow supporting Kubeflow v1.4”](https://www.youtube.com/watch?v=RfJcDhZ8PJY&list=PL2yQDdvlhXf8cfiry7ngFIK7hprDWGJp0&index=7) - Kubeflow on AWS value proposition and demo. July 8, 2022.

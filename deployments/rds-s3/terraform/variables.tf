@@ -2,6 +2,11 @@
 variable "cluster_name" {
   description = "Name of cluster"
   type        = string
+
+  validation {
+    condition     = length(var.cluster_name) > 0 && length(var.cluster_name) <= 19
+    error_message = "The cluster name must be between [1, 19] characters"
+  }
 }
 
 variable "cluster_region" {
@@ -12,7 +17,7 @@ variable "cluster_region" {
 variable "eks_version" {
   description = "The EKS version to use"
   type        = string
-  default     = "1.22"
+  default     = "1.25"
 }
 
 variable "node_instance_type" {
@@ -35,6 +40,17 @@ variable "use_rds" {
 variable "use_s3" {
   type    = bool
   default = true
+}
+
+variable "pipeline_s3_credential_option" {
+  description = "The credential type to use to authenticate KFP to use S3. One of [irsa, static]"
+  type        = string
+  default     = "irsa"
+
+  validation {
+    condition     = "irsa" == var.pipeline_s3_credential_option || "static" == var.pipeline_s3_credential_option
+    error_message = "The pipeline_s3_credential_option must be one of [irsa, static]"
+  }
 }
 
 variable "enable_aws_telemetry" {

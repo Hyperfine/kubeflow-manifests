@@ -13,13 +13,33 @@ import json
 
 
 from e2e.utils.constants import DEFAULT_USER_NAMESPACE
-from e2e.utils.utils import load_yaml_file, wait_for, rand_name, write_yaml_file
+from e2e.utils.utils import (
+    load_yaml_file,
+    wait_for,
+    rand_name,
+    write_yaml_file,
+    exec_shell,
+    load_json_file,
+    kubectl_apply,
+)
+
 from e2e.utils.config import configure_resource_fixture, metadata
-
 from e2e.conftest import region
+from e2e.utils.load_balancer.setup_load_balancer import (
+    dns_update,
+    wait_for_alb_dns,
+    wait_for_alb_status,
+    get_ingress,
+)
 
+from e2e.utils.kserve.inference_sample import run_inference_sample
 from e2e.fixtures.cluster import cluster
-from e2e.fixtures.installation import installation, configure_manifests, clone_upstream
+from e2e.fixtures.installation import (
+    installation,
+    configure_manifests,
+    clone_upstream,
+    ebs_addon,
+)
 from e2e.fixtures.clients import (
     kfp_client,
     port_forward,
@@ -28,8 +48,10 @@ from e2e.fixtures.clients import (
     login,
     password,
     client_namespace,
+    account_id,
 )
 
+from e2e.utils.aws.route53 import Route53HostedZone
 from e2e.utils.custom_resources import (
     create_katib_experiment_from_yaml,
     get_katib_experiment,
@@ -39,6 +61,16 @@ from e2e.utils.custom_resources import (
 from e2e.utils.load_balancer.common import CONFIG_FILE as LB_CONFIG_FILE
 from kfp_server_api.exceptions import ApiException as KFPApiException
 from kubernetes.client.exceptions import ApiException as K8sApiException
+from e2e.fixtures.kserve_dependencies import (
+    kserve_iam_service_account,
+    kserve_secret,
+    clone_tensorflow_serving,
+    s3_bucket_with_data_kserve,
+    kserve_inference_service,
+)
+
+from e2e.utils.aws.iam import IAMRole
+from e2e.utils.s3_for_training.data_bucket import S3BucketWithTrainingData
 
 
 from e2e.utils.aws.iam import IAMRole
@@ -47,6 +79,10 @@ from e2e.utils.s3_for_training.data_bucket import S3BucketWithTrainingData
 
 INSTALLATION_PATH_FILE = "./resources/installation_config/vanilla.yaml"
 CUSTOM_RESOURCE_TEMPLATES_FOLDER = "./resources/custom-resource-templates"
+PROFILE_NAMESPACE = "kubeflow-user-example-com"
+
+RANDOM_PREFIX = rand_name("kfp-")
+PIPELINE_NAME_KFP = "[Tutorial] SageMaker Training"
 
 RANDOM_PREFIX = rand_name("kfp-")
 PIPELINE_NAME_KFP = "[Tutorial] SageMaker Training"
@@ -104,6 +140,9 @@ def setup_load_balancer(
                 },
                 "subDomain": {
                     "name": subdomain_name,
+                    "subjectAlternativeNames": [
+                        f"{PROFILE_NAMESPACE}.{subdomain_name}"
+                    ],
                 },
             },
         }
@@ -113,6 +152,26 @@ def setup_load_balancer(
         retcode = subprocess.call(cmd, stderr=subprocess.STDOUT, env=env_value)
         assert retcode == 0
         lb_deps["config"] = load_yaml_file(LB_CONFIG_FILE)
+
+        # update dns record for kserve domain
+        subdomain_hosted_zone_id = lb_deps["config"]["route53"]["subDomain"][
+            "hostedZoneId"
+        ]
+        subdomain_hosted_zone = Route53HostedZone(
+            domain=subdomain_name, region=region, id=subdomain_hosted_zone_id
+        )
+        wait_for_alb_dns(cluster, region)
+        ingress = get_ingress(cluster, region)
+        alb_dns = ingress["status"]["loadBalancer"]["ingress"][0]["hostname"]
+        wait_for_alb_status(alb_dns, region)
+
+        _kserve_record = subdomain_hosted_zone.generate_change_record(
+            record_name=f"*.{PROFILE_NAMESPACE}.{subdomain_hosted_zone.domain}",
+            record_type="CNAME",
+            record_value=[alb_dns],
+        )
+
+        subdomain_hosted_zone.change_record_set([_kserve_record])
 
     def on_delete():
         if metadata.get("lb_deps"):
@@ -185,18 +244,55 @@ def sagemaker_execution_role(region, metadata, request):
 
 
 @pytest.fixture(scope="class")
-def port_forward(installation):
-    pass
+def sagemaker_execution_role(region, metadata, request):
+    sagemaker_execution_role_name = "role-" + RANDOM_PREFIX
+    managed_policies = ["arn:aws:iam::aws:policy/AmazonS3FullAccess", "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"]
+    role = IAMRole(name=sagemaker_execution_role_name, region=region, policy_arns=managed_policies)
+    metadata_key = "sagemaker_execution_role"
+
+    resource_details = {}
+
+    def on_create():
+        trust_policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {"Service": "sagemaker.amazonaws.com"},
+                    "Action": "sts:AssumeRole",
+                }
+            ],
+        }
+
+        sagemaker_execution_role_arn = role.create(
+            policy_document=json.dumps(trust_policy)
+        )
+
+        resource_details["name"] = sagemaker_execution_role_name
+        resource_details["arn"] = sagemaker_execution_role_arn
+
+    def on_delete():
+        role.delete()
+
+    return configure_resource_fixture(
+        metadata=metadata,
+        request=request,
+        resource_details=resource_details,
+        metadata_key=metadata_key,
+        on_create=on_create,
+        on_delete=on_delete,
+    )
 
 
 @pytest.fixture(scope="class")
-def s3_bucket_with_data(region):
+def port_forward(installation):
+    pass
+
+@pytest.fixture(scope="class")
+def s3_bucket_with_data_sagemaker(region):
     bucket_name = "s3-" + RANDOM_PREFIX
-    bucket = S3BucketWithTrainingData(
-        name=bucket_name,
-        cmd=f"python utils/s3_for_training/sync.py {bucket_name} {region}",
-        time_to_sleep=120,
-    )
+    bucket = S3BucketWithTrainingData(name=bucket_name, cmd=f"python utils/s3_for_training/sync.py {bucket_name} {region}",
+                                       time_to_sleep=180)
     bucket.create()
 
     yield
@@ -205,11 +301,10 @@ def s3_bucket_with_data(region):
 
 @pytest.fixture(scope="class")
 def clean_up_training_jobs_in_user_ns():
-    yield
+    yield 
 
     cmd = f"kubectl delete trainingjobs --all -n {DEFAULT_USER_NAMESPACE}".split()
     subprocess.Popen(cmd)
-
 
 class TestSanity:
     @pytest.fixture(scope="class")
@@ -306,15 +401,61 @@ class TestSanity:
         except K8sApiException as e:
             assert "Not Found" == e.reason
 
-
-    def test_run_kfp_sagemaker_pipeline(
+    def test_kserve_with_irsa(
         self,
         region,
         metadata,
-        s3_bucket_with_data,
-        sagemaker_execution_role,
         kfp_client,
-        clean_up_training_jobs_in_user_ns,
+        clone_tensorflow_serving,
+        kserve_iam_service_account,
+        kserve_secret,
+        s3_bucket_with_data_kserve,
+        kserve_inference_service,
+    ):
+        # Edit the ConfigMap to change the default domain as per your deployment
+        subdomain = (
+            metadata.get("lb_deps")
+            .get("config")
+            .get("route53")
+            .get("subDomain")
+            .get("name")
+        )
+        # Remove the _example key and replace example.com with your domain (e.g. platform.example.com).
+        exec_shell(
+            f'kubectl patch cm config-domain --patch \'{{"data":{{"{subdomain}":""}}}}\' -n knative-serving'
+        )
+        exec_shell(
+            'kubectl patch cm config-domain --patch \'{"data":{"_example":null}}\' -n knative-serving'
+        )
+        exec_shell(
+            'kubectl patch cm config-domain --patch \'{"data":{"example.com":null}}\' -n knative-serving'
+        )
+
+        # export env with subprocess
+        # run inference_sample.py
+        subdomain = (
+            metadata.get("lb_deps")
+            .get("config")
+            .get("route53")
+            .get("subDomain")
+            .get("name")
+        )
+        os.environ["KUBEFLOW_DOMAIN"] = subdomain
+        os.environ["PROFILE_NAMESPACE"] = PROFILE_NAMESPACE
+        os.environ["MODEL_NAME"] = "half-plus-two"
+        os.environ["AUTH_PROVIDER"] = "dex"
+
+        env_value = os.environ.copy()
+        env_value["PYTHONPATH"] = f"{os.getcwd()}/..:" + os.environ.get(
+            "PYTHONPATH", ""
+        )
+
+        cmd = "python utils/kserve/inference_sample.py".split()
+        retcode = subprocess.call(cmd, stderr=subprocess.STDOUT, env=env_value)
+        assert retcode == 0
+
+    def test_run_kfp_sagemaker_pipeline(
+        self, region, metadata, s3_bucket_with_data_sagemaker, sagemaker_execution_role, kfp_client, clean_up_training_jobs_in_user_ns
     ):
 
         experiment_name = "experiment-" + RANDOM_PREFIX
@@ -326,6 +467,7 @@ class TestSanity:
         sagemaker_execution_role_details = metadata.get("sagemaker_execution_role")
         sagemaker_execution_role_arn = sagemaker_execution_role_details["arn"]
 
+        
         experiment = kfp_client.create_experiment(
             experiment_name,
             description=experiment_description,
@@ -350,6 +492,6 @@ class TestSanity:
         wait_for_run_succeeded(kfp_client, run, job_name, pipeline_id)
 
         kfp_client.delete_experiment(experiment.id)
-
+        
         cmd = "kubectl delete trainingjobs --all -n kubeflow-user-example-com".split()
         subprocess.Popen(cmd)

@@ -22,12 +22,14 @@ module "subdomain" {
   source                          = "../../../../iaac/terraform/aws-infra/subdomain"
   aws_route53_root_zone_name      = var.aws_route53_root_zone_name
   aws_route53_subdomain_zone_name = var.aws_route53_subdomain_zone_name
+  tags                            = var.tags
 }
 
 module "cognito" {
   source                          = "../../../../iaac/terraform/aws-infra/cognito"
   cognito_user_pool_name          = var.cognito_user_pool_name
   aws_route53_subdomain_zone_name = var.aws_route53_subdomain_zone_name
+  tags                            = var.tags
 
   providers = {
     aws          = aws
@@ -50,7 +52,7 @@ module "kubeflow_issuer" {
 module "kubeflow_istio" {
   source = "../../../../iaac/terraform/common/istio"
   helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/common/istio-1-14"
+    chart = "${var.kf_helm_repo_path}/charts/common/istio"
   }
   addon_context = var.addon_context
   depends_on    = [module.kubeflow_issuer]

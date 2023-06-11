@@ -36,6 +36,11 @@ spec:
             configMapKeyRef:
               key: minioServiceRegion
               name: pipeline-install-config
+        - name: MINIO_SERVICE_HOST
+          valueFrom:
+            configMapKeyRef:
+              key: minioServiceHost
+              name: pipeline-install-config
         - name: KFP_VERSION
           valueFrom:
             configMapKeyRef:
@@ -59,7 +64,7 @@ spec:
               name: mlpipeline-minio-artifact
         envFrom:
         - configMapRef:
-            name: kubeflow-pipelines-profile-controller-env-mgh6th2gff
+            name: kubeflow-pipelines-profile-controller-env-5252m69c4c
         image: python:3.7
         name: profile-controller
         ports:
@@ -69,5 +74,5 @@ spec:
           name: hooks
       volumes:
       - configMap:
-          name: kubeflow-pipelines-profile-controller-code-dhffkh7f55
+          name: kubeflow-pipelines-profile-controller-code
         name: hooks
