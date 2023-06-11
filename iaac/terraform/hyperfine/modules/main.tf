@@ -35,7 +35,7 @@ resource "helm_release" "istio-base" {
 
   name    = "istio-base"
   chart   = "base"
-  version = var.istio_base_version
+  version = var.istio_version
 }
 
 resource "helm_release" "istio-istiod" {
@@ -46,9 +46,18 @@ resource "helm_release" "istio-istiod" {
 
   name    = "istio-istiod"
   chart   = "istiod"
-  version = var.istio_istiod_version
+  version = var.istio_version
 
   wait = true
+}
+
+resource helm_release "gateway" {
+  depends_on = [helm_release.istio-istiod]
+
+  namespace = "istio-system"
+  name = "istio-gateway"
+  chart = "gateway"
+  version = var.istio_version
 }
 
 /*

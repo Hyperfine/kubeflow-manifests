@@ -21,14 +21,8 @@ variable "s3_region" {
 }
 
 
-variable "istio_base_version" {
-  description = "helm chart version for istio base" #  https://artifacthub.io/packages/helm/istio-official/base
-  type        = string
-  default     = "1.16.5"
-}
-
-variable "istio_istiod_version" {
-  description = "helm chart version for istiod" # https://artifacthub.io/packages/helm/istio-official/istiod
+variable "istio_version" {
+  description = "helm chart version for istio" #  https://artifacthub.io/packages/helm/istio-official/base
   type        = string
   default     = "1.16.5"
 }
