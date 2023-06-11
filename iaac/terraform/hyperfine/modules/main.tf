@@ -22,7 +22,7 @@ terraform {
 resource helm_release "kubeflow_issuer" {
   name = "kubeflow-issuer"
   namespace = "kubeflow"
-  chart = "${var.kf_helm_repo_path}/charts/common/kubeflow-issuer"
+  chart = "../../../../charts/common/kubeflow-issuer"
 }
 
 /*

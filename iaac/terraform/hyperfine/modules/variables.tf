@@ -1,11 +1,4 @@
 
-
-variable kf_helm_repo_path {
-  description = "path to helm charts"
-  type = string
-  default = "../../.."
-}
-
 variable "rds_host" {
   description = "rds host name to use"
   type        = string
