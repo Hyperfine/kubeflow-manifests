@@ -16,13 +16,13 @@ module "irsa" {
   irsa_iam_policies          = [aws_iam_policy.ssm-access.arn]
   eks_cluster_id             = var.eks_cluster_name
 
-  create_kubernetes_namespace = false
+  create_kubernetes_namespace         = false
   create_service_account_secret_token = true
 }
 
 
 resource "kubectl_manifest" "kf-secret-class" {
-  yaml_body  = <<YAML
+  yaml_body = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
 metadata:

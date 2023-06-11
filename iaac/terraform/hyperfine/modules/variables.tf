@@ -1,9 +1,8 @@
-variable chart_root_folder {
+variable "chart_root_folder" {
   description = "root folder of charts"
-  type = string
-  default = "../../charts"
+  type        = string
+  default     = "../../charts"
 }
-
 
 variable "rds_host" {
   description = "rds host name to use"
@@ -12,7 +11,7 @@ variable "rds_host" {
 
 variable "s3_bucket" {
   description = "s3 bucket name to use"
-  type = string
+  type        = string
 }
 
 variable "s3_region" {
@@ -21,36 +20,49 @@ variable "s3_region" {
   default     = "us-east-1"
 }
 
+
+variable "istio_base_version" {
+  description = "helm chart version for istio base" #  https://artifacthub.io/packages/helm/istio-official/base
+  type        = string
+  default     = "1.16.5"
+}
+
+variable "istio_istiod_version" {
+  description = "helm chart version for istiod" # https://artifacthub.io/packages/helm/istio-official/istiod
+  type        = string
+  default     = "1.16.5"
+}
+
 ### notebook configurations
 
 variable "enable_aws_telemetry" {
   description = "Enable AWS telemetry component"
-  type = bool
-  default = true
+  type        = bool
+  default     = true
 }
 
 variable "notebook_enable_culling" {
   description = "Enable Notebook culling feature. If set to true then the Notebook Controller will scale all Notebooks with Last activity older than the notebook_cull_idle_time to zero"
-  type = string
-  default = false
+  type        = string
+  default     = false
 }
 
 variable "notebook_cull_idle_time" {
   description = "If a Notebook's LAST_ACTIVITY_ANNOTATION from the current timestamp exceeds this value then the Notebook will be scaled to zero (culled). ENABLE_CULLING must be set to 'true' for this setting to take effect.(minutes)"
-  type = string
-  default = 30
+  type        = string
+  default     = 30
 }
 
 variable "notebook_idleness_check_period" {
   description = "How frequently the controller should poll each Notebook to update its LAST_ACTIVITY_ANNOTATION (minutes)"
-  type = string
-  default = 5
+  type        = string
+  default     = 5
 }
 
 # PROVIDER CONFIGS
 variable "eks_cluster_name" {
   description = "cluster to install kubeflow to"
-  type = string
+  type        = string
 }
 
 variable "use_exec_plugin_for_auth" {

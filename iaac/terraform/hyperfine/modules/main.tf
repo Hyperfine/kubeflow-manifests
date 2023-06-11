@@ -6,61 +6,79 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 3.71"
     }
-    kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = ">= 1.7.0"
-    }
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = ">= 2.13.1"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.0"
     }
   }
 }
 
 
 
-resource helm_release "kubeflow_issuer" {
-  name = "kubeflow-issuer"
+resource "helm_release" "kubeflow_issuer" {
+  name      = "kubeflow-issuer"
   namespace = "kubeflow"
-  chart = "${var.chart_root_folder}/common/kubeflow-issuer"
+  chart     = "${var.chart_root_folder}/common/kubeflow-issuer"
 }
 
 
-resource helm_release "istio" {
+resource "helm_release" "istio-base" {
   depends_on = [helm_release.kubeflow_issuer]
 
-  name = "istio"
-  namespace = "kubeflow"
-  chart = "${var.chart_root_folder}/common/istio-1-14"
+  repository       = "https://istio-release.storage.googleapis.com/charts"
+  namespace        = "istio-system"
+  create_namespace = true
+
+  name    = "istio-base"
+  chart   = "base"
+  version = var.istio_base_version
 }
 
-resource helm_release "cluster-local-gateway" {
-  depends_on = [helm_release.istio]
+resource "helm_release" "istio-istiod" {
+  depends_on = [helm_release.istio-base]
 
-  name = "cluster-local-gateway"
-  namespace = "kubeflow"
-  chart = "${var.chart_root_folder}/common/cluster-local-gateway"
-}
+  repository = "https://istio-release.storage.googleapis.com/charts"
+  namespace  = "istio-system"
 
+  name    = "istio-istiod"
+  chart   = "istiod"
+  version = var.istio_istiod_version
 
-resource helm_release "knative-serving" {
-  depends_on = [helm_release.istio]
-
-  name = "knative-serving"
-  namespace = "kubeflow"
-  chart = "${var.chart_root_folder}/charts/common/knative-serving"
-
-}
-
-resource helm_release "kubeflow_knative_eventing" {
-  depends_on = [helm_release.knative-serving]
-
-  name = "knative-eventing"
-  namespace = "kubeflow"
-  chart = "${var.chart_root_folder}/charts/common/knative-eventing"
+  wait = true
 }
 
 /*
+resource "helm_release" "cluster-local-gateway" {
+  depends_on = [helm_release.istio-istiod]
+
+  name      = "cluster-local-gateway"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/common/cluster-local-gateway"
+}
+
+
+resource "helm_release" "knative-serving" {
+  depends_on = [helm_release.cluster-local-gateway]
+
+  name      = "knative-serving"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/charts/common/knative-serving"
+
+}
+
+resource "helm_release" "kubeflow_knative_eventing" {
+  depends_on = [helm_release.knative-serving]
+
+  name      = "knative-eventing"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/charts/common/knative-eventing"
+}
+
+
 module "kubeflow_roles" {
   source            = "../../common/kubeflow-roles"
   helm_config = {

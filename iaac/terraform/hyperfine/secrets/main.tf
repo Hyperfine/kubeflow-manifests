@@ -144,8 +144,8 @@ data "aws_iam_policy_document" "kf-ssm" {
   }
 
   statement {
-    effect   = "Allow"
-    actions  = [
+    effect = "Allow"
+    actions = [
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
     ]
