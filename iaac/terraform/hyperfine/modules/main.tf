@@ -129,7 +129,6 @@ resource "helm_release" "kubeflow_katib" {
   name      = "katib"
   namespace = "kubeflow"
   chart     = "${var.chart_root_folder}/apps/katib/vanilla"
-
 }
 
 resource "helm_release" "kubeflow_central_dashboard" {
@@ -141,11 +140,11 @@ resource "helm_release" "kubeflow_central_dashboard" {
 }
 
 resource "helm_release" "kubeflow_admission_webhook" {
-  depends_on = [helm_release.kubeflow_central_dashboard]
+  depends_on = [helm_release.kubeflow_istio_resources]
 
   name      = "admission-webhook"
   namespace = "kubeflow"
-  chart     = "${var.chart_root_folder}/charts/apps/admission-webhook"
+  chart     = "${var.chart_root_folder}/apps/admission-webhook"
 }
 
 resource "helm_release" "kubeflow_notebook_controller" {
@@ -153,7 +152,7 @@ resource "helm_release" "kubeflow_notebook_controller" {
 
   name      = "notebook-controller"
   namespace = "kubeflow"
-  chart     = "${var.chart_root_folder}/charts/apps/notebook-controller"
+  chart     = "${var.chart_root_folder}/apps/notebook-controller"
   set {
     name  = "cullingPolicy.cullIdleTime"
     value = var.notebook_cull_idle_time
@@ -175,7 +174,7 @@ resource "helm_release" "kubeflow_jupyter_web_app" {
 
   name      = "jupyter-web-app"
   namespace = "kubeflow"
-  chart     = "${var.chart_root_folder}/charts/apps/jupyter-web-app"
+  chart     = "${var.chart_root_folder}/apps/jupyter-web-app"
   version   = "0.1.2"
 }
 
@@ -185,7 +184,7 @@ resource "helm_release" "kubeflow_profiles_and_kfam" {
 
   name      = "profiles-and-kfam"
   namespace = "kubeflow"
-  chart     = "${var.chart_root_folder}/charts/apps/profiles-and-kfam"
+  chart     = "${var.chart_root_folder}/apps/profiles-and-kfam"
 }
 
 resource "helm_release" "kubeflow_volumes_web_app" {
@@ -193,7 +192,7 @@ resource "helm_release" "kubeflow_volumes_web_app" {
 
   name      = "volumes-web-app"
   namespace = "kubeflow"
-  chart     = "${var.chart_root_folder}/charts/apps/volumes-web-app"
+  chart     = "${var.chart_root_folder}/apps/volumes-web-app"
 }
 
 resource "helm_release" "kubeflow_tensorboards_web_app" {
@@ -201,7 +200,7 @@ resource "helm_release" "kubeflow_tensorboards_web_app" {
 
   name      = "tensorboards-web-app"
   namespace = "kubeflow"
-  chart     = "${var.chart_root_folder}/charts/apps/tensorboards-web-app"
+  chart     = "${var.chart_root_folder}/apps/tensorboards-web-app"
 }
 
 resource "helm_release" "kubeflow_tensorboard_controller" {
@@ -209,7 +208,7 @@ resource "helm_release" "kubeflow_tensorboard_controller" {
 
   name      = "tensorboard-controller"
   namespace = "kubeflow"
-  chart     = "${var.chart_root_folder}/charts/apps/tensorboard-controller"
+  chart     = "${var.chart_root_folder}/apps/tensorboard-controller"
 }
 
 resource "helm_release" "kubeflow_training_operator" {
@@ -217,7 +216,7 @@ resource "helm_release" "kubeflow_training_operator" {
 
   name      = "training-operator"
   namespace = "kubeflow"
-  chart     = "${var.chart_root_folder}/charts/apps/training-operator"
+  chart     = "${var.chart_root_folder}/apps/training-operator"
 }
 
 resource "helm_release" "kubeflow_aws_telemetry" {
@@ -226,7 +225,7 @@ resource "helm_release" "kubeflow_aws_telemetry" {
 
   name      = "aws-telemetry"
   namespace = "kubeflow"
-  chart     = "${var.chart_root_folder}/charts/common/aws-telemetry"
+  chart     = "${var.chart_root_folder}/common/aws-telemetry"
 
 }
 
@@ -235,7 +234,7 @@ resource "helm_release" "kubeflow_user_namespace" {
 
   name      = "user-namespace"
   namespace = "kubeflow"
-  chart     = "${var.chart_root_folder}/charts/common/user-namespace"
+  chart     = "${var.chart_root_folder}/common/user-namespace"
 
 }
 
