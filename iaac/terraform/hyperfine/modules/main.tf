@@ -26,43 +26,14 @@ resource "helm_release" "kubeflow_issuer" {
 }
 
 
-resource "helm_release" "istio-base" {
+resource "helm_release" "istio" {
   depends_on = [helm_release.kubeflow_issuer]
 
-  repository       = "https://istio-release.storage.googleapis.com/charts"
+  name             = "istio"
   namespace        = "istio-system"
   create_namespace = true
-
-  name    = "istio-base"
-  chart   = "base"
-  version = var.istio_version
+  chart            = "${var.chart_root_folder}/common/istio"
 }
-
-resource "helm_release" "istio-istiod" {
-  depends_on = [helm_release.istio-base]
-
-  repository = "https://istio-release.storage.googleapis.com/charts"
-  namespace  = "istio-system"
-
-  name    = "istio-istiod"
-  chart   = "istiod"
-  version = var.istio_version
-
-  wait = true
-}
-
-resource "helm_release" "gateway" {
-  depends_on = [helm_release.istio-istiod]
-
-  repository = "https://istio-release.storage.googleapis.com/charts"
-  namespace  = "istio-system"
-  name       = "istio-gateway"
-  chart      = "gateway"
-  version    = var.istio_version
-
-  wait = true
-}
-
 /*
 resource "helm_release" "cluster-local-gateway" {
   depends_on = [helm_release.istio-istiod]
