@@ -33,9 +33,9 @@ resource "helm_release" "istio" {
   namespace        = "kube-system"
   chart            = "${var.chart_root_folder}/common/istio"
 }
-/*
+
 resource "helm_release" "cluster-local-gateway" {
-  depends_on = [helm_release.istio-istiod]
+  depends_on = [helm_release.istio]
 
   name      = "cluster-local-gateway"
   namespace = "kubeflow"
@@ -48,7 +48,7 @@ resource "helm_release" "knative-serving" {
 
   name      = "knative-serving"
   namespace = "kubeflow"
-  chart     = "${var.chart_root_folder}/charts/common/knative-serving"
+  chart     = "${var.chart_root_folder}/common/knative-serving"
 
 }
 
@@ -57,28 +57,28 @@ resource "helm_release" "kubeflow_knative_eventing" {
 
   name      = "knative-eventing"
   namespace = "kubeflow"
-  chart     = "${var.chart_root_folder}/charts/common/knative-eventing"
+  chart     = "${var.chart_root_folder}/common/knative-eventing"
 }
 
 
-module "kubeflow_roles" {
-  source            = "../../common/kubeflow-roles"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/common/kubeflow-roles"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_knative_serving]
+resource "helm_release" "kubeflow_roles" {
+  depends_on = [helm_release.istio]
+
+  name = "kubeflow-roles"
+  namespace = "kubeflow"
+  chart = "${var.chart_root_folder}/common/kubeflow-roles"
+
 }
 
-module "kubeflow_istio_resources" {
-  source            = "../../common/kubeflow-istio-resources"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/common/kubeflow-istio-resources"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_roles]
+resource "helm_release" "kubeflow_istio_resources" {
+  depends_on = [helm_release.kubeflow_roles]
+
+  name = "kubeflow-istio-resources"
+  namespace = "kubeflow"
+  chart = "${var.chart_root_folder}/common/kubeflow-istio-resources"
 }
 
+/*
 module "kubeflow_pipelines" {
   source            = "../../apps/kubeflow-pipelines"
   helm_config = {
