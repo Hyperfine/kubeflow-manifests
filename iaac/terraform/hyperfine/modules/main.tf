@@ -30,7 +30,7 @@ resource "helm_release" "istio" {
   depends_on = [helm_release.kubeflow_issuer]
 
   name             = "istio"
-  namespace        = "istio-system"
+  namespace        = "kube-system"
   chart            = "${var.chart_root_folder}/common/istio"
 }
 /*
