@@ -29,9 +29,9 @@ resource "helm_release" "kubeflow_issuer" {
 resource "helm_release" "istio" {
   depends_on = [helm_release.kubeflow_issuer]
 
-  name             = "istio"
-  namespace        = "kube-system"
-  chart            = "${var.chart_root_folder}/common/istio"
+  name      = "istio"
+  namespace = "kube-system"
+  chart     = "${var.chart_root_folder}/common/istio"
 }
 
 resource "helm_release" "cluster-local-gateway" {
@@ -64,196 +64,182 @@ resource "helm_release" "kubeflow_knative_eventing" {
 resource "helm_release" "kubeflow_roles" {
   depends_on = [helm_release.istio]
 
-  name = "kubeflow-roles"
+  name      = "kubeflow-roles"
   namespace = "kubeflow"
-  chart = "${var.chart_root_folder}/common/kubeflow-roles"
+  chart     = "${var.chart_root_folder}/common/kubeflow-roles"
 
 }
 
 resource "helm_release" "kubeflow_istio_resources" {
   depends_on = [helm_release.kubeflow_roles]
 
-  name = "kubeflow-istio-resources"
+  name      = "kubeflow-istio-resources"
   namespace = "kubeflow"
-  chart = "${var.chart_root_folder}/common/kubeflow-istio-resources"
+  chart     = "${var.chart_root_folder}/common/kubeflow-istio-resources"
+}
+
+
+resource "helm_release" "kubeflow_pipelines" {
+  depends_on = [helm_release.kubeflow_istio_resources]
+
+  name  = "kubeflow-pipelines"
+  chart = "${var.chart_root_folder}/apps/kubeflow-pipelines/rds-s3"
+  set {
+    name  = "rds.dbHost"
+    value = var.rds_host
+  }
+  set {
+    name  = "rds.mlmdDb"
+    value = "kubeflow"
+  }
+  set {
+    name  = "s3.bucketName"
+    value = var.s3_bucket
+  }
+  set {
+    name  = "s3.minioServiceHost"
+    value = "s3.amazonaws.com"
+  }
+  set {
+    name  = "s3.minioServiceRegion"
+    value = var.s3_region
+  }
+}
+
+
+resource "helm_release" "kubeflow_kserve" {
+  depends_on = [helm_release.kubeflow_istio_resources]
+
+  name      = "kserve"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/common/kserve"
+}
+
+resource "helm_release" "kubeflow_models_web_app" {
+  depends_on = [helm_release.kubeflow_istio_resources]
+
+  name      = "models-web-app"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/apps/models-web-app"
+}
+
+resource "helm_release" "kubeflow_katib" {
+  depends_on = [helm_release.kubeflow_istio_resources]
+
+  name      = "katib"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/apps/katib/vanilla"
+
+}
+
+resource "helm_release" "kubeflow_central_dashboard" {
+  depends_on = [helm_release.kubeflow_istio_resources]
+
+  name      = "central-dashboard"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/apps/central-dashboard"
+}
+
+resource "helm_release" "kubeflow_admission_webhook" {
+  depends_on = [helm_release.kubeflow_central_dashboard]
+
+  name      = "admission-webhook"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/charts/apps/admission-webhook"
+}
+
+resource "helm_release" "kubeflow_notebook_controller" {
+  depends_on = [helm_release.kubeflow_central_dashboard]
+
+  name      = "notebook-controller"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/charts/apps/notebook-controller"
+  set {
+    name  = "cullingPolicy.cullIdleTime"
+    value = var.notebook_cull_idle_time
+  }
+  set {
+    name  = "cullingPolicy.enableCulling"
+    value = var.notebook_enable_culling
+  }
+  set {
+    name  = "cullingPolicy.idlenessCheckPeriod"
+    value = var.notebook_idleness_check_period
+  }
+
+
+}
+
+resource "helm_release" "kubeflow_jupyter_web_app" {
+  depends_on = [helm_release.kubeflow_central_dashboard]
+
+  name      = "jupyter-web-app"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/charts/apps/jupyter-web-app"
+  version   = "0.1.2"
+}
+
+
+resource "helm_release" "kubeflow_profiles_and_kfam" {
+  depends_on = [helm_release.kubeflow_central_dashboard]
+
+  name      = "profiles-and-kfam"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/charts/apps/profiles-and-kfam"
+}
+
+resource "helm_release" "kubeflow_volumes_web_app" {
+  depends_on = [helm_release.kubeflow_central_dashboard]
+
+  name      = "volumes-web-app"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/charts/apps/volumes-web-app"
+}
+
+resource "helm_release" "kubeflow_tensorboards_web_app" {
+  depends_on = [helm_release.kubeflow_central_dashboard]
+
+  name      = "tensorboards-web-app"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/charts/apps/tensorboards-web-app"
+}
+
+resource "helm_release" "kubeflow_tensorboard_controller" {
+  depends_on = [helm_release.kubeflow_central_dashboard]
+
+  name      = "tensorboard-controller"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/charts/apps/tensorboard-controller"
+}
+
+resource "helm_release" "kubeflow_training_operator" {
+  depends_on = [helm_release.kubeflow_central_dashboard]
+
+  name      = "training-operator"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/charts/apps/training-operator"
+}
+
+resource "helm_release" "kubeflow_aws_telemetry" {
+  count      = var.enable_aws_telemetry ? 1 : 0
+  depends_on = [helm_release.kubeflow_central_dashboard]
+
+  name      = "aws-telemetry"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/charts/common/aws-telemetry"
+
+}
+
+resource "helm_release" "kubeflow_user_namespace" {
+  depends_on = [helm_release.kubeflow_central_dashboard]
+
+  name      = "user-namespace"
+  namespace = "kubeflow"
+  chart     = "${var.chart_root_folder}/charts/common/user-namespace"
+
 }
 
 /*
-module "kubeflow_pipelines" {
-  source            = "../../apps/kubeflow-pipelines"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/kubeflow-pipelines/rds-s3"
-    set =[{
-          name =  "rds.dbHost",
-          value = var.rds_host
-    },
-      {
-        name = "rds.mlmdDb",
-        value = "kubeflow"
-      },
-      {
-        name = "s3.bucketName"
-        value = var.s3_bucket
-      },
-      {
-        name = "s3.minioServiceHost"
-        value = "s3.amazonaws.com"
-      },
-      {
-        name = "s3.minioServiceRegion"
-        value = var.s3_region
-      }
-    ]
-  }
-
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_istio_resources]
-
-}
-
-module "kubeflow_kserve" {
-  source            = "../../common/kserve"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/common/kserve"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_istio_resources]
-}
-
-module "kubeflow_models_web_app" {
-  source            = "../../apps/models-web-app"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/models-web-app"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_kserve]
-}
-
-module "kubeflow_katib" {
-  source            = "../../apps/katib"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/katib/vanilla"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_models_web_app]
-}
-
-module "kubeflow_central_dashboard" {
-  source            = "../../apps/central-dashboard"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/central-dashboard"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_katib]
-}
-
-module "kubeflow_admission_webhook" {
-  source            = "../../apps/admission-webhook"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/admission-webhook"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_central_dashboard]
-}
-
-module "kubeflow_notebook_controller" {
-  source            = "../../apps/notebook-controller"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/notebook-controller"
-    set = [
-      {
-        name = "cullingPolicy.cullIdleTime",
-        value = var.notebook_cull_idle_time
-      },
-      {
-        name = "cullingPolicy.enableCulling",
-        value = var.notebook_enable_culling
-      },
-      {
-        name = "cullingPolicy.idlenessCheckPeriod",
-        value= var.notebook_idleness_check_period
-      }
-    ]
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_central_dashboard]
-}
-
-module "kubeflow_jupyter_web_app" {
-  source            = "../../apps/jupyter-web-app"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/jupyter-web-app"
-    version = "0.1.2"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_notebook_controller]
-}
-
-
-module "kubeflow_profiles_and_kfam" {
-  source            = "../../apps/profiles-and-kfam"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/profiles-and-kfam"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_central_dashboard]
-}
-
-module "kubeflow_volumes_web_app" {
-  source            = "../../apps/volumes-web-app"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/volumes-web-app"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_profiles_and_kfam]
-}
-
-module "kubeflow_tensorboards_web_app" {
-  source            = "../../apps/tensorboards-web-app"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/tensorboards-web-app"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_volumes_web_app]
-}
-
-module "kubeflow_tensorboard_controller" {
-  source            = "../../apps/tensorboard-controller"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/tensorboard-controller"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_tensorboards_web_app]
-}
-
-module "kubeflow_training_operator" {
-  source            = "../../apps/training-operator"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/apps/training-operator"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_tensorboard_controller]
-}
-
-module "kubeflow_aws_telemetry" {
-  count = var.enable_aws_telemetry ? 1 : 0
-  source            = "../../common/aws-telemetry"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/common/aws-telemetry"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_training_operator]
-}
-
-module "kubeflow_user_namespace" {
-  source            = "../../common/user-namespace"
-  helm_config = {
-    chart = "${var.kf_helm_repo_path}/charts/common/user-namespace"
-  }
-  addon_context = module.context.addon_context
-  depends_on = [module.kubeflow_aws_telemetry]
-}
-
 module "ack_sagemaker" {
   source            = "../../common/ack-sagemaker-controller"
   addon_context = module.context.addon_context
