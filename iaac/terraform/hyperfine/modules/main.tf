@@ -31,7 +31,6 @@ resource "helm_release" "istio" {
 
   name             = "istio"
   namespace        = "istio-system"
-  create_namespace = true
   chart            = "${var.chart_root_folder}/common/istio"
 }
 /*
