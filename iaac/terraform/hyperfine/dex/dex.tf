@@ -82,7 +82,7 @@ apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
 metadata:
   name: oidc-secrets
-  namespace: "${kubernetes_namespace_v1.auth.metadata.name}"
+  namespace: "${kubernetes_namespace_v1.auth.metadata[0].name}"
 spec:
   provider: aws
   secretObjects:
@@ -134,7 +134,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auth-secrets
-  namespace: "${kubernetes_namespace_v1.auth.metadata.name}"
+  namespace: "${kubernetes_namespace_v1.auth.metadata[0].name}"
   labels:
     app: auth-secrets-deployment
 spec:

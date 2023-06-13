@@ -37,7 +37,7 @@ module "secrets" {
   source = "../../iaac/terraform/hyperfine/secrets"
 
   eks_cluster_name = var.eks_cluster_name
-  namespace = kubernetes_namespace_v1.kubeflow.metadata.name
+  namespace = kubernetes_namespace_v1.kubeflow.metadata[0].name
 
   rds_host = var.rds_host
   rds_secret_name = var.rds_secret_name
