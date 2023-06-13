@@ -6,6 +6,7 @@ module "auth-irsa" {
   kubernetes_service_account = "oidc-secrets-manager-sa"
   irsa_iam_policies          = [aws_iam_policy.oidc-ssm.arn]
   eks_cluster_id             = var.eks_cluster_name
+  eks_oidc_provider_arn      = local.eks_oidc_provider_arn
 
   create_kubernetes_namespace         = false
   create_service_account_secret_token = true
