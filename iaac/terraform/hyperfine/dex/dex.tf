@@ -71,7 +71,7 @@ module "dex-irsa" {
 }
 
 locals {
-  dex_module_sa = reverse(split("/", module.dex-irsa.service_account}))[0] # implicit dependency
+  dex_module_sa = reverse(split("/", module.dex-irsa.service_account))[0] # implicit dependency
 }
 
 resource "kubectl_manifest" "oidc-secret-class" {

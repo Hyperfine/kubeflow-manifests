@@ -12,7 +12,7 @@ module "auth-irsa" {
 }
 
 locals {
-  auth_module_sa = reverse(split("/", module.auth-irsa.service_account}))[0] # implicit dependency
+  auth_module_sa = reverse(split("/", module.auth-irsa.service_account))[0] # implicit dependency
 }
 
 resource "kubectl_manifest" "auth-secret-class" {
