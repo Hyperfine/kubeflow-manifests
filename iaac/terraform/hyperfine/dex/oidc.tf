@@ -8,6 +8,7 @@ module "auth-irsa" {
   eks_cluster_id             = var.eks_cluster_name
   eks_oidc_provider_arn      = local.eks_oidc_provider_arn
 
+  use_data_source = false
   create_kubernetes_namespace         = false
   create_service_account_secret_token = true
 }
