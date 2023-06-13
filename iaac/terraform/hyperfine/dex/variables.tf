@@ -29,6 +29,11 @@ variable "okta_secret_name" {
   #  }
 }
 
+variable "okta_secret_arn" {
+  description = "ssm arn to use for okta"
+  type = string
+}
+
 variable "oidc_secret_name" {
   description = "secretmanager name to use for auth service"
   type        = string
@@ -37,6 +42,11 @@ variable "oidc_secret_name" {
   #   "auth_client_id":"kf-oidc-authservice",
   #   "auth_client_secret":"asdfasdf"
   #  }
+}
+
+variable "oidc_secret_arn" {
+  description = "ssm arn to use for auth service"
+  type = string
 }
 
 variable "auth_sa_name" {

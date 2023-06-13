@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "ssm" {
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
     ]
-    resources = [for k, v in data.aws_secretsmanager_secret.oidc_secrets : v.arn]
+    resources = [var.oidc_secret_arn, var.okta_secret_arn]
   }
 }
 
