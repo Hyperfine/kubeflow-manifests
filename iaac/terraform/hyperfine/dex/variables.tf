@@ -1,23 +1,23 @@
-variable subdomain {
+variable "subdomain" {
   description = "subdomain used to access dex"
-  type = string
-  default = "platform"
+  type        = string
+  default     = "platform"
 }
 
-variable dex_version {
+variable "dex_version" {
   description = "helm chart version for dex"
-  type = string
-  default = "0.14.1"
+  type        = string
+  default     = "0.14.1"
 }
 
-variable zone_id {
+variable "zone_id" {
   description = "top level zone to use fo domain"
-  type = string
+  type        = string
 }
 
-variable okta_secret_name {
+variable "okta_secret_name" {
   description = "secretmanager name to use for okta"
-  type = string
+  type        = string
   # secret format
   # {
   #    "okta_client_id":"asdfasdf",
@@ -29,9 +29,9 @@ variable okta_secret_name {
   #  }
 }
 
-variable oidc_secret_name {
+variable "oidc_secret_name" {
   description = "secretmanager name to use for auth service"
-  type = string
+  type        = string
   # secret format
   # {
   #   "auth_client_id":"kf-oidc-authservice",
@@ -39,12 +39,12 @@ variable oidc_secret_name {
   #  }
 }
 
-variable auth_sa_name {
+variable "auth_sa_name" {
   description = "service account name to use for dex configuration"
-  default = "auth-secrets-manager-sa"
+  default     = "auth-secrets-manager-sa"
 }
 
-variable   auth_namespace {
+variable "auth_namespace" {
   description = "namespace to deploy auth service to"
   default     = "auth"
 }
@@ -54,7 +54,7 @@ variable   auth_namespace {
 # PROVIDER CONFIGS
 variable "eks_cluster_name" {
   description = "cluster to install to"
-  type = string
+  type        = string
 }
 
 variable "use_exec_plugin_for_auth" {

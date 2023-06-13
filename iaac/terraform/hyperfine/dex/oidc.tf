@@ -1,6 +1,6 @@
 
 
-module "irsa" {
+module "auth-irsa" {
   source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.1"
   kubernetes_namespace       = "istio-system"
   kubernetes_service_account = "oidc-secret-manager-sa"
@@ -44,8 +44,8 @@ YAML
 }
 
 resource "kubectl_manifest" "authservice-secret-pod" {
-  depends_on = [kubectl_manifest.auth-secret-class]
-  yaml_body = <<YAML
+  depends_on = [kubectl_manifest.auth-secret-class, module.auth-irsa]
+  yaml_body  = <<YAML
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -108,8 +108,8 @@ YAML
 resource "helm_release" "oidc" {
   depends_on = [kubectl_manifest.oidc_auth_config, kubectl_manifest.authservice-secret-pod]
 
-  name = "auth"
+  name      = "auth"
   namespace = "istio-system"
-  chart = "../../charts/common/oidc-authservice"
+  chart     = "../../charts/common/oidc-authservice"
 
 }

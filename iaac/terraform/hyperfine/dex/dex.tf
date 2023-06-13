@@ -10,31 +10,31 @@ resource "kubernetes_namespace_v1" "auth" {
   }
 }
 
-data aws_iam_policy_document "ssm" {
+data "aws_iam_policy_document" "ssm" {
   version = "2012-10-17"
 
   statement {
-    effect = "Allow"
-    actions = ["kms:Decrypt", "kms:DescribeKey"]
+    effect    = "Allow"
+    actions   = ["kms:Decrypt", "kms:DescribeKey"]
     resources = ["*"]
   }
 
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
     ]
-    resources = [for k, v in data.aws_secretsmanager_secret.oidc_secrets: v.arn]
+    resources = [for k, v in data.aws_secretsmanager_secret.oidc_secrets : v.arn]
   }
 }
 
-resource aws_iam_policy "oidc-ssm" {
-  name = "${var.eks_cluster_name}-${var.auth_sa_name}-ssm-policy"
+resource "aws_iam_policy" "oidc-ssm" {
+  name   = "${var.eks_cluster_name}-${var.auth_sa_name}-ssm-policy"
   policy = data.aws_iam_policy_document.ssm.json
 }
 
-module "irsa" {
+module "dex-irsa" {
   source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.1"
   kubernetes_namespace       = var.auth_namespace
   kubernetes_service_account = var.auth_sa_name
@@ -100,9 +100,9 @@ YAML
 }
 
 resource "kubectl_manifest" "oidc-secret-pod" {
-    depends_on = [helm_release.dex]
-  force_new = true
-  yaml_body = <<YAML
+  depends_on = [module.auth-irsa]
+  force_new  = true
+  yaml_body  = <<YAML
 apiVersion: apps/v1
 kind: Deployment
 metadata:
