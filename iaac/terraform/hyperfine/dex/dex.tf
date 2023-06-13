@@ -70,6 +70,9 @@ module "dex-irsa" {
   create_service_account_secret_token = true
 }
 
+locals {
+  dex_module_sa = reverse(split("/", module.dex-irsa.service_account}))[0] # implicit dependency
+}
 
 resource "kubectl_manifest" "oidc-secret-class" {
   depends_on = [kubernetes_namespace_v1.auth]
@@ -125,7 +128,6 @@ YAML
 }
 
 resource "kubectl_manifest" "oidc-secret-pod" {
-  depends_on = [module.auth-irsa]
   force_new  = true
   yaml_body  = <<YAML
 apiVersion: apps/v1
@@ -158,7 +160,7 @@ spec:
         - mountPath: "/mnt/oidc-store"
           name: "${var.oidc_secret_name}"
           readOnly: true
-      serviceAccountName: ${var.auth_sa_name}
+      serviceAccountName: "${local.dex_module_sa}"
       volumes:
       - csi:
           driver: secrets-store.csi.k8s.io

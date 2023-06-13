@@ -11,6 +11,9 @@ module "auth-irsa" {
   create_service_account_secret_token = true
 }
 
+locals {
+  auth_module_sa = reverse(split("/", module.auth-irsa.service_account}))[0] # implicit dependency
+}
 
 resource "kubectl_manifest" "auth-secret-class" {
   yaml_body = <<YAML
@@ -44,7 +47,7 @@ YAML
 }
 
 resource "kubectl_manifest" "authservice-secret-pod" {
-  depends_on = [kubectl_manifest.auth-secret-class, module.auth-irsa]
+  depends_on = [kubectl_manifest.auth-secret-class]
   yaml_body  = <<YAML
 apiVersion: apps/v1
 kind: Deployment
@@ -73,7 +76,7 @@ spec:
         - mountPath: "/mnt/auth-store"
           name: "${var.oidc_secret_name}"
           readOnly: true
-      serviceAccountName: oidc-secrets-manager-sa
+      serviceAccountName: "${local.auth_module_sa}"
       volumes:
       - csi:
           driver: secrets-store.csi.k8s.io
@@ -106,7 +109,7 @@ YAML
 }
 
 resource "helm_release" "oidc" {
-  depends_on = [kubectl_manifest.oidc_auth_config, kubectl_manifest.authservice-secret-pod]
+  depends_on = [kubectl_manifest.oidc_auth_config, kubectl_manifest.authservice-secret-pod, helm_release.dex]
 
   name      = "auth"
   namespace = "istio-system"
