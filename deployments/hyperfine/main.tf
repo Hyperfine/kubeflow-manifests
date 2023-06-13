@@ -54,7 +54,7 @@ module "kubeflow" {
   s3_bucket = var.s3_bucket_name
 }
 
-/*
+
 module "dex" {
   depends_on = [module.kubeflow]
   source = "../../iaac/terraform/hyperfine/dex"
@@ -67,7 +67,7 @@ module "dex" {
 
   subdomain = "blue"
 }
-
+/*
 module "user" {
   for_each = var.users
   source = "../../iaac/terraform/hyperfine/user"

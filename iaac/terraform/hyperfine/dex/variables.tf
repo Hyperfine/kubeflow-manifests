@@ -39,9 +39,9 @@ variable oidc_secret_name {
   #  }
 }
 
-variable oidc_sa_name {
-  description = "service account name to use for oidc"
-  default = "oidc-secrets-manager-sa"
+variable auth_sa_name {
+  description = "service account name to use for dex configuration"
+  default = "auth-secrets-manager-sa"
 }
 
 variable   auth_namespace {

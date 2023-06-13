@@ -2,6 +2,156 @@ locals {
   url = "https://${var.subdomain}.${data.aws_route53_zone.top_level.name}"
 }
 
+
+
+resource "kubernetes_namespace_v1" "auth" {
+  metadata {
+    name = var.auth_namespace
+  }
+}
+
+data aws_iam_policy_document "ssm" {
+  version = "2012-10-17"
+
+  statement {
+    effect = "Allow"
+    actions = ["kms:Decrypt", "kms:DescribeKey"]
+    resources = ["*"]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret"
+    ]
+    resources = [for k, v in data.aws_secretsmanager_secret.oidc_secrets: v.arn]
+  }
+}
+
+resource aws_iam_policy "oidc-ssm" {
+  name = "${var.eks_cluster_name}-${var.auth_sa_name}-ssm-policy"
+  policy = data.aws_iam_policy_document.ssm.json
+}
+
+module "irsa" {
+  source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.1"
+  kubernetes_namespace       = var.auth_namespace
+  kubernetes_service_account = var.auth_sa_name
+  irsa_iam_policies          = [aws_iam_policy.oidc-ssm.arn]
+  eks_cluster_id             = var.eks_cluster_name
+
+  create_kubernetes_namespace         = false
+  create_service_account_secret_token = true
+}
+
+
+resource "kubectl_manifest" "oidc-secret-class" {
+  depends_on = [kubernetes_namespace_v1.auth]
+
+  yaml_body = <<YAML
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: oidc-secrets
+  namespace: ${var.auth_namespace}
+spec:
+  provider: aws
+  secretObjects:
+  - secretName: okta-oidc-secrets
+    type: Opaque
+    data:
+    - objectName: "sso_client_id"
+      key: SSO_CLIENT_ID
+    - objectName: "sso_client_secret"
+      key: SSO_CLIENT_SECRET
+    - objectName: "sso_issuer_url"
+      key: SSO_ISSUER_URL
+  - secretName: dex-oidc-client
+    type: Opaque
+    data:
+    - objectName: "auth_client_id"
+      key: OIDC_CLIENT_ID
+    - objectName: "auth_client_secret"
+      key: OIDC_CLIENT_SECRET
+  parameters:
+    objects: |
+      - objectName: "${var.okta_secret_name}"
+        objectType: "secretsmanager"
+        objectAlias: "okta-secret"
+        objectVersionLabel: "AWSCURRENT"
+        jmesPath:
+            - path: "okta_client_id"
+              objectAlias: "sso_client_id"
+            - path: "okta_client_secret"
+              objectAlias: "sso_client_secret"
+            - path: "okta_issuer_url"
+              objectAlias: "sso_issuer_url"
+      - objectName: "${var.oidc_secret_name}"
+        objectType: "secretsmanager"
+        objectAlias: "oidc-secret"
+        objectVersionLabel: "AWSCURRENT"
+        jmesPath:
+            - path: "auth_client_id"
+              objectAlias: "auth_client_id"
+            - path: "auth_client_secret"
+              objectAlias: "auth_client_secret"
+YAML
+}
+
+resource "kubectl_manifest" "oidc-secret-pod" {
+    depends_on = [helm_release.dex]
+  force_new = true
+  yaml_body = <<YAML
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-secrets
+  namespace: auth
+  labels:
+    app: auth-secrets-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-secrets-deployment
+  template:
+    metadata:
+      labels:
+        app: auth-secrets-deployment
+    spec:
+      containers:
+      - image: k8s.gcr.io/e2e-test-images/busybox:1.29
+        command:
+        - "/bin/sleep"
+        - "10000"
+        name: secrets
+        volumeMounts:
+        - mountPath: "/mnt/okta-store"
+          name: "${var.okta_secret_name}"
+          readOnly: true
+        - mountPath: "/mnt/oidc-store"
+          name: "${var.oidc_secret_name}"
+          readOnly: true
+      serviceAccountName: ${var.auth_sa_name}
+      volumes:
+      - csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: oidc-secrets
+        name: "${var.oidc_secret_name}"
+      - csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: oidc-secrets
+        name: "${var.okta_secret_name}"
+YAML
+}
+
+
+
 resource "helm_release" "dex" {
   depends_on = [kubectl_manifest.oidc-secret-pod]
   repository = "https://charts.dexidp.io"
@@ -9,7 +159,7 @@ resource "helm_release" "dex" {
   chart      = "dex"
   version    = var.dex_version
   namespace  = "auth"
-  create_namespace = true
+
   values = [<<YAML
 envVars:
 - name: KUBERNETES_POD_NAMESPACE
@@ -54,7 +204,6 @@ YAML
   ]
 }
 
-
 resource "kubectl_manifest" "virtual" {
   yaml_body = <<YAML
 apiVersion: networking.istio.io/v1alpha3
@@ -77,14 +226,4 @@ spec:
         port:
           number: 5556
 YAML
-}
-
-data "kubectl_file_documents" "oidc" {
-  content =file("${path.module}/oidc.yaml")
-}
-
-resource "kubectl_manifest" "oidc" {
-  depends_on = [helm_release.dex]
-    for_each  = data.kubectl_file_documents.oidc.manifests
-    yaml_body = each.value
 }
