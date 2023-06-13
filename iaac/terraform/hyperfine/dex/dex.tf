@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "ssm" {
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
     ]
-    resources = [var.oidc_secret_arn, var.okta_secret_arn]
+    resources = [for k, v in data.aws_secretsmanager_secret.oidc_secrets : v.arn]
   }
 }
 
@@ -77,14 +77,12 @@ locals {
 }
 
 resource "kubectl_manifest" "oidc-secret-class" {
-  depends_on = [kubernetes_namespace_v1.auth]
-
   yaml_body = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
 metadata:
   name: oidc-secrets
-  namespace: ${var.auth_namespace}
+  namespace: "${kubernetes_namespace_v1.auth.metadata.name}"
 spec:
   provider: aws
   secretObjects:
@@ -136,7 +134,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auth-secrets
-  namespace: auth
+  namespace: "${kubernetes_namespace_v1.auth.metadata.name}"
   labels:
     app: auth-secrets-deployment
 spec:
@@ -180,12 +178,11 @@ YAML
 }
 
 resource "helm_release" "dex" {
-  depends_on = [kubectl_manifest.oidc-secret-pod]
   repository = "https://charts.dexidp.io"
   name       = "dex"
   chart      = "dex"
   version    = var.dex_version
-  namespace  = "auth"
+  namespace  = kubernetes_namespace_v1.auth.metadata.name
 
   values = [<<YAML
 envVars:

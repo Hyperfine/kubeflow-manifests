@@ -49,7 +49,6 @@ YAML
 }
 
 resource "kubectl_manifest" "authservice-secret-pod" {
-  depends_on = [kubectl_manifest.auth-secret-class]
   yaml_body  = <<YAML
 apiVersion: apps/v1
 kind: Deployment
@@ -111,10 +110,7 @@ YAML
 }
 
 resource "helm_release" "oidc" {
-  depends_on = [kubectl_manifest.oidc_auth_config, kubectl_manifest.authservice-secret-pod, helm_release.dex]
-
-  name      = "auth"
+  name      = "auth-service"
   namespace = "istio-system"
   chart     = "../../charts/common/oidc-authservice"
-
 }
