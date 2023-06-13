@@ -182,7 +182,7 @@ resource "helm_release" "dex" {
   name       = "dex"
   chart      = "dex"
   version    = var.dex_version
-  namespace  = kubernetes_namespace_v1.auth.metadata.name
+  namespace  = kubernetes_namespace_v1.auth.metadata[0].name
 
   values = [<<YAML
 envVars:
