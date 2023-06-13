@@ -60,7 +60,7 @@ resource "aws_iam_policy" "oidc-ssm" {
 }
 
 module "dex-irsa" {
-  source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.1"
+  source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=bugfix/stateless-irsa"
   kubernetes_namespace       = var.auth_namespace
   kubernetes_service_account = var.auth_sa_name
   irsa_iam_policies          = [aws_iam_policy.oidc-ssm.arn]
