@@ -94,7 +94,7 @@ resource "helm_release" "kubeflow_pipelines" {
   }
   set {
     name  = "s3.bucketName"
-    value = var.s3_bucket
+    value = var.s3_bucket_name
   }
   set {
     name  = "s3.minioServiceHost"

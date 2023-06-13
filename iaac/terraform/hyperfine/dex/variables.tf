@@ -29,10 +29,6 @@ variable "okta_secret_name" {
   #  }
 }
 
-variable "okta_secret_arn" {
-  description = "ssm arn to use for okta"
-  type = string
-}
 
 variable "oidc_secret_name" {
   description = "secretmanager name to use for auth service"
@@ -44,11 +40,6 @@ variable "oidc_secret_name" {
   #  }
 }
 
-variable "oidc_secret_arn" {
-  description = "ssm arn to use for auth service"
-  type = string
-}
-
 variable "auth_sa_name" {
   description = "service account name to use for dex configuration"
   default     = "dex-secrets-manager-sa"
@@ -58,8 +49,6 @@ variable "auth_namespace" {
   description = "namespace to deploy auth service to"
   default     = "auth"
 }
-
-
 
 # PROVIDER CONFIGS
 variable "eks_cluster_name" {

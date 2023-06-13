@@ -9,7 +9,7 @@ variable "rds_host" {
   type        = string
 }
 
-variable "s3_bucket" {
+variable "s3_bucket_name" {
   description = "s3 bucket name to use"
   type        = string
 }

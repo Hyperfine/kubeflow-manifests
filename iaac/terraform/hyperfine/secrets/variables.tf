@@ -21,6 +21,13 @@ variable "s3_region" {
 }
 
 # optional
+
+variable "namespace" {
+  description = "namespace to create secrets in"
+  type = string
+  default = "kubeflow"
+}
+
 variable "additional_kms_key_ids" {
   description = "list of kms keys to add to"
   type        = list(string)

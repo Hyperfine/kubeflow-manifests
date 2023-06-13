@@ -3,7 +3,6 @@ locals {
 
 }
 
-
 resource "aws_iam_policy" "ssm-access" {
   name   = "${var.eks_cluster_name}-${local.sa_name}-policy"
   policy = data.aws_iam_policy_document.kf-ssm.json
@@ -11,7 +10,7 @@ resource "aws_iam_policy" "ssm-access" {
 
 module "irsa" {
   source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.1"
-  kubernetes_namespace       = "kubeflow"
+  kubernetes_namespace       = var.namespace
   kubernetes_service_account = local.sa_name
   irsa_iam_policies          = [aws_iam_policy.ssm-access.arn]
   eks_cluster_id             = var.eks_cluster_name

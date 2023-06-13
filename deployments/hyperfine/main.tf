@@ -34,10 +34,10 @@ resource "kubernetes_namespace_v1" "kubeflow" {
 }
 
 module "secrets" {
-  depends_on = [kubernetes_namespace_v1.kubeflow]
   source = "../../iaac/terraform/hyperfine/secrets"
 
   eks_cluster_name = var.eks_cluster_name
+  namespace = kubernetes_namespace_v1.kubeflow.metadata.name
 
   rds_host = var.rds_host
   rds_secret_name = var.rds_secret_name
@@ -45,18 +45,16 @@ module "secrets" {
 }
 
 module "kubeflow" {
-  depends_on = [module.secrets]
   source = "../../iaac/terraform/hyperfine/modules"
 
   eks_cluster_name = var.eks_cluster_name
 
-  rds_host = var.rds_host
-  s3_bucket = var.s3_bucket_name
+  rds_host = module.secrets.rds_host
+  s3_bucket_name = module.secrets.s3_bucket_name
 }
 
 
 module "dex" {
-  depends_on = [module.kubeflow]
   source = "../../iaac/terraform/hyperfine/dex"
 
   eks_cluster_name = var.eks_cluster_name
@@ -67,6 +65,7 @@ module "dex" {
 
   subdomain = "blue"
 }
+
 /*
 module "user" {
   for_each = var.users
