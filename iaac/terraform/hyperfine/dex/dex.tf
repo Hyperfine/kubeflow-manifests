@@ -1,3 +1,28 @@
+terraform {
+  required_version = ">= 1.2.7"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 3.71"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.13.1"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.0"
+    }
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = ">= 1.7.0"
+    }
+  }
+}
+
+
+
 locals {
   url = "https://${var.subdomain}.${data.aws_route53_zone.top_level.name}"
 }
