@@ -175,8 +175,6 @@ spec:
 YAML
 }
 
-
-
 resource "helm_release" "dex" {
   depends_on = [kubectl_manifest.oidc-secret-pod]
   repository = "https://charts.dexidp.io"

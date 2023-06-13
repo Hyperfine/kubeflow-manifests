@@ -3,7 +3,7 @@
 module "auth-irsa" {
   source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.1"
   kubernetes_namespace       = "istio-system"
-  kubernetes_service_account = "oidc-secret-manager-sa"
+  kubernetes_service_account = "oidc-secrets-manager-sa"
   irsa_iam_policies          = [aws_iam_policy.oidc-ssm.arn]
   eks_cluster_id             = var.eks_cluster_name
 
