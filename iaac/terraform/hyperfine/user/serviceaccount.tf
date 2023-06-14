@@ -18,14 +18,14 @@ data "aws_iam_policy_document" "ssm" {
 }
 
 resource "aws_iam_policy" "ssm" {
-  name   = "${var.eks_cluster_name}-${local.key}-sa-ssm-policy"
+  name   = "${var.eks_cluster_name}-${local.name}-sa-ssm-policy"
   policy = data.aws_iam_policy_document.ssm.json
 }
 
 
 module "irsa" {
   source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=bugfix/stateless-irsa"
-  kubernetes_namespace       = local.key
+  kubernetes_namespace       = local.name
   kubernetes_service_account = local.sa_name
   irsa_iam_policies          = [aws_iam_policy.ssm.arn]
   eks_cluster_id             = var.eks_cluster_name
@@ -43,16 +43,16 @@ resource "kubectl_manifest" "binding" {
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: ${local.key}-role-binding
-  namespace: ${local.key}
+  name: ${local.name}-role-binding
+  namespace: ${local.name}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: ${local.key}-access
+  name: ${local.name}-access
 subjects:
   - kind: ServiceAccount
     name:  ${local.module_sa}
-    namespace: ${local.key}
+    namespace: ${local.name}
 YAML
 }
 
@@ -62,15 +62,15 @@ resource "kubectl_manifest" "group-role-binding" {
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: ${local.key}-access-dashboard-cluster-role-binding
-  namespace: ${local.key}
+  name: ${local.name}-access-dashboard-cluster-role-binding
+  namespace: ${local.name}
 subjects:
 - kind: Group
   name: kubernetes-dashboard
   apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: Role
-  name: ${local.key}-access
+  name: ${local.name}-access
   apiGroup: rbac.authorization.k8s.io
 YAML
 }
