@@ -5,7 +5,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: "${local.key}-home"
-  namespace: ${local.key}
+  namespace: ${local.name}
 spec:
   accessModes:
     - ReadWriteMany

@@ -5,16 +5,16 @@ apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
 metadata:
   name: aws-secrets
-  namespace: ${local.key}
+  namespace: ${local.name}
 spec:
   provider: aws
   secretObjects:
-  - secretName: ssh-secret-${local.key}
+  - secretName: ssh-secret-${local.name}
     type: Opaque
     data:
-    - objectName: "${local.key}"
+    - objectName: "${local.name}"
       key: private
-    - objectName: "${local.key}.pub"
+    - objectName: "${local.name}.pub"
       key: public
   - secretName: mysql-secret
     type: Opaque
@@ -40,13 +40,13 @@ spec:
     objects: |
       - objectName: "${var.ssh_key_secret_name}"
         objectType: "secretsmanager"
-        objectAlias: "${local.key}-ssh"
+        objectAlias: "${local.name}-ssh"
         objectVersionLabel: "AWSCURRENT"
         jmesPath:
             - path: "private"
-              objectAlias: "${local.key}"
+              objectAlias: "${local.name}"
             - path: "public"
-              objectAlias: "${local.key}.pub"
+              objectAlias: "${local.name}.pub"
       - objectName: "${var.rds_secret_name}"
         objectType: "secretsmanager"
         objectAlias: "rds-secret"
@@ -81,19 +81,19 @@ resource "kubectl_manifest" "secret-pod" {
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kf-secrets-${local.key}-deployment
-  namespace: ${local.key}
+  name: kf-secrets-${local.name}-deployment
+  namespace: ${local.name}
   labels:
-    app: kf-secrets-${local.key}
+    app: kf-secrets-${local.name}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kf-secrets-${local.key}
+      app: kf-secrets-${local.name}
   template:
     metadata:
       labels:
-        app: kf-secrets-${local.key}
+        app: kf-secrets-${local.name}
     spec:
       containers:
       - image: k8s.gcr.io/e2e-test-images/busybox:1.29
@@ -131,6 +131,5 @@ spec:
           volumeAttributes:
             secretProviderClass: aws-secrets
         name: "${var.ssh_key_secret_name}"
-
 YAML
 }

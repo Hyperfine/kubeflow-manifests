@@ -10,8 +10,18 @@ terraform {
   }
 }
 
+resource "kubernetes_namespace_v1" "ns" {
+  metadata {
+    name = var.username
+    annotations = {
+      owner: "${var.username}@${var.domain}"
+    }
+  }
+}
+
 locals {
-  key     = var.username
+  name = kubernetes_namespace_v1.ns.metadata[0].name
+  email = "${local.name}@${var.domain}"
   sa_name = "${var.username}-sa"
 }
 
@@ -19,11 +29,11 @@ resource "kubectl_manifest" "config" {
   yaml_body = <<YAML
 apiVersion: v1
 data:
-  profile-name: ${local.key}
-  user: "${local.key}@hyperfine.io"
+  profile-name: ${local.name}
+  user: ${local.email}
 kind: ConfigMap
 metadata:
-  name: default-install-config-${local.key}
+  name: default-install-config-${local.name}
 YAML
 }
 
@@ -32,11 +42,11 @@ resource "kubectl_manifest" "profile" {
 apiVersion: kubeflow.org/v1beta1
 kind: Profile
 metadata:
-  name: ${local.key}
+  name: ${local.name}
 spec:
   owner:
     kind: User
-    name: "${local.key}@hyperfine.io"
+    name: ${local.email}
 YAML
 }
 

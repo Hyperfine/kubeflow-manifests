@@ -4,6 +4,11 @@ variable "username" {
   type        = string
 }
 
+variable "domain" {
+  description = "domain to use for email"
+  type = string
+}
+
 variable "rds_secret_name" {
   description = "secretmamanger secet for rds access"
   type        = string

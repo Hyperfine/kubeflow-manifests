@@ -4,7 +4,7 @@ apiVersion: kubeflow.org/v1alpha1
 kind: PodDefault
 metadata:
   name: access-ml-pipeline
-  namespace: ${local.key}
+  namespace: ${local.name}
 spec:
   desc: Allow access to Kubeflow Pipelines
   selector:
@@ -34,7 +34,7 @@ apiVersion: kubeflow.org/v1alpha1
 kind: PodDefault
 metadata:
   name: prevent-eviction
-  namespace: ${local.key}
+  namespace: ${local.name}
 spec:
   desc: prevent eviction
   selector:
@@ -51,7 +51,7 @@ apiVersion: "kubeflow.org/v1alpha1"
 kind: PodDefault
 metadata:
   name: "add-env"
-  namespace: ${local.key}
+  namespace: ${local.name}
 spec:
  desc: "add env"
  selector:
@@ -69,9 +69,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: env-config
-  namespace: ${local.key}
+  namespace: ${local.name}
 data:
-  NAMESPACE: ${local.key}
+  NAMESPACE: ${local.name}
 YAML
 }
 
@@ -81,7 +81,7 @@ apiVersion: "kubeflow.org/v1alpha1"
 kind: PodDefault
 metadata:
   name: "add-secret-volume"
-  namespace: ${local.key}
+  namespace: ${local.name}
 spec:
  desc: "add secret volume"
  selector:
@@ -93,7 +93,7 @@ spec:
  volumes:
  - name: secret-volume
    secret:
-     secretName: ssh-secret-${local.key}
+     secretName: ssh-secret-${local.name}
      defaultMode: 256
 YAML
 }
