@@ -4,4 +4,4 @@ data:
   user: {{ .Values.email }}
 kind: ConfigMap
 metadata:
-  name: default-install-config-{{ .Values.name }}
+  name: "default-install-config-{{ .Values.name }}"
