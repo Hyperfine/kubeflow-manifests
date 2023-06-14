@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "ssm" {
   statement {
     effect    = "Allow"
     actions   = ["kms:Decrypt", "kms:DescribeKey"]
-    resources = ["*"]
+    resources = var.kms_key_arns
   }
 
   statement {

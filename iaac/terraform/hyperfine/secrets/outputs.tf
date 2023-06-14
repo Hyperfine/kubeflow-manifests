@@ -7,8 +7,8 @@ output "s3_secret_name" {
   value = aws_secretsmanager_secret.s3-secret.name
 }
 
-output "kms_key_ids" {
-  value = concat([aws_kms_key.kms.key_id], var.additional_kms_key_ids)
+output "kms_key_arns" {
+  value = concat([aws_kms_key.kms.arn], var.additional_kms_key_arns)
 }
 
 output "rds_host" {

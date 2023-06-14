@@ -59,10 +59,11 @@ module "dex" {
 
   eks_cluster_name = var.eks_cluster_name
 
-  zone_id = var.zone_id
   oidc_secret_name = var.oidc_secret_name
   okta_secret_name = var.okta_secret_name
+  kms_key_arns = module.secrets.kms_key_arns
 
+  zone_id = var.zone_id
   subdomain = var.subdomain
 }
 
@@ -76,9 +77,8 @@ module "user" {
   eks_cluster_name = var.eks_cluster_name
 
   ssh_key_secret_name = each.value
-
   rds_secret_name = module.secrets.rds_secret_name
   s3_secret_name = module.secrets.s3_secret_name
-  kms_key_ids = module.secrets.kms_key_ids
+  kms_key_arns = module.secrets.kms_key_arns
 }
 

@@ -4,7 +4,7 @@ data "aws_iam_policy_document" "ssm" {
   statement {
     effect    = "Allow"
     actions   = ["kms:Decrypt", "kms:DescribeKey"]
-    resources = var.kms_key_ids
+    resources = var.kms_key_arns
   }
 
   statement {

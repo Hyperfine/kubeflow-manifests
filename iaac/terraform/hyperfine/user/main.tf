@@ -38,14 +38,5 @@ spec:
     kind: User
     name: "${local.key}@hyperfine.io"
 YAML
-
-  provisioner "local-exec" {
-    command = <<EOT
-      while ! [ "$(kubectl get ns ${local.key} -o jsonpath='{.status.phase}')" == "Active" ]
-        do echo 'Waiting for namespace to come online. CTRL-C to exit.'
-        sleep 1
-      done"
-    EOT
-  }
 }
 

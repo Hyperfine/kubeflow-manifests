@@ -28,7 +28,7 @@ variable "namespace" {
   default = "kubeflow"
 }
 
-variable "additional_kms_key_ids" {
+variable "additional_kms_key_arns" {
   description = "list of kms keys to add to"
   type        = list(string)
   default     = []

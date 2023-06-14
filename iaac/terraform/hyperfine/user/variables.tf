@@ -25,9 +25,10 @@ variable "efs_storage_class_name" {
   default     = "dl-efs-home-sc"
 }
 
-variable "kms_key_ids" {
-  description = "list of kms "
+variable "kms_key_arns" {
+  description = "kms key arns to allow access to"
   type        = list(string)
+  default     = []
 }
 
 variable "eks_cluster_name" {

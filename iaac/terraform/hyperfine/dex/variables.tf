@@ -15,6 +15,12 @@ variable "zone_id" {
   type        = string
 }
 
+variable "kms_key_arns" {
+  description = "kms key arns to allow access to"
+  type        = list(string)
+  default     = []
+}
+
 variable "okta_secret_name" {
   description = "secretmanager name to use for okta"
   type        = string
