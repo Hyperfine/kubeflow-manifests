@@ -168,16 +168,16 @@ resource "helm_release" "kubeflow_notebook_controller" {
 
 
 }
-
+/*
 resource "helm_release" "kubeflow_jupyter_web_app" {
   depends_on = [helm_release.kubeflow_central_dashboard]
 
   name      = "jupyter-web-app"
   namespace = "kubeflow"
   chart     = "${var.chart_root_folder}/apps/jupyter-web-app"
-  version   = "0.2.1"
+  version   = "0.2.2"
 }
-
+*/
 
 resource "helm_release" "kubeflow_profiles_and_kfam" {
   depends_on = [helm_release.kubeflow_central_dashboard]
