@@ -38,10 +38,14 @@ spec:
     kind: User
     name: "${local.key}@hyperfine.io"
 YAML
-}
 
-resource "time_sleep" "wait_for_namespace" {
-  depends_on = [kubectl_manifest.profile]
-  create_duration = "30s"
+  provisioner "local-exec" {
+    command = <<EOT
+      while ! [ "$(kubectl get ns ${local.key} -o jsonpath='{.status.phase}')" == "Active" ]
+        do echo 'Waiting for namespace to come online. CTRL-C to exit.'
+        sleep 1
+      done"
+    EOT
+  }
 }
 

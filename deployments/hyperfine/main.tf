@@ -63,14 +63,16 @@ module "dex" {
   oidc_secret_name = var.oidc_secret_name
   okta_secret_name = var.okta_secret_name
 
-  subdomain = "blue"
+  subdomain = var.subdomain
 }
 
-/*
+
 module "user" {
   for_each = var.users
+
   source = "../../iaac/terraform/hyperfine/user"
   username = each.key
+
   eks_cluster_name = var.eks_cluster_name
 
   ssh_key_secret_name = each.value
@@ -79,4 +81,4 @@ module "user" {
   s3_secret_name = module.secrets.s3_secret_name
   kms_key_ids = module.secrets.kms_key_ids
 }
-*/
+

@@ -46,8 +46,6 @@ YAML
 }
 
 resource "kubectl_manifest" "env-default" {
-    depends_on = [time_sleep.wait_for_namespace]
-
   yaml_body = <<YAML
 apiVersion: "kubeflow.org/v1alpha1"
 kind: PodDefault
@@ -66,8 +64,6 @@ YAML
 }
 
 resource "kubectl_manifest" "config-map" {
-    depends_on = [time_sleep.wait_for_namespace]
-
   yaml_body = <<YAML
 apiVersion: v1
 kind: ConfigMap
@@ -80,8 +76,6 @@ YAML
 }
 
 resource "kubectl_manifest" "ssh-default" {
-    depends_on = [time_sleep.wait_for_namespace]
-
   yaml_body = <<YAML
 apiVersion: "kubeflow.org/v1alpha1"
 kind: PodDefault

@@ -113,7 +113,7 @@ spec:
         - mountPath: "/mnt/ssh-store"
           name: "${var.ssh_key_secret_name}"
           readOnly: true
-      serviceAccountName: ${local.sa_name}
+      serviceAccountName: ${local.module_sa}
       volumes:
       - csi:
           driver: secrets-store.csi.k8s.io
