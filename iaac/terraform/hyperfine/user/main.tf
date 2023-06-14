@@ -14,9 +14,25 @@ resource "kubernetes_namespace_v1" "ns" {
   metadata {
     name = split("@", var.email)[0]
 
+    labels = {
+      "app.kubernetes.io/part-of"                      = "kubeflow-profile"
+      "katib.kubeflow.org/metrics-collector-injection" = "enabled"
+      "pipelines.kubeflow.org/enabled"                 = "true"
+      "serving.kubeflow.org/inferenceservice"          = "enabled"
+    }
+
     annotations = {
       owner: var.email
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      metadata[0].labels["app.kubernetes.io/part-of"],
+      metadata[0].labels["katib.kubeflow.org/metrics-collector-injection"],
+      metadata[0].labels["pipelines.kubeflow.org/enabled"],
+      metadata[0].labels["serving.kubeflow.org/inferenceservice"]
+    ]
   }
 }
 
