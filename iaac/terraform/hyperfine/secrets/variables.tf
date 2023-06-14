@@ -28,6 +28,12 @@ variable "namespace" {
   default = "kubeflow"
 }
 
+variable "service_account_name" {
+  description = "name of service account to use"
+  type = string
+  default = "kf-secrets-manager-sa"
+}
+
 variable "additional_kms_key_arns" {
   description = "list of kms keys to add to"
   type        = list(string)

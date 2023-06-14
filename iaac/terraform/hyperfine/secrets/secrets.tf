@@ -1,17 +1,13 @@
-locals {
-  sa_name = "kf-secrets-manager-sa"
-
-}
 
 resource "aws_iam_policy" "ssm-access" {
-  name   = "${var.eks_cluster_name}-${local.sa_name}-policy"
+  name   = "${var.eks_cluster_name}-${var.service_account_name}-policy"
   policy = data.aws_iam_policy_document.kf-ssm.json
 }
 
 module "irsa" {
   source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.1"
   kubernetes_namespace       = var.namespace
-  kubernetes_service_account = local.sa_name
+  kubernetes_service_account = var.service_account_name
   irsa_iam_policies          = [aws_iam_policy.ssm-access.arn]
   eks_cluster_id             = var.eks_cluster_name
 
@@ -19,6 +15,9 @@ module "irsa" {
   create_service_account_secret_token = true
 }
 
+locals {
+  module_sa = reverse(split("/", module.irsa.service_account))[0]
+}
 
 resource "kubectl_manifest" "kf-secret-class" {
   yaml_body = <<YAML
@@ -113,7 +112,7 @@ spec:
         - mountPath: "/mnt/aws-store"
           name: "${aws_secretsmanager_secret.s3-secret.name}"
           readOnly: true
-      serviceAccountName: "${local.sa_name}"
+      serviceAccountName: "${local.module_sa}"
       volumes:
       - csi:
           driver: secrets-store.csi.k8s.io
