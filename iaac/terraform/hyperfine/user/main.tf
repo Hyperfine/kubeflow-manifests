@@ -68,7 +68,7 @@ resource "aws_iam_policy" "ssm" {
 
 
 module "irsa" {
-  source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=bugfix/stateless-irsa"
+  source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.3"
   kubernetes_namespace       = local.name
   kubernetes_service_account = local.sa_name
   irsa_iam_policies          = [aws_iam_policy.ssm.arn]

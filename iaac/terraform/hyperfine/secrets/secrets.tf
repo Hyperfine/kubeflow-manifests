@@ -5,7 +5,7 @@ resource "aws_iam_policy" "ssm-access" {
 }
 
 module "irsa" {
-  source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.1"
+  source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.3"
   kubernetes_namespace       = var.namespace
   kubernetes_service_account = var.service_account_name
   irsa_iam_policies          = [aws_iam_policy.ssm-access.arn]

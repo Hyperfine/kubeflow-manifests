@@ -1,7 +1,7 @@
 
 
 module "auth-irsa" {
-  source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=bugfix/stateless-irsa"
+  source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=v0.48.3"
   kubernetes_namespace       = "istio-system"
   kubernetes_service_account = "oidc-secrets-manager-sa"
   irsa_iam_policies          = [aws_iam_policy.oidc-ssm.arn]
@@ -107,10 +107,10 @@ metadata:
 YAML
 }
 
-/*
+
 resource "helm_release" "oidc" {
   name      = "auth-service"
   namespace = "istio-system"
   chart     = "../../charts/common/oidc-authservice"
 }
-*/
+
