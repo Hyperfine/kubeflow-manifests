@@ -1,154 +1,154 @@
-spawner_ui_config: >
-    spawnerFormDefaults:
-      image:
-        # The container Image for the user's Jupyter Notebook
-        value: 369500102003.dkr.ecr.us-east-1.amazonaws.com/dl-research:jupyter-f932cdf
-        # The list of available standard container Images
-        options:
-        - 369500102003.dkr.ecr.us-east-1.amazonaws.com/dl-research:jupyter-f932cdf
-        - kubeflownotebookswg/jupyter-pytorch-full:v1.6.1
-        - kubeflownotebookswg/jupyter-pytorch-cuda-full:v1.6.1
-        - kubeflownotebookswg/jupyter-tensorflow-full:v1.6.1
-        - kubeflownotebookswg/jupyter-tensorflow-cuda-full:v1.6.1
-      imageGroupOne:
-        # The container Image for the user's Group One Server
-        # The annotation `notebooks.kubeflow.org/http-rewrite-uri: /`
-        # is applied to notebook in this group, configuring
-        # the Istio rewrite for containers that host their web UI at `/`
-        value: 369500102003.dkr.ecr.us-east-1.amazonaws.com/dl-research:vscode-f932cdf
-        # The list of available standard container Images
-        options:
-        - 369500102003.dkr.ecr.us-east-1.amazonaws.com/dl-research:vscode-f932cdf
-      imageGroupTwo:
-        # The container Image for the user's Group Two Server
-        # The annotation `notebooks.kubeflow.org/http-rewrite-uri: /`
-        # is applied to notebook in this group, configuring
-        # the Istio rewrite for containers that host their web UI at `/`
-        # The annotation `notebooks.kubeflow.org/http-headers-request-set`
-        # is applied to notebook in this group, configuring Istio
-        # to add the `X-RStudio-Root-Path` header to requests
-        value: kubeflownotebookswg/rstudio-tidyverse:v1.6.1
-        # The list of available standard container Images
-        options:
-        - kubeflownotebookswg/rstudio-tidyverse:v1.6.1
-      # If true, hide registry and/or tag name in the image selection dropdown
-      hideRegistry: false
-      hideTag: false
-      allowCustomImage: true
-      # If true, users can input custom images
-      # If false, users can only select from the images in this config
-      imagePullPolicy:
-        # Supported values: Always, IfNotPresent, Never
-        value: IfNotPresent
-        readOnly: false
-      cpu:
-        # CPU for user's Notebook
-        value: '0.5'
-        # Factor by with to multiply request to calculate limit
-        # if no limit is set, to disable set "none"
-        limitFactor: "1.2"
-        readOnly: false
-      memory:
-        # Memory for user's Notebook
-        value: 1.0Gi
-        # Factor by with to multiply request to calculate limit
-        # if no limit is set, to disable set "none"
-        limitFactor: "1.2"
-        readOnly: false
-      environment:
-        value: {}
-        readOnly: false
-      workspaceVolume:
-        # Workspace Volume to be attached to user's Notebook
-        # If you don't want a workspace volume then delete the 'value' key
-        value:
-        # mount: /home/dl-user
-        # existingSource:
-        #   persistentVolumeClaim:
-        #     claimName: '-home'
-        readOnly: false
-      dataVolumes:
-        value:
-          - mount: /data
-            newPvc:
-              metadata:
-                name: '{notebook-name}-vol-1'
-              spec:
-                resources:
-                  requests:
-                    storage: 30Gi
-                accessModes:
-                  - ReadWriteOnce
-        readOnly: false
-      gpus:
-        # Number of GPUs to be assigned to the Notebook Container
-        value:
-          # values: "none", "1", "2", "4", "8"
-          num: "none"
-          # Determines what the UI will show and send to the backend
-          vendors:
-          - limitsKey: "nvidia.com/gpu"
-            uiName: "NVIDIA"
-          # - limitsKey: "amd.com/gpu"
-          #  uiName: "AMD"
-          # Values: "" or a `limits-key` from the vendors list
-          vendor: ""
-        readOnly: false
-      affinityConfig:
-        # If readonly, the default value will be the only option
-        # value is a list of `configKey`s that we want to be selected by default
-        value: ""
-        # The list of available affinity configs
-        options: []
-        #options:
-        #  - configKey: "exclusive__n1-standard-2"
-        #    displayName: "Exclusive: n1-standard-2"
-        #    affinity:
-        #      # (Require) Node having label: `node_pool=notebook-n1-standard-2`
-        #      nodeAffinity:
-        #        requiredDuringSchedulingIgnoredDuringExecution:
-        #          nodeSelectorTerms:
-        #            - matchExpressions:
-        #                - key: "node_pool"
-        #                  operator: "In"
-        #                  values:
-        #                   - "notebook-n1-standard-2"
-        #      # (Require) Node WITHOUT existing Pod having label: `notebook-name`
-        #      podAntiAffinity:
-        #        requiredDuringSchedulingIgnoredDuringExecution:
-        #          - labelSelector:
-        #              matchExpressions:
-        #                - key: "notebook-name"
-        #                  operator: "Exists"
-        #            namespaces: []
-        #            topologyKey: "kubernetes.io/hostname"
-        #readOnly: false
-      tolerationGroup:
-        # The default `groupKey` from the options list
-        # If readonly, the default value will be the only option
-        value: ""
-        options:
-        - groupKey: "gpu"
-          displayName: "gpu toleration"
-          tolerations:
-          - key: "nvidia.com/gpu"
-            operator: "Equal"
-            value: "true"
-            effect: "PreferNoSchedule"
-        - groupKey: "spot"
-          displayName: "spot toleration"
-          tolerations:
-          - key: "spot"
-            operator: "Equal"
-            value: "true"
-            effect: "NoSchedule"
-      shm:
-        value: true
-        readOnly: false
-      configurations:
-        value:
-          - add-secret-volume
-          - add-env
-          - prevent-eviction
-          - access-ml-pipeline
-        readOnly: false
+spawner_ui_config: |
+  spawnerFormDefaults:
+    image:
+      # The container Image for the user's Jupyter Notebook
+      value: 369500102003.dkr.ecr.us-east-1.amazonaws.com/dl-research:jupyter-f932cdf
+      # The list of available standard container Images
+      options:
+      - 369500102003.dkr.ecr.us-east-1.amazonaws.com/dl-research:jupyter-f932cdf
+      - kubeflownotebookswg/jupyter-pytorch-full:v1.6.1
+      - kubeflownotebookswg/jupyter-pytorch-cuda-full:v1.6.1
+      - kubeflownotebookswg/jupyter-tensorflow-full:v1.6.1
+      - kubeflownotebookswg/jupyter-tensorflow-cuda-full:v1.6.1
+    imageGroupOne:
+      # The container Image for the user's Group One Server
+      # The annotation `notebooks.kubeflow.org/http-rewrite-uri: /`
+      # is applied to notebook in this group, configuring
+      # the Istio rewrite for containers that host their web UI at `/`
+      value: 369500102003.dkr.ecr.us-east-1.amazonaws.com/dl-research:vscode-f932cdf
+      # The list of available standard container Images
+      options:
+      - 369500102003.dkr.ecr.us-east-1.amazonaws.com/dl-research:vscode-f932cdf
+    imageGroupTwo:
+      # The container Image for the user's Group Two Server
+      # The annotation `notebooks.kubeflow.org/http-rewrite-uri: /`
+      # is applied to notebook in this group, configuring
+      # the Istio rewrite for containers that host their web UI at `/`
+      # The annotation `notebooks.kubeflow.org/http-headers-request-set`
+      # is applied to notebook in this group, configuring Istio
+      # to add the `X-RStudio-Root-Path` header to requests
+      value: kubeflownotebookswg/rstudio-tidyverse:v1.6.1
+      # The list of available standard container Images
+      options:
+      - kubeflownotebookswg/rstudio-tidyverse:v1.6.1
+    # If true, hide registry and/or tag name in the image selection dropdown
+    hideRegistry: false
+    hideTag: false
+    allowCustomImage: true
+    # If true, users can input custom images
+    # If false, users can only select from the images in this config
+    imagePullPolicy:
+      # Supported values: Always, IfNotPresent, Never
+      value: IfNotPresent
+      readOnly: false
+    cpu:
+      # CPU for user's Notebook
+      value: '0.5'
+      # Factor by with to multiply request to calculate limit
+      # if no limit is set, to disable set "none"
+      limitFactor: "1.2"
+      readOnly: false
+    memory:
+      # Memory for user's Notebook
+      value: 1.0Gi
+      # Factor by with to multiply request to calculate limit
+      # if no limit is set, to disable set "none"
+      limitFactor: "1.2"
+      readOnly: false
+    environment:
+      value: {}
+      readOnly: false
+    workspaceVolume:
+      # Workspace Volume to be attached to user's Notebook
+      # If you don't want a workspace volume then delete the 'value' key
+      value:
+      # mount: /home/dl-user
+      # existingSource:
+      #   persistentVolumeClaim:
+      #     claimName: '-home'
+      readOnly: false
+    dataVolumes:
+      value:
+        - mount: /data
+          newPvc:
+            metadata:
+              name: '{notebook-name}-vol-1'
+            spec:
+              resources:
+                requests:
+                  storage: 30Gi
+              accessModes:
+                - ReadWriteOnce
+      readOnly: false
+    gpus:
+      # Number of GPUs to be assigned to the Notebook Container
+      value:
+        # values: "none", "1", "2", "4", "8"
+        num: "none"
+        # Determines what the UI will show and send to the backend
+        vendors:
+        - limitsKey: "nvidia.com/gpu"
+          uiName: "NVIDIA"
+        # - limitsKey: "amd.com/gpu"
+        #  uiName: "AMD"
+        # Values: "" or a `limits-key` from the vendors list
+        vendor: ""
+      readOnly: false
+    affinityConfig:
+      # If readonly, the default value will be the only option
+      # value is a list of `configKey`s that we want to be selected by default
+      value: ""
+      # The list of available affinity configs
+      options: []
+      #options:
+      #  - configKey: "exclusive__n1-standard-2"
+      #    displayName: "Exclusive: n1-standard-2"
+      #    affinity:
+      #      # (Require) Node having label: `node_pool=notebook-n1-standard-2`
+      #      nodeAffinity:
+      #        requiredDuringSchedulingIgnoredDuringExecution:
+      #          nodeSelectorTerms:
+      #            - matchExpressions:
+      #                - key: "node_pool"
+      #                  operator: "In"
+      #                  values:
+      #                   - "notebook-n1-standard-2"
+      #      # (Require) Node WITHOUT existing Pod having label: `notebook-name`
+      #      podAntiAffinity:
+      #        requiredDuringSchedulingIgnoredDuringExecution:
+      #          - labelSelector:
+      #              matchExpressions:
+      #                - key: "notebook-name"
+      #                  operator: "Exists"
+      #            namespaces: []
+      #            topologyKey: "kubernetes.io/hostname"
+      #readOnly: false
+    tolerationGroup:
+      # The default `groupKey` from the options list
+      # If readonly, the default value will be the only option
+      value: ""
+      options:
+      - groupKey: "gpu"
+        displayName: "gpu toleration"
+        tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "PreferNoSchedule"
+      - groupKey: "spot"
+        displayName: "spot toleration"
+        tolerations:
+        - key: "spot"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+    shm:
+      value: true
+      readOnly: false
+    configurations:
+      value:
+        - add-secret-volume
+        - add-env
+        - prevent-eviction
+        - access-ml-pipeline
+      readOnly: false
