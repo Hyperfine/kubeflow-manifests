@@ -72,11 +72,14 @@ module "user" {
   for_each = var.users
 
   source = "../../iaac/terraform/hyperfine/user"
-  username = each.key
 
   eks_cluster_name = var.eks_cluster_name
 
+
+  email = each.key
   ssh_key_secret_name = each.value
+
+
   rds_secret_name = module.secrets.rds_secret_name
   s3_secret_name = module.secrets.s3_secret_name
   kms_key_arns = module.secrets.kms_key_arns

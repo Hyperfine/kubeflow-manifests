@@ -1,12 +1,7 @@
 
-variable "username" {
-  description = "namespace to use for username"
+variable "email" {
+  description = "email to use for username@domain.com"
   type        = string
-}
-
-variable "domain" {
-  description = "domain to use for email"
-  type = string
 }
 
 variable "rds_secret_name" {

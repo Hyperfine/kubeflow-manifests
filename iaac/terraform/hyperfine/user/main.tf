@@ -12,17 +12,18 @@ terraform {
 
 resource "kubernetes_namespace_v1" "ns" {
   metadata {
-    name = var.username
+    name = split("@", var.email)[0]
+
     annotations = {
-      owner: "${var.username}@${var.domain}"
+      owner: var.email
     }
   }
 }
 
 locals {
   name = kubernetes_namespace_v1.ns.metadata[0].name
-  email = "${local.name}@${var.domain}"
-  sa_name = "${var.username}-sa"
+  email = var.email
+  sa_name = "${local.name}-sa"
 }
 
 resource "kubectl_manifest" "config" {
