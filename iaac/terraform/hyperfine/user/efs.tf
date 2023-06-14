@@ -4,7 +4,7 @@ resource "kubectl_manifest" "efs-home" {
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: "${local.key}-home"
+  name: "${local.name}-home"
   namespace: ${local.name}
 spec:
   accessModes:
