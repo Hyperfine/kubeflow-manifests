@@ -83,9 +83,11 @@ locals {
 }
 
 resource "helm_release" "user" {
-  chart = "../../hyperfine/user"
+  chart = "../../charts/hyperfine/user"
+
   namespace = local.name
   name = "${local.name}-kf-user"
+
   values = [<<YAML
 name: ${local.name}
 email: ${local.email}
