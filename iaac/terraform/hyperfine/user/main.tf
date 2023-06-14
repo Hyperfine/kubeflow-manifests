@@ -1,6 +1,6 @@
 terraform {
   required_providers {
-        kubectl = {
+    kubectl = {
       source  = "gavinbunney/kubectl"
       version = ">= 1.7.0"
     }
@@ -11,12 +11,12 @@ terraform {
 }
 
 locals {
-  key = var.username
+  key     = var.username
   sa_name = "${var.username}-sa"
 }
 
 resource "kubectl_manifest" "config" {
-        yaml_body = <<YAML
+  yaml_body = <<YAML
 apiVersion: v1
 data:
   profile-name: ${local.key}
@@ -28,7 +28,7 @@ YAML
 }
 
 resource "kubectl_manifest" "profile" {
-    yaml_body = <<YAML
+  yaml_body = <<YAML
 apiVersion: kubeflow.org/v1beta1
 kind: Profile
 metadata:

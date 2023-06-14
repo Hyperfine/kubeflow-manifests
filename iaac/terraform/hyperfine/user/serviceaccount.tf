@@ -2,23 +2,23 @@ data "aws_iam_policy_document" "ssm" {
   version = "2012-10-17"
 
   statement {
-    effect = "Allow"
-    actions = ["kms:Decrypt", "kms:DescribeKey"]
+    effect    = "Allow"
+    actions   = ["kms:Decrypt", "kms:DescribeKey"]
     resources = var.kms_key_ids
   }
 
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
     ]
-    resources = [for k, v in data.aws_secretsmanager_secret.secrets: v.arn]
+    resources = [for k, v in data.aws_secretsmanager_secret.secrets : v.arn]
   }
 }
 
-resource aws_iam_policy "ssm" {
-  name = "${var.eks_cluster_name}-${local.key}-sa-ssm-policy"
+resource "aws_iam_policy" "ssm" {
+  name   = "${var.eks_cluster_name}-${local.key}-sa-ssm-policy"
   policy = data.aws_iam_policy_document.ssm.json
 }
 

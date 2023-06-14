@@ -1,7 +1,5 @@
 
 resource "kubectl_manifest" "secret-class" {
-    depends_on = [time_sleep.wait_for_namespace]
-
   yaml_body = <<YAML
 apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
 kind: SecretProviderClass
@@ -79,7 +77,7 @@ YAML
 
 resource "kubectl_manifest" "secret-pod" {
   depends_on = [kubectl_manifest.secret-class]
-  yaml_body = <<YAML
+  yaml_body  = <<YAML
 apiVersion: apps/v1
 kind: Deployment
 metadata:
