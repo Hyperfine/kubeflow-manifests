@@ -140,7 +140,7 @@ data "aws_iam_policy_document" "kf-ssm" {
   statement {
     effect    = "Allow"
     actions   = ["kms:Decrypt", "kms:DescribeKey"]
-    resources = concat([aws_kms_key.kms.arn], var.additional_kms_key_arn)
+    resources = concat([aws_kms_key.kms.arn], var.additional_kms_key_arns)
   }
 
   statement {
