@@ -42,28 +42,58 @@ locals {
   sa_name = "${local.name}-sa"
 }
 
-resource "kubectl_manifest" "config" {
-  yaml_body = <<YAML
-apiVersion: v1
-data:
-  profile-name: ${local.name}
-  user: ${local.email}
-kind: ConfigMap
-metadata:
-  name: default-install-config-${local.name}
-YAML
+data "aws_iam_policy_document" "ssm" {
+  version = "2012-10-17"
+
+  statement {
+    effect    = "Allow"
+    actions   = ["kms:Decrypt", "kms:DescribeKey"]
+    resources = var.kms_key_arns
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret"
+    ]
+    resources = [for k, v in data.aws_secretsmanager_secret.secrets : v.arn]
+  }
 }
 
-resource "kubectl_manifest" "profile" {
-  yaml_body = <<YAML
-apiVersion: kubeflow.org/v1beta1
-kind: Profile
-metadata:
-  name: ${local.name}
-spec:
-  owner:
-    kind: User
-    name: ${local.email}
-YAML
+resource "aws_iam_policy" "ssm" {
+  name   = "${var.eks_cluster_name}-${local.name}-sa-ssm-policy"
+  policy = data.aws_iam_policy_document.ssm.json
 }
 
+
+module "irsa" {
+  source                     = "git::git@github.com:hyperfine/terraform-aws-eks.git//modules/eks-irsa?ref=bugfix/stateless-irsa"
+  kubernetes_namespace       = local.name
+  kubernetes_service_account = local.sa_name
+  irsa_iam_policies          = [aws_iam_policy.ssm.arn]
+  eks_cluster_id             = var.eks_cluster_name
+
+  create_kubernetes_namespace         = false
+  create_service_account_secret_token = true
+}
+
+locals {
+  module_sa = reverse(split("/", module.irsa.service_account))[0] # implicit dependency
+}
+
+resource "helm_release" "user" {
+  chart = "../../hyperfine/user"
+  namespace = local.name
+  name = "${local.name}-kf-user"
+  values = [<<YAML
+name: ${local.name}
+email: ${local.email}
+s3SecretName: ${var.s3_secret_name}
+rdsSecretName: ${var.rds_secret_name}
+sshKeySecretName: ${var.ssh_key_secret_name}
+efsStorageClassName: ${var.efs_storage_class_name}
+serviceAccountName: ${local.module_sa}
+YAML
+  ]
+}

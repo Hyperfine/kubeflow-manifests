@@ -1,0 +1,12 @@
+apiVersion: kubeflow.org/v1alpha1
+kind: PodDefault
+metadata:
+  name: prevent-eviction
+  namespace: {{ .Values.name }}
+spec:
+  desc: prevent eviction
+  selector:
+    matchLabels:
+      prevent-eviction: "true"
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"

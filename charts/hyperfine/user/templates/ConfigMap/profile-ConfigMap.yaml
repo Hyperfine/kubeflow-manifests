@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  profile-name: {{ .Values.name }}
+  user: {{ .Values.email }}
+kind: ConfigMap
+metadata:
+  name: default-install-config-{{ .Values.name }}
