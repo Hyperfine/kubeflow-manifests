@@ -1,0 +1,7 @@
+name:
+email:
+s3SecretName:
+rdsSecretName:
+sshKeySecretName:
+serviceAccountName:
+efsStorageClassName:

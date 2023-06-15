@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-config
+  namespace: {{ .Values.name }}
+data:
+  NAMESPACE: {{ .Values.name }}

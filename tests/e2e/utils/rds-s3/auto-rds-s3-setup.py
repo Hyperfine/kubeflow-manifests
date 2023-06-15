@@ -32,6 +32,7 @@ from e2e.utils.aws.iam import IAMPolicy
 from shutil import which
 
 
+
 def main():
     verify_prerequisites()
     s3_client = get_s3_client(

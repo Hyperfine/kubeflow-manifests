@@ -73,9 +73,16 @@ from e2e.utils.aws.iam import IAMRole
 from e2e.utils.s3_for_training.data_bucket import S3BucketWithTrainingData
 
 
+from e2e.utils.aws.iam import IAMRole
+from e2e.utils.s3_for_training.data_bucket import S3BucketWithTrainingData
+
+
 INSTALLATION_PATH_FILE = "./resources/installation_config/vanilla.yaml"
 CUSTOM_RESOURCE_TEMPLATES_FOLDER = "./resources/custom-resource-templates"
 PROFILE_NAMESPACE = "kubeflow-user-example-com"
+
+RANDOM_PREFIX = rand_name("kfp-")
+PIPELINE_NAME_KFP = "[Tutorial] SageMaker Training"
 
 RANDOM_PREFIX = rand_name("kfp-")
 PIPELINE_NAME_KFP = "[Tutorial] SageMaker Training"
@@ -188,6 +195,53 @@ def host(setup_load_balancer):
     )
     print(f"accessing {host}...")
     return host
+
+
+@pytest.fixture(scope="class")
+def sagemaker_execution_role(region, metadata, request):
+    sagemaker_execution_role_name = "role-" + RANDOM_PREFIX
+    managed_policies = [
+        "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+        "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess",
+    ]
+    role = IAMRole(
+        name=sagemaker_execution_role_name, region=region, policy_arns=managed_policies
+    )
+    metadata_key = "sagemaker_execution_role"
+
+    resource_details = {}
+
+    def on_create():
+        trust_policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {"Service": "sagemaker.amazonaws.com"},
+                    "Action": "sts:AssumeRole",
+                }
+            ],
+        }
+
+        sagemaker_execution_role_arn = role.create(
+            policy_document=json.dumps(trust_policy)
+        )
+
+        resource_details["name"] = sagemaker_execution_role_name
+        resource_details["arn"] = sagemaker_execution_role_arn
+
+    def on_delete():
+        role.delete()
+
+    return configure_resource_fixture(
+        metadata=metadata,
+        request=request,
+        resource_details=resource_details,
+        metadata_key=metadata_key,
+        on_create=on_create,
+        on_delete=on_delete,
+    )
+
 
 @pytest.fixture(scope="class")
 def sagemaker_execution_role(region, metadata, request):

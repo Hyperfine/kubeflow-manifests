@@ -1,0 +1,13 @@
+apiVersion: "kubeflow.org/v1alpha1"
+kind: PodDefault
+metadata:
+  name: "add-env"
+  namespace: {{ .Values.name }}
+spec:
+ desc: "add env"
+ selector:
+   matchLabels:
+     add-env: "true"
+ envFrom:
+ - configMapRef:
+     name: env-config

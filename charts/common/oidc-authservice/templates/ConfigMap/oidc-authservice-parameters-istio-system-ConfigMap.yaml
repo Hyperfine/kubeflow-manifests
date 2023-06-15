@@ -1,3 +1,4 @@
+{{- if .Values.create_config }}
 apiVersion: v1
 data:
   AUTHSERVICE_URL_PREFIX: /authservice/
@@ -14,3 +15,4 @@ kind: ConfigMap
 metadata:
   name: oidc-authservice-parameters
   namespace: istio-system
+{{- end }}
