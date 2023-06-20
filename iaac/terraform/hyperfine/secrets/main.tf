@@ -32,7 +32,7 @@ resource "aws_kms_key" "kms" {
           "AWS" : [
             data.aws_caller_identity.current.arn,
             "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
-            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs-deploy-runner-us-east-1-task-execution-role",
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs-deploy-runner-${data.aws_region.current.name}-task-execution-role",
             aws_iam_user.s3_user.arn,
           ]
         },
