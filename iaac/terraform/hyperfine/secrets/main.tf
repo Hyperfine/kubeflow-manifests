@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.2.7"
+  required_version = ">= 1.0.8"
 
   required_providers {
     aws = {
@@ -32,6 +32,7 @@ resource "aws_kms_key" "kms" {
           "AWS" : [
             data.aws_caller_identity.current.arn,
             "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs-deploy-runner-${data.aws_region.current.name}-task-execution-role",
             aws_iam_user.s3_user.arn,
           ]
         },

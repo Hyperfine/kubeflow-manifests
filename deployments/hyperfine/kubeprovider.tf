@@ -52,9 +52,11 @@ provider "kubectl" {
   load_config_file       = false
   exec  {
     api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
+    command     = var.use_kubergrunt_to_fetch_token ? "kubergrunt" : "aws"
     args = (
-        ["eks", "get-token", "--cluster-name", var.eks_cluster_name]
-      )
+      var.use_kubergrunt_to_fetch_token
+      ? ["eks", "token", "--cluster-id", var.eks_cluster_name]
+      : ["eks", "get-token", "--cluster-name", var.eks_cluster_name]
+    )
   }
 }
