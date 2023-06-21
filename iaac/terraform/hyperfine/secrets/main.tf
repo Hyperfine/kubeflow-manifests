@@ -26,21 +26,61 @@ resource "aws_kms_key" "kms" {
     "Version" : "2012-10-17",
     "Statement" : [
       {
+            "Sid": "Enable IAM User Permissions",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                  data.aws_caller_identity.current.arn,
+                  "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+                ]
+            },
+            "Action": "kms:*",
+            "Resource": "*"
+        },
+      {
         "Sid" : "Allow access to kubeflow secrets",
         "Effect" : "Allow",
         "Principal" : {
           "AWS" : [
-            data.aws_caller_identity.current.arn,
-            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
             "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs-deploy-runner-${data.aws_region.current.name}-task-execution-role",
-            aws_iam_user.s3_user.arn,
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs-deploy-runner-${data.aws_region.current.name}-terraform-planner",
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs-deploy-runner-${data.aws_region.current.name}-terraform-applier",
           ]
         },
         "Action" : [
-          "kms:*"
+              "kms:Create*",
+                "kms:Describe*",
+                "kms:Enable*",
+                "kms:List*",
+                "kms:Put*",
+                "kms:Update*",
+                "kms:Revoke*",
+                "kms:Disable*",
+                "kms:Get*",
+                "kms:Delete*",
+                "kms:TagResource",
+                "kms:UntagResource",
+                "kms:ScheduleKeyDeletion",
+                "kms:CancelKeyDeletion"
         ],
         "Resource" : "*"
-    }]
+      },
+      {
+          "Sid": "Allow use of the key",
+          "Effect": "Allow",
+          "Principal": {
+              "AWS": aws_iam_user.s3_user.arn
+          },
+          "Action": [
+              "kms:Encrypt",
+              "kms:Decrypt",
+              "kms:ReEncrypt*",
+              "kms:GenerateDataKey*",
+              "kms:DescribeKey"
+          ],
+          "Resource": "*"
+      }
+    ]
   })
 }
 
@@ -51,7 +91,7 @@ resource "aws_kms_alias" "alias" {
 
 resource "aws_iam_user" "s3_user" {
   #checkov:skip=CKV_AWS_273: https://github.com/awslabs/kubeflow-manifests/issues/44 minio proxy access
-  name = "${var.eks_cluster_name}-${var.s3_bucket_name}-kf"
+  name = "${var.eks_cluster_name}-${var.s3_bucket_name}"
 }
 
 resource "aws_iam_access_key" "s3_keys" {
