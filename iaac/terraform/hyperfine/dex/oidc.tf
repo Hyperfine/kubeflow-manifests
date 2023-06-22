@@ -111,5 +111,26 @@ resource "helm_release" "oidc" {
   name      = "auth-service"
   namespace = "istio-system"
   chart     = "../../charts/common/oidc-authservice"
+
+  values = [<<YAML
+configMap: |
+  apiVersion: v1
+  data:
+    AUTHSERVICE_URL_PREFIX: /authservice/
+    OIDC_AUTH_URL: /dex/auth
+    OIDC_PROVIDER: "${local.url}/dex"
+    OIDC_SCOPES: profile email groups
+    PORT: '"8080"'
+    SKIP_AUTH_URLS: /dex
+    STORE_PATH: /var/lib/authservice/data.db
+    USERID_CLAIM: email
+    USERID_HEADER: kubeflow-userid
+    USERID_PREFIX: ""
+  kind: ConfigMap
+  metadata:
+    name: oidc-authservice-parameters
+    namespace: istio-system
+YAML
+  ]
 }
 
