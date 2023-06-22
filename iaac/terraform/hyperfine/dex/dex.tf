@@ -249,3 +249,18 @@ spec:
           number: 5556
 YAML
 }
+
+
+
+resource "kubectl_manifest" "ingress" {
+  yaml_body = <<YAML
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: istio-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/certificate-arn: ${data.aws_acm_certificate.cert.arn}
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+YAML
+}
