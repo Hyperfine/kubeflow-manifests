@@ -95,7 +95,7 @@ data:
   OIDC_PROVIDER: "${local.url}/dex"
   OIDC_SCOPES: profile email groups
   PORT: '"8080"'
-  SKIP_AUTH_URI: /dex
+  SKIP_AUTH_URLS: /dex
   STORE_PATH: /var/lib/authservice/data.db
   USERID_CLAIM: email
   USERID_HEADER: kubeflow-userid
@@ -107,11 +107,9 @@ metadata:
 YAML
 }
 
-
 resource "helm_release" "oidc" {
   name      = "auth-service"
   namespace = "istio-system"
   chart     = "../../charts/common/oidc-authservice"
-  wait      = false
 }
 
