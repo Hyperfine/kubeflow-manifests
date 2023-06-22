@@ -112,5 +112,6 @@ resource "helm_release" "oidc" {
   name      = "auth-service"
   namespace = "istio-system"
   chart     = "../../charts/common/oidc-authservice"
+  wait      = false
 }
 
