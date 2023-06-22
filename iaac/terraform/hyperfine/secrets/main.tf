@@ -30,7 +30,6 @@ resource "aws_kms_key" "kms" {
             "Effect": "Allow",
             "Principal": {
                 "AWS": [
-                  data.aws_caller_identity.current.arn,
                   "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
                 ]
             },
