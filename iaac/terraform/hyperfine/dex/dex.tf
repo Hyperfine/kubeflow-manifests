@@ -219,7 +219,7 @@ config:
   enablePasswordDB: true
   staticClients:
   - idEnv: OIDC_CLIENT_ID
-    redirectURIs: ["/login/oidc"]
+    redirectURIs: ["/authservice/oidc/callback"]
     name: 'Dex Login Application'
     secretEnv: OIDC_CLIENT_SECRET
 YAML
