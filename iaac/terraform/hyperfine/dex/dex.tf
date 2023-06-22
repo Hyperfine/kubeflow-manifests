@@ -250,17 +250,31 @@ spec:
 YAML
 }
 
-
-
 resource "kubectl_manifest" "ingress" {
   yaml_body = <<YAML
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: istio-ingress
   annotations:
-    kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/certificate-arn: ${data.aws_acm_certificate.cert.arn}
+    alb.ingress.kubernetes.io/certificate-arn: '${data.aws_acm_certificate.cert.arn}'
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/load-balancer-attributes: 'routing.http.drop_invalid_header_fields.enabled=true'
+    alb.ingress.kubernetes.io/scheme: 'internet-facing'
+    kubernetes.io/ingress.class: alb
+  labels:
+    kustomize.component: istio-ingress
+  name: istio-ingress
+  namespace: istio-system
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: istio-ingressgateway
+            port:
+              number: 80
+        path: /*
+        pathType: ImplementationSpecific
 YAML
 }
