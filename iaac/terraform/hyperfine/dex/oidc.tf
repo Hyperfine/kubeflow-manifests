@@ -85,7 +85,7 @@ spec:
         name: "${var.oidc_secret_name}"
 YAML
 }
-/*
+
 resource "helm_release" "oidc" {
   name      = "auth-service"
   namespace = "istio-system"
@@ -112,5 +112,3 @@ configMap: |
 YAML
   ]
 }
-
-*/
