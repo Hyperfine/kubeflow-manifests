@@ -262,7 +262,7 @@ metadata:
     alb.ingress.kubernetes.io/scheme: 'internet-facing'
     alb.ingress.kubernetes.io/target-type: 'ip'
     kubernetes.io/ingress.class: alb
-    external-dns.alpha.kubernetes.io/hostname: '${local.url}'
+    external-dns.alpha.kubernetes.io/hostname: '${var.subdomain}.${data.aws_route53_zone.top_level.name}'
   labels:
     kustomize.component: istio-ingress
   name: istio-ingress
