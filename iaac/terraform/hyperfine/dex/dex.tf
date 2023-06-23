@@ -219,7 +219,7 @@ config:
   enablePasswordDB: true
   staticClients:
   - idEnv: OIDC_CLIENT_ID
-    redirectURIs: ["/login/oidc"]
+    redirectURIs: ["/authservice/oidc/callback"]
     name: 'Dex Login Application'
     secretEnv: OIDC_CLIENT_SECRET
 YAML
@@ -247,5 +247,36 @@ spec:
         host: dex.auth.svc.cluster.local
         port:
           number: 5556
+YAML
+}
+
+resource "kubectl_manifest" "ingress" {
+  yaml_body = <<YAML
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    alb.ingress.kubernetes.io/certificate-arn: '${data.aws_acm_certificate.cert.arn}'
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/load-balancer-attributes: 'routing.http.drop_invalid_header_fields.enabled=true'
+    alb.ingress.kubernetes.io/scheme: 'internet-facing'
+    alb.ingress.kubernetes.io/target-type: 'ip'
+    kubernetes.io/ingress.class: alb
+    external-dns.alpha.kubernetes.io/hostname: '${var.subdomain}.${data.aws_route53_zone.top_level.name}'
+  labels:
+    kustomize.component: istio-ingress
+  name: istio-ingress
+  namespace: istio-system
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: istio-ingressgateway
+            port:
+              number: 80
+        path: /*
+        pathType: ImplementationSpecific
 YAML
 }

@@ -14,6 +14,10 @@ data "aws_route53_zone" "top_level" {
   zone_id = var.zone_id
 }
 
+data aws_acm_certificate "cert" {
+  domain = data.aws_route53_zone.top_level.name
+}
+
 data "aws_secretsmanager_secret" "oidc_secrets" {
   for_each = local.oidc_secret_names
   name     = each.key

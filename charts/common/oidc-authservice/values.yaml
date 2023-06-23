@@ -1,1 +1,2 @@
-create_config: false
+createConfig: true
+oidcProvider: http://dex.auth.svc.cluster.local:5556/dex
