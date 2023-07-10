@@ -35,7 +35,7 @@ variable "kms_key_arns" {
 variable "user_helm_chart_version" {
   description = "helm chart version of the user chart"
   type = string
-  default = "0.1.1"
+  default = "0.1.2"
 }
 
 variable "eks_cluster_name" {
