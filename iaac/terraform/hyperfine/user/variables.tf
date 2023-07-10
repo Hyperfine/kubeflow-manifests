@@ -1,4 +1,5 @@
 
+
 variable "email" {
   description = "email to use for username@domain.com"
   type        = string
@@ -29,6 +30,12 @@ variable "kms_key_arns" {
   description = "kms key arns to allow access to"
   type        = list(string)
   default     = []
+}
+
+variable "user_helm_chart_version" {
+  description = "helm chart version of the user chart"
+  type = string
+  default = "0.1.1"
 }
 
 variable "eks_cluster_name" {

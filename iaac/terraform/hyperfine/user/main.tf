@@ -87,6 +87,7 @@ resource "helm_release" "user" {
 
   namespace = local.name
   name = "${local.name}-kf-user"
+  version = var.user_helm_chart_version
 
   values = [<<YAML
 name: ${local.name}
