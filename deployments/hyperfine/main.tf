@@ -74,7 +74,7 @@ module "user" {
   source = "../../iaac/terraform/hyperfine/user"
 
   eks_cluster_name = var.eks_cluster_name
-
+  version = "0.1.2"
 
   email = each.key
   ssh_key_secret_name = each.value
