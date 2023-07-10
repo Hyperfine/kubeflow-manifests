@@ -5,3 +5,5 @@ rdsSecretName:
 sshKeySecretName:
 serviceAccountName:
 efsStorageClassName:
+efsStorageSize: 30Gi
+pvcName: "efs-home"
