@@ -59,15 +59,14 @@ spawnerUIConfig: |
       value: {}
       readOnly: false
     workspaceVolume:
-      # Workspace Volume to be attached to user's Notebook
-      # If you don't want a workspace volume then delete the 'value' key
-      value:
-        - mount: "/home/dl-user"
-          existingSource:
-            persistentVolumeClaim:
-              claimName: "efs-home"
       readOnly: false
+      value:
+        mount: "/home/dl-user"
+        existingSource:
+          persistentVolumeClaim:
+            claimName: "efs-home"
     dataVolumes:
+      readOnly: false
       value:
         - mount: /data
           newPvc:
@@ -79,8 +78,8 @@ spawnerUIConfig: |
                   storage: 30Gi
               accessModes:
                 - ReadWriteOnce
-      readOnly: false
     gpus:
+      readOnly: false
       # Number of GPUs to be assigned to the Notebook Container
       value:
         # values: "none", "1", "2", "4", "8"
@@ -93,7 +92,6 @@ spawnerUIConfig: |
         #  uiName: "AMD"
         # Values: "" or a `limits-key` from the vendors list
         vendor: ""
-      readOnly: false
     affinityConfig:
       # If readonly, the default value will be the only option
       # value is a list of `configKey`s that we want to be selected by default

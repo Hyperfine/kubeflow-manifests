@@ -165,8 +165,6 @@ resource "helm_release" "kubeflow_notebook_controller" {
     name  = "cullingPolicy.idlenessCheckPeriod"
     value = var.notebook_idleness_check_period
   }
-
-
 }
 
 resource "helm_release" "kubeflow_jupyter_web_app" {
