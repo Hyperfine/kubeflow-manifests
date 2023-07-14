@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.pvcName }}
+  name: {{ .Values.efsPvcName }}
   namespace: {{ .Values.name }}
 spec:
   accessModes:
