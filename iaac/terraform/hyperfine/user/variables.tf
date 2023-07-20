@@ -20,6 +20,12 @@ variable "ssh_key_secret_name" {
   type        = string
 }
 
+variable "efs_path" {
+  description = "efs path to use for persistent volume"
+  type = string
+  default = ""
+}
+
 variable "efs_storage_class_name" {
   description = "efs storage class name to create pvc for"
   type        = string

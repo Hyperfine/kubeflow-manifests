@@ -74,11 +74,11 @@ module "user" {
   source = "../../iaac/terraform/hyperfine/user"
 
   eks_cluster_name = var.eks_cluster_name
-  user_helm_chart_version = "0.1.2"
+  user_helm_chart_version = "0.1.3"
 
   email = each.key
-  ssh_key_secret_name = each.value
-
+  ssh_key_secret_name = lookup(each.value, "ssh_key_secret_name")
+  efs_path =  lookup(each.value, "efs_path", "")
 
   rds_secret_name = module.secrets.rds_secret_name
   s3_secret_name = module.secrets.s3_secret_name
