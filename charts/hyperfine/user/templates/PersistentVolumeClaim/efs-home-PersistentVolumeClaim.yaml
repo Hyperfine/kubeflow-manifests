@@ -6,7 +6,11 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: {{ .Values.efsPath | ternary .Values.efsStorageClassName "" }}
+{{ if .Values.efsPath }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: {{ .Values.efsStorageClassName }}
+{{- end }}
   resources:
     requests:
       storage: {{ .Values.efsStorageSize }}
