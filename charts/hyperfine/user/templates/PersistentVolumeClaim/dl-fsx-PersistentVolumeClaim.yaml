@@ -7,7 +7,7 @@ spec:
   accessModes:
     - ReadWriteMany
   storageClassName: ""
-  volumeName: {{ .Values.fsx.volumeName }}
+  volumeName: "{{ .Values.name }}-{{ .Values.fsx.pvName }}"
   resources:
     requests:
       storage: {{ .Values.fsx.storageSize }}

@@ -16,5 +16,4 @@ fsx:
   pvName: "dl-fsx-pv"
   pvcName: "dl-fsx-claim"
   storageClassName: ""
-  volumeName: "dl-fsx"
   storageSize: 1200Gi
