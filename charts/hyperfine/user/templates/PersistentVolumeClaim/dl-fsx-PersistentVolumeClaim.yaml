@@ -6,7 +6,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: {{ .Values.fsxStorageClassName }}
+  storageClassName: ""
   volumeName: {{ .Values.fsxVolumeName }}
   resources:
     requests:
