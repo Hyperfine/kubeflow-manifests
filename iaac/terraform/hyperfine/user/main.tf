@@ -81,7 +81,7 @@ module "irsa" {
 locals {
   module_sa = reverse(split("/", module.irsa.service_account))[0] # implicit dependency
 }
-
+/*
 resource "helm_release" "user" {
   chart = "../../charts/hyperfine/user"
 
@@ -102,3 +102,4 @@ efsFilesystemId: ${var.efs_filesystem_id}
 YAML
   ]
 }
+*/
