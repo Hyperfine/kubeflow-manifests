@@ -74,7 +74,7 @@ variable   auth_namespace {
 
 variable users {
   description = "map of usernames to ssh secret"
-  type        = map(string)
+  type        = any
 }
 
 
