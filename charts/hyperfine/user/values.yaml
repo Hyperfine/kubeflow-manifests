@@ -11,6 +11,6 @@ efsPath:
 efsStorageClassName: "dl-efs-home-sc"
 efsStorageSize: 30Gi
 fsxPvcName: "dl-fsx-claim"
-fsxStorageClassName: "dl-fsx-sc"
+fsxStorageClassName: ""
 fsxVolumeName: "dl-fsx"
 fsxStorageSize: 1200Gi
