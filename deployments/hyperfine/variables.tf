@@ -15,6 +15,11 @@ variable "rds_host" {
   type = string
 }
 
+variable "efs_filesystem_id" {
+  description = "efs file system id to use"
+  type = string
+}
+
 # dex configurations
 
 variable subdomain {

@@ -98,6 +98,7 @@ sshKeySecretName: ${var.ssh_key_secret_name}
 efsStorageClassName: ${var.efs_storage_class_name}
 serviceAccountName: ${local.module_sa}
 efsPath: ${var.efs_path}
+efsFilesystemId: ${var.efs_filesystem_id}
 YAML
   ]
 }

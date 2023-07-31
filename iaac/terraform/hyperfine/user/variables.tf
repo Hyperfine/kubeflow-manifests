@@ -20,6 +20,11 @@ variable "ssh_key_secret_name" {
   type        = string
 }
 
+variable "efs_filesystem_id" {
+  description = "efs filesystem id to use for persistent volume"
+  type = string
+}
+
 variable "efs_path" {
   description = "efs path to use for persistent volume"
   type = string

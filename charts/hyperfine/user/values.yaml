@@ -4,6 +4,7 @@ s3SecretName:
 rdsSecretName:
 sshKeySecretName:
 serviceAccountName:
+efsFilesystemId:
 efsPvName: "efs-home-pv"
 efsPvcName: "efs-home"
 efsPath:
