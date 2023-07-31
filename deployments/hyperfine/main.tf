@@ -67,7 +67,7 @@ module "dex" {
   subdomain = var.subdomain
 }
 
-
+/*
 module "user" {
   for_each = var.users
 
@@ -89,3 +89,4 @@ module "user" {
   kms_key_arns = module.secrets.kms_key_arns
 }
 
+*/
