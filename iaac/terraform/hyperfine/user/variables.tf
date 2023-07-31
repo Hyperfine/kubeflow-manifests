@@ -37,6 +37,11 @@ variable "efs_storage_class_name" {
   default     = "dl-efs-home-sc"
 }
 
+variable "fsx_configs" {
+  description = ""
+  type = any
+}
+
 variable "kms_key_arns" {
   description = "kms key arns to allow access to"
   type        = list(string)

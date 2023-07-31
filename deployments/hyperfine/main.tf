@@ -78,8 +78,12 @@ module "user" {
 
   email = each.key
   ssh_key_secret_name = lookup(each.value, "ssh_key_secret_name")
+
   efs_path =  lookup(each.value, "efs_path", "")
   efs_filesystem_id = var.efs_filesystem_id
+
+  fsx_configs = var.fsx_configs
+
   rds_secret_name = module.secrets.rds_secret_name
   s3_secret_name = module.secrets.s3_secret_name
   kms_key_arns = module.secrets.kms_key_arns

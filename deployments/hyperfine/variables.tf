@@ -20,6 +20,10 @@ variable "efs_filesystem_id" {
   type = string
 }
 
+variable "fsx_configs" {
+  description = ""
+  type = any
+}
 # dex configurations
 
 variable subdomain {

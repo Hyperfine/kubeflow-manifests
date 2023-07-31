@@ -4,13 +4,16 @@ s3SecretName:
 rdsSecretName:
 sshKeySecretName:
 serviceAccountName:
-efsFilesystemId:
-efsPvName: "efs-home-pv"
-efsPvcName: "efs-home"
-efsPath:
-efsStorageClassName: "dl-efs-home-sc"
-efsStorageSize: 30Gi
-fsxPvcName: "dl-fsx-claim"
-fsxStorageClassName: ""
-fsxVolumeName: "dl-fsx"
-fsxStorageSize: 1200Gi
+efs:
+  filesystemId:
+  pvName: "efs-home-pv"
+  pvcName: "efs-home"
+  path:
+  storageClassName: "dl-efs-home-sc"
+  storageSize: 30Gi
+fsx:
+  filesystemId:
+  pvcName: "dl-fsx-claim"
+  storageClassName: ""
+  volumeName: "dl-fsx"
+  storageSize: 1200Gi

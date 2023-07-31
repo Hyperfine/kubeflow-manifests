@@ -2,11 +2,10 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: "{{ .Values.name }}-{{ .Values.efsPvName }}"
+  name: "{{ .Values.name }}-{{ .Values.efs.pvName }}"
 spec:
   capacity:
-    storage: {{ .Values.efsStorageSize }}
-  persistentVolumeReclaimPolicy: Retain
+    storage: {{ .Values.efs.storageSize }}
   volumeMode: Filesystem
   accessModes:
     - ReadWriteMany
@@ -14,5 +13,5 @@ spec:
   storageClassName: ""
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: "{{ .Values.efsFilesystemId }}:{{ .Values.efsPath }}"
+    volumeHandle: "{{ .Values.efs.filesystemId }}:{{ .Values.efs.Path }}"
 {{ end }}

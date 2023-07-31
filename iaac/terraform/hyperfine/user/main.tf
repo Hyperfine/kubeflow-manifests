@@ -80,6 +80,7 @@ module "irsa" {
 
 locals {
   module_sa = reverse(split("/", module.irsa.service_account))[0] # implicit dependency
+  fsx = values(var.fsx_configs)[0] # only support one config atm
 }
 
 resource "helm_release" "user" {
@@ -95,10 +96,16 @@ email: ${local.email}
 s3SecretName: ${var.s3_secret_name}
 rdsSecretName: ${var.rds_secret_name}
 sshKeySecretName: ${var.ssh_key_secret_name}
-efsStorageClassName: ${var.efs_storage_class_name}
 serviceAccountName: ${local.module_sa}
-efsPath: ${var.efs_path}
-efsFilesystemId: ${var.efs_filesystem_id}
+efs:
+  storageClassName: ${var.efs_storage_class_name}
+  path: ${var.efs_path}
+  filesystemId: ${var.efs_filesystem_id}
+fsx:
+  filesystemId: ${lookup(local.fsx, "file_system_id")}
+  mountName: ${lookup(local.fsx, "mount_name")}
+  dnsName: ${lookup(local.fsx, "dns_name")}
+  storageSize: "${lookup(local.fsx, "capacity", 1200)}Gi"
 YAML
   ]
 }

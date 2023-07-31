@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.fsxPvcName }}
+  name: {{ .Values.fsx.pvcName }}
   namespace: {{ .Values.name }}
 spec:
   accessModes:
     - ReadWriteMany
   storageClassName: ""
-  volumeName: {{ .Values.fsxVolumeName }}
+  volumeName: {{ .Values.fsx.volumeName }}
   resources:
     requests:
-      storage: {{ .Values.fsxStorageSize }}
+      storage: {{ .Values.fsx.storageSize }}

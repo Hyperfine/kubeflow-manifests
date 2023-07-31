@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.efsPvcName }}
+  name: {{ .Values.efs.pvcName }}
   namespace: {{ .Values.name }}
 spec:
   accessModes:
     - ReadWriteMany
-{{- if .Values.efsPath }}
+{{- if .Values.efs.path }}
   storageClassName: ""
 {{- else }}
-  storageClassName: {{ .Values.efsStorageClassName }}
+  storageClassName: {{ .Values.efs.storageClassName }}
 {{- end }}
   resources:
     requests:
-      storage: {{ .Values.efsStorageSize }}
+      storage: {{ .Values.efs.storageSize }}
