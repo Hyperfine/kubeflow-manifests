@@ -1,4 +1,4 @@
-{{ if .Values.efsPath }}
+{{ if .Values.efs.path }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:

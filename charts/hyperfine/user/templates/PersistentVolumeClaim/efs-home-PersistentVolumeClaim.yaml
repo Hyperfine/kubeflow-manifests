@@ -8,12 +8,14 @@ spec:
     - ReadWriteMany
 {{- if .Values.efs.path }}
   storageClassName: ""
+  selector:
+    matchLabels:
+      usage: "{{ .Values.name }}-efs"
 {{- else }}
+  # dynamic storage class
   storageClassName: {{ .Values.efs.storageClassName }}
 {{- end }}
   resources:
     requests:
       storage: {{ .Values.efs.storageSize }}
-  selector:
-    matchLabels:
-      usage: "{{ .Values.name }}-efs"
+
