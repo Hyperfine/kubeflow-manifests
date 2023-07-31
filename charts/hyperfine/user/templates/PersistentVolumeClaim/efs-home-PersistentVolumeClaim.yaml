@@ -6,7 +6,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteMany
-{{ if .Values.efsPath }}
+{{- if .Values.efsPath }}
   storageClassName: ""
 {{- else }}
   storageClassName: {{ .Values.efsStorageClassName }}
