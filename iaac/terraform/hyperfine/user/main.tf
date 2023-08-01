@@ -82,7 +82,7 @@ locals {
   module_sa = reverse(split("/", module.irsa.service_account))[0] # implicit dependency
   fsx = values(var.fsx_configs)[0] # only support one config atm
 }
-/*
+
 resource "helm_release" "user" {
   chart = "../../charts/hyperfine/user"
 
@@ -109,5 +109,3 @@ fsx:
 YAML
   ]
 }
-
-*/
