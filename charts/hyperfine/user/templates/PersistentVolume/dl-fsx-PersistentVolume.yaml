@@ -19,4 +19,4 @@ spec:
     volumeHandle: {{ .Values.fsx.filesystemId }}
     volumeAttributes:
       dnsname: {{ .Values.fsx.dnsName }}
-      mountname: {{ .Values.fsx.MountName }}
+      mountname: {{ .Values.fsx.mountName }}

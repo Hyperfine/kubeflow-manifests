@@ -13,6 +13,8 @@ efs:
   storageSize: 30Gi
 fsx:
   filesystemId:
+  dnsName:
+  mountName:
   pvName: "dl-fsx-pv"
   pvcName: "dl-fsx-claim"
   storageClassName: ""
