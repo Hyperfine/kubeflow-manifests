@@ -12,7 +12,7 @@ terraform {
 
 resource "kubernetes_namespace_v1" "ns" {
   metadata {
-    name = split("@", var.email)[0]
+    name = replace(split("@", var.email)[0], "_", "")
 
     labels = {
       "app.kubernetes.io/part-of"                      = "kubeflow-profile"
