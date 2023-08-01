@@ -99,7 +99,7 @@ sshKeySecretName: ${var.ssh_key_secret_name}
 serviceAccountName: ${local.module_sa}
 efs:
   storageClassName: ${var.efs_storage_class_name}
-  path: ${var.efs_path}
+  accessPoint: ${var.efs_access_point}
   filesystemId: ${var.efs_filesystem_id}
 fsx:
   filesystemId: ${lookup(local.fsx, "file_system_id")}

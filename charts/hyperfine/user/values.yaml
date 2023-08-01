@@ -8,7 +8,7 @@ efs:
   filesystemId:
   pvName: "efs-home-pv"
   pvcName: "efs-home"
-  path:
+  accessPoint:
   storageClassName: "dl-efs-home-sc"
   storageSize: 30Gi
 fsx:

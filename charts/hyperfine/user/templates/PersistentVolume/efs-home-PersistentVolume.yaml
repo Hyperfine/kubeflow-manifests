@@ -1,4 +1,4 @@
-{{ if .Values.efs.path }}
+{{ if .Values.efs.accessPoint }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -15,5 +15,5 @@ spec:
   storageClassName: ""
   csi:
     driver: efs.csi.aws.com
-    volumeHandle: "{{ .Values.efs.filesystemId }}:{{ .Values.efs.Path }}"
+    volumeHandle: "{{ .Values.efs.filesystemId }}::{{ .Values.efs.accessPoint }}"
 {{ end }}
