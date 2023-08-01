@@ -67,7 +67,7 @@ module "dex" {
   subdomain = var.subdomain
 }
 
-/*
+
 module "user" {
   for_each = var.users
 
@@ -88,4 +88,3 @@ module "user" {
   s3_secret_name = module.secrets.s3_secret_name
   kms_key_arns = module.secrets.kms_key_arns
 }
-*/
