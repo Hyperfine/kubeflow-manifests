@@ -61,9 +61,29 @@ data "aws_iam_policy_document" "ssm" {
   }
 
   statement {
+    effect = "Allow"
+    actions = ["s3:ListAllMyBuckets"]
+    resources = ["*"]
+  }
+
+  statement {
     effect    = "Allow"
-    actions   = ["s3:*"]
+    actions   = [
+      "s3:ListBucket",
+      "s3:GetBucketLocation"
+    ]
     resources = var.s3_bucket_arns
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:GetBucketLocation",
+      "s3:DeleteObject"
+    ]
+    resources = [for k in var.s3_bucket_arns : "${k}/*"]
   }
 }
 
