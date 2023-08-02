@@ -16,7 +16,7 @@ spec:
     - "/bin/sh"
     args:
     - "-c"
-    - "chmod 2775 /data && chown dl-user:dl-user /data"
+    - "useradd -M -s /bin/sh -N -u 1000 dl-user && chmod 2775 /data && chown dl-user:dl-user /data"
     volumeMounts:
     - name: dl-fsx-claim
       mountPath: /data
