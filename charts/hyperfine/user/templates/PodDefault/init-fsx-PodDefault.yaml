@@ -16,7 +16,7 @@ spec:
     - "/bin/sh"
     args:
     - "-c"
-    - "useradd -M -s /bin/sh -N -u 1000 dl-user && chmod 2775 /data && chown dl-user:dl-user /data"
+    - "addgroup --gid 1000 dl-user && adduser --ingroup dl-user --uid 1000 --no-create-home --disabled-password dl-user && chmod 2775 /data && chown dl-user:dl-user /data"
     volumeMounts:
     - name: dl-fsx-claim
       mountPath: /data
