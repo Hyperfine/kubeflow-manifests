@@ -1,13 +1,13 @@
 apiVersion: kubeflow.org/v1alpha1
 kind: PodDefault
 metadata:
-  name: init-fsx
+  name: init-efs
   namespace: {{ .Values.name }}
 spec:
   desc: change permissions for efs
   selector:
     matchLabels:
-      init-fsx: "true"
+      init-efs: "true"
   initContainers:
   - name: init-data
     image: busybox:1.36
