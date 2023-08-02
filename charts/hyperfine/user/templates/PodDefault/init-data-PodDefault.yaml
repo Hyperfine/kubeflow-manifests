@@ -9,7 +9,8 @@ spec:
     matchLabels:
       init-data: "true"
   initContainers:
-  - image: gcr.io/cloud-builders/kubectl
+  - name: init-data
+    image: busybox:1.36
     imagePullPolicy: IfNotPresent
     command:
     - "/bin/sh"
