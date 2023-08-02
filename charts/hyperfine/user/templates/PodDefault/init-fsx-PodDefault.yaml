@@ -1,13 +1,13 @@
 apiVersion: kubeflow.org/v1alpha1
 kind: PodDefault
 metadata:
-  name: init-data
+  name: init-fsx
   namespace: {{ .Values.name }}
 spec:
   desc: change permissions for data directory
   selector:
     matchLabels:
-      init-data: "true"
+      init-fsx: "true"
   initContainers:
   - name: init-data
     image: busybox:1.36
@@ -17,3 +17,6 @@ spec:
     args:
     - "-c"
     - "chmod 2775 /data && chown dl-user:dl-user /data"
+    volumeMounts:
+    - name: dl-fsx-claim
+      mountPath: /data
