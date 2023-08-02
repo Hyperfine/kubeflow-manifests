@@ -1,0 +1,18 @@
+apiVersion: kubeflow.org/v1alpha1
+kind: PodDefault
+metadata:
+  name: init-data
+  namespace: {{ .Values.name }}
+spec:
+  desc: change permissions for data directory
+  selector:
+    matchLabels:
+      init-data: "true"
+  initContainers:
+  - image: gcr.io/cloud-builders/kubectl
+    imagePullPolicy: IfNotPresent
+    command:
+    - "/bin/sh"
+    args:
+    - "-c"
+    - "chmod 2775 /data && chown dl-user:dl-user /data"
