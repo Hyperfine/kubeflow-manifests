@@ -4,7 +4,7 @@ metadata:
   name: init-fsx
   namespace: {{ .Values.name }}
 spec:
-  desc: change permissions for data directory
+  desc: change permissions for efs
   selector:
     matchLabels:
       init-fsx: "true"
@@ -18,5 +18,5 @@ spec:
     - "-c"
     - "adduser --ingroup users --uid 1000 --no-create-home --disabled-password dl-user && chmod 2775 /data && chown dl-user:dl-user /data"
     volumeMounts:
-    - name: dl-fsx-claim
+    - name: efs-home
       mountPath: /data
