@@ -5,6 +5,12 @@ variable "s3_bucket_name" {
   type = string
 }
 
+variable "s3_bucket_arns" {
+  description = "bucket arns to grant access to"
+  type = list(string)
+  default = []
+}
+
 variable "rds_secret_name" {
   description = "secretmaanger for rds config"
   type = string

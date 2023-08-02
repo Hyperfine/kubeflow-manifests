@@ -84,6 +84,8 @@ module "user" {
 
   fsx_configs = var.fsx_configs
 
+  s3_bucket_arns = var.s3_bucket_arns
+
   rds_secret_name = module.secrets.rds_secret_name
   s3_secret_name = module.secrets.s3_secret_name
   kms_key_arns = module.secrets.kms_key_arns

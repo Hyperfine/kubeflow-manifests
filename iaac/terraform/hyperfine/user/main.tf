@@ -22,7 +22,7 @@ resource "kubernetes_namespace_v1" "ns" {
     }
 
     annotations = {
-      owner: var.email
+      owner : var.email
     }
   }
 
@@ -37,8 +37,8 @@ resource "kubernetes_namespace_v1" "ns" {
 }
 
 locals {
-  name = kubernetes_namespace_v1.ns.metadata[0].name
-  email = var.email
+  name    = kubernetes_namespace_v1.ns.metadata[0].name
+  email   = var.email
   sa_name = "${local.name}-sa"
 }
 
@@ -59,10 +59,16 @@ data "aws_iam_policy_document" "ssm" {
     ]
     resources = [for k, v in data.aws_secretsmanager_secret.secrets : v.arn]
   }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:*"]
+    resources = var.s3_bucket_arns
+  }
 }
 
 resource "aws_iam_policy" "ssm" {
-  name   = "${var.eks_cluster_name}-${local.name}-sa-ssm-policy"
+  name   = "${var.eks_cluster_name}-${local.name}-sa-policy"
   policy = data.aws_iam_policy_document.ssm.json
 }
 
@@ -80,15 +86,15 @@ module "irsa" {
 
 locals {
   module_sa = reverse(split("/", module.irsa.service_account))[0] # implicit dependency
-  fsx = values(var.fsx_configs)[0] # only support one config atm
+  fsx       = values(var.fsx_configs)[0]                          # only support one config atm
 }
 
 resource "helm_release" "user" {
   chart = "../../charts/hyperfine/user"
 
   namespace = local.name
-  name = "${local.name}-kf-user"
-  version = var.user_helm_chart_version
+  name      = "${local.name}-kf-user"
+  version   = var.user_helm_chart_version
 
   values = [<<YAML
 name: ${local.name}
