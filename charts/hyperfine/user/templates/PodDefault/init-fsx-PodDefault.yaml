@@ -16,7 +16,7 @@ spec:
     - "/bin/sh"
     args:
     - "-c"
-    - "adduser --ingroup users --uid 1000 --no-create-home --disabled-password dl-user && chmod 2775 /data && chown dl-user:dl-user /data"
+    - "adduser --ingroup users --uid 1000 --no-create-home --disabled-password dl-user && chmod 2775 /data && chown dl-user:users /data"
     volumeMounts:
     - name: dl-fsx-claim
       mountPath: /data
