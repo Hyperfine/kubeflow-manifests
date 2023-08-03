@@ -68,16 +68,10 @@ spawnerUIConfig: |
     dataVolumes:
       readOnly: false
       value:
-        - mount: /data
-          newPvc:
-            metadata:
-              name: "{notebook-name}-vol-1"
-            spec:
-              resources:
-                requests:
-                  storage: 30Gi
-              accessModes:
-                - ReadWriteOnce
+      - mount: /data
+        existingSource:
+          persistentVolumeClaim:
+            claimName: "dl-fsx-claim"
     gpus:
       readOnly: false
       # Number of GPUs to be assigned to the Notebook Container
