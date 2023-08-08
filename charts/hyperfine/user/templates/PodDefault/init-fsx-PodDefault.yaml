@@ -4,7 +4,7 @@ metadata:
   name: init-fsx
   namespace: {{ .Values.name }}
 spec:
-  desc: change permissions for data directory
+  desc: change permissions for fsx
   selector:
     matchLabels:
       init-fsx: "true"

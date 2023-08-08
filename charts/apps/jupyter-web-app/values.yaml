@@ -68,7 +68,7 @@ spawnerUIConfig: |
     dataVolumes:
       readOnly: false
       value:
-      - mount: /data
+      - mount: "/data"
         existingSource:
           persistentVolumeClaim:
             claimName: "dl-fsx-claim"
