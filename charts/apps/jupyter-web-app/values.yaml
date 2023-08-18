@@ -95,7 +95,6 @@ spawnerUIConfig: |
       - configKey: "spot_affinity"
         displayName: "Spot Instances"
         affinity:
-          # (Require) Node having label: `node_pool=notebook-n1-standard-2`
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
               nodeSelectorTerms:
@@ -103,7 +102,7 @@ spawnerUIConfig: |
                     - key: "eks.amazonaws.com/capacityType"
                       operator: "In"
                       values:
-                       - "SPOT"
+                      - "SPOT"
       #options:
       #  - configKey: "exclusive__n1-standard-2"
       #    displayName: "Exclusive: n1-standard-2"
