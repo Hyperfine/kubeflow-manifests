@@ -104,8 +104,25 @@ module "irsa" {
   create_service_account_secret_token = true
 }
 
+resource "aws_efs_access_point" "access" {
+  count = length(var.efs_access_point) == 0 ? 1 : 0
+  file_system_id = var.efs_filesystem_id
+  posix_user = {
+    gid = 100
+    uid = 1000
+  }
+  root_directory = {
+    creation_info = {
+      owner_gid = 100
+      owner_uid = 1000
+      permissions = "0775"
+    }
+  }
+}
+
 locals {
   module_sa = reverse(split("/", module.irsa.service_account))[0] # implicit dependency
+  efs_access_point = length(var.efs_access_point) == 0 ? aws_efs_access_point.access[0].id : var.efs_access_point
   fsx       = values(var.fsx_configs)[0]                          # only support one config atm
 }
 
@@ -125,7 +142,7 @@ sshKeySecretName: ${var.ssh_key_secret_name}
 serviceAccountName: ${local.module_sa}
 efs:
   storageClassName: ${var.efs_storage_class_name}
-  accessPoint: ${var.efs_access_point}
+  accessPoint: ${local.efs_access_point}
   filesystemId: ${var.efs_filesystem_id}
 fsx:
   filesystemId: ${lookup(local.fsx, "file_system_id")}
