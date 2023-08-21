@@ -104,32 +104,8 @@ module "irsa" {
   create_service_account_secret_token = true
 }
 
-resource "aws_efs_access_point" "access" {
-  file_system_id = var.efs_filesystem_id
-
-  posix_user {
-    gid = 100
-    uid = 1000
-  }
-
-  root_directory {
-    creation_info {
-      owner_gid = 100
-      owner_uid = 1000
-      permissions = "0775"
-    }
-    path = var.efs_access_point_path != "" ? var.efs_access_point_path : null
-  }
-
-
-  tags = {
-    Name = local.name
-  }
-}
-
 locals {
   module_sa = reverse(split("/", module.irsa.service_account))[0] # implicit dependency
-   fsx       = values(var.fsx_configs)[0]                          # only support one config atm
 }
 
 resource "helm_release" "user" {
@@ -146,15 +122,6 @@ s3SecretName: ${var.s3_secret_name}
 rdsSecretName: ${var.rds_secret_name}
 sshKeySecretName: ${var.ssh_key_secret_name}
 serviceAccountName: ${local.module_sa}
-efs:
-  storageClassName: ${var.efs_storage_class_name}
-  accessPoint: ${aws_efs_access_point.access.id}
-  filesystemId: ${var.efs_filesystem_id}
-fsx:
-  filesystemId: ${lookup(local.fsx, "file_system_id")}
-  mountName: ${lookup(local.fsx, "mount_name")}
-  dnsName: ${lookup(local.fsx, "dns_name")}
-  storageSize: "${lookup(local.fsx, "capacity", 1200)}Gi"
 YAML
   ]
 }
