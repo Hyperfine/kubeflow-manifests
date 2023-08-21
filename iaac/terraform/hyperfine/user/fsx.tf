@@ -1,8 +1,8 @@
 locals {
-  fsx = values(var.fsx_configs)[0]                          # only support one config atm
+  fsx = values(var.fsx_configs)[0] # only support one config atm
 }
 
-resource kubernetes_persistent_volume_v1 "fsx_pv" {
+resource "kubernetes_persistent_volume_v1" "fsx_pv" {
   metadata {
     name = "${local.name}-dl-fsx-pv"
     labels = {
@@ -11,9 +11,9 @@ resource kubernetes_persistent_volume_v1 "fsx_pv" {
   }
 
   spec {
-    volume_mode = "Filesystem"
-    access_modes = ["ReadWriteMany"]
-    mount_options = ["flock"]
+    volume_mode                      = "Filesystem"
+    access_modes                     = ["ReadWriteMany"]
+    mount_options                    = ["flock"]
     persistent_volume_reclaim_policy = "Recycle"
     capacity = {
       storage = "${lookup(local.fsx, "capacity", 1200)}Gi"
@@ -25,17 +25,17 @@ resource kubernetes_persistent_volume_v1 "fsx_pv" {
         volume_handle = lookup(local.fsx, "file_system_id")
         volume_attributes = {
           mountname = lookup(local.fsx, "mount_name")
-          dnsname = lookup(local.fsx, "dns_name")
+          dnsname   = lookup(local.fsx, "dns_name")
         }
       }
     }
   }
 }
 
-resource kubernetes_persistent_volume_claim_v1 "fsx_pvc" {
+resource "kubernetes_persistent_volume_claim_v1" "fsx_pvc" {
   metadata {
-    name : "dl-fsx-claim"
-    namespace : local.name
+    name      = "dl-fsx-claim"
+    namespace = local.name
   }
 
   spec {

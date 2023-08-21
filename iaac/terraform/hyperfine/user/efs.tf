@@ -8,8 +8,8 @@ resource "aws_efs_access_point" "access" {
 
   root_directory {
     creation_info {
-      owner_gid = 100
-      owner_uid = 1000
+      owner_gid   = 100
+      owner_uid   = 1000
       permissions = "0775"
     }
     path = var.efs_access_point_path != "" ? var.efs_access_point_path : null
@@ -20,9 +20,9 @@ resource "aws_efs_access_point" "access" {
   }
 }
 
-resource kubernetes_persistent_volume_v1 "pv" {
+resource "kubernetes_persistent_volume_v1" "pv" {
   metadata {
-    name   = "${local.name}-efs-home-pv"
+    name = "${local.name}-efs-home-pv"
     labels = {
       usage = "${local.name}-efs"
     }
@@ -32,9 +32,9 @@ resource kubernetes_persistent_volume_v1 "pv" {
     capacity = {
       storage : "30Gi"
     }
-    access_modes = ["ReadWriteMany"]
+    access_modes                     = ["ReadWriteMany"]
     persistent_volume_reclaim_policy = "Retain"
-    volume_mode = "Filesystem"
+    volume_mode                      = "Filesystem"
 
     persistent_volume_source {
       csi {
@@ -45,9 +45,9 @@ resource kubernetes_persistent_volume_v1 "pv" {
   }
 }
 
-resource kubernetes_persistent_volume_claim_v1 "pvc" {
+resource "kubernetes_persistent_volume_claim_v1" "pvc" {
   metadata {
-    name = "efs-home"
+    name      = "efs-home"
     namespace = local.name
   }
 

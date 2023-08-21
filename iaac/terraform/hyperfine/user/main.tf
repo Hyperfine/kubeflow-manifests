@@ -61,14 +61,14 @@ data "aws_iam_policy_document" "ssm" {
   }
 
   statement {
-    effect = "Allow"
-    actions = ["s3:ListAllMyBuckets"]
+    effect    = "Allow"
+    actions   = ["s3:ListAllMyBuckets"]
     resources = ["*"]
   }
 
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "s3:ListBucket",
       "s3:GetBucketLocation"
     ]
@@ -108,6 +108,7 @@ locals {
   module_sa = reverse(split("/", module.irsa.service_account))[0] # implicit dependency
 }
 
+# helm doesn't manage pv/pvc well,
 resource "helm_release" "user" {
   chart = "../../charts/hyperfine/user"
 
