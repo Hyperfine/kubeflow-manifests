@@ -105,7 +105,6 @@ module "irsa" {
 }
 
 resource "aws_efs_access_point" "access" {
-  count = length(var.efs_access_point) == 0 ? 1 : 0
   file_system_id = var.efs_filesystem_id
   posix_user = {
     gid = 100
@@ -118,11 +117,17 @@ resource "aws_efs_access_point" "access" {
       permissions = "0775"
     }
   }
+
+  path = var.efs_access_point_path != "" ? var.efs_access_point_path : null
+
+  tags = {
+    Name = local.name
+  }
 }
 
 locals {
   module_sa = reverse(split("/", module.irsa.service_account))[0] # implicit dependency
-  efs_access_point = length(var.efs_access_point) == 0 ? aws_efs_access_point.access[0].id : var.efs_access_point
+  efs_access_point = length(var.efs_access_point_path) == 0 ? aws_efs_access_point.access[0].id : var.efs_access_point_path
   fsx       = values(var.fsx_configs)[0]                          # only support one config atm
 }
 

@@ -31,7 +31,7 @@ variable "efs_filesystem_id" {
   type        = string
 }
 
-variable "efs_access_point" {
+variable "efs_access_point_path" {
   description = "efs path to use for persistent volume"
   type        = string
   default     = ""
