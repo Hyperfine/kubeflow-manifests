@@ -1,7 +1,7 @@
 locals {
   fsx = values(var.fsx_configs)[0] # only support one config atm
 }
-
+/*
 resource "kubernetes_persistent_volume_v1" "fsx_pv" {
   metadata {
     name = "${local.name}-dl-fsx-pv"
@@ -55,3 +55,4 @@ resource "kubernetes_persistent_volume_claim_v1" "fsx_pvc" {
     }
   }
 }
+*/

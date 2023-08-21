@@ -19,7 +19,7 @@ resource "aws_efs_access_point" "access" {
     Name = local.name
   }
 }
-
+/*
 resource "kubernetes_persistent_volume_v1" "pv" {
   metadata {
     name = "${local.name}-efs-home-pv"
@@ -67,3 +67,4 @@ resource "kubernetes_persistent_volume_claim_v1" "pvc" {
     }
   }
 }
+*/
