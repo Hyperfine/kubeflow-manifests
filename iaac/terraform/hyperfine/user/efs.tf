@@ -29,6 +29,7 @@ resource "kubernetes_persistent_volume_v1" "pv" {
   }
 
   spec {
+    storage_class_name = "-"
     capacity = {
       storage : "30Gi"
     }
@@ -53,6 +54,7 @@ resource "kubernetes_persistent_volume_claim_v1" "pvc" {
 
   spec {
     access_modes = ["ReadWriteMany"]
+    storage_class_name = "-"
     selector {
       match_labels = {
         usage = "${local.name}-efs"
