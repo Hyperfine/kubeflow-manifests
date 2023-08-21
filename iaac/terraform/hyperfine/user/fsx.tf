@@ -1,7 +1,7 @@
 locals {
   fsx = values(var.fsx_configs)[0] # only support one config atm
 }
-/*
+
 resource "kubernetes_persistent_volume_v1" "fsx_pv" {
   metadata {
     name = "${local.name}-dl-fsx-pv"
@@ -11,7 +11,7 @@ resource "kubernetes_persistent_volume_v1" "fsx_pv" {
   }
 
   spec {
-    storage_class_name = "-"
+    storage_class_name = "dl-fsx-sc"
     volume_mode                      = "Filesystem"
     access_modes                     = ["ReadWriteMany"]
     mount_options                    = ["flock"]
@@ -42,7 +42,7 @@ resource "kubernetes_persistent_volume_claim_v1" "fsx_pvc" {
   spec {
     access_modes = ["ReadWriteMany"]
     volume_name  = "${local.name}-dl-fsx-pv"
-    storage_class_name = ""
+    storage_class_name = "dl-fsx-sc"
     resources {
       requests = {
         storage = "${lookup(local.fsx, "capacity", 1200)}Gi"
@@ -55,4 +55,3 @@ resource "kubernetes_persistent_volume_claim_v1" "fsx_pvc" {
     }
   }
 }
-*/
