@@ -79,7 +79,7 @@ module "user" {
   email = each.key
   ssh_key_secret_name = lookup(each.value, "ssh_key_secret_name")
 
-  efs_access_point =  lookup(each.value, "efs_access_point", "")
+  efs_access_point_path =  lookup(each.value, "efs_access_point_path", "")
   efs_filesystem_id = var.efs_filesystem_id
 
   fsx_configs = var.fsx_configs
