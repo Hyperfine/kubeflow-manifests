@@ -129,8 +129,7 @@ resource "aws_efs_access_point" "access" {
 
 locals {
   module_sa = reverse(split("/", module.irsa.service_account))[0] # implicit dependency
-  efs_access_point = length(var.efs_access_point_path) == 0 ? aws_efs_access_point.access[0].id : var.efs_access_point_path
-  fsx       = values(var.fsx_configs)[0]                          # only support one config atm
+   fsx       = values(var.fsx_configs)[0]                          # only support one config atm
 }
 
 resource "helm_release" "user" {
@@ -149,7 +148,7 @@ sshKeySecretName: ${var.ssh_key_secret_name}
 serviceAccountName: ${local.module_sa}
 efs:
   storageClassName: ${var.efs_storage_class_name}
-  accessPoint: ${local.efs_access_point}
+  accessPoint: ${aws_efs_access_point.access.id}
   filesystemId: ${var.efs_filesystem_id}
 fsx:
   filesystemId: ${lookup(local.fsx, "file_system_id")}
