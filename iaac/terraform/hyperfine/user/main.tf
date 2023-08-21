@@ -106,19 +106,21 @@ module "irsa" {
 
 resource "aws_efs_access_point" "access" {
   file_system_id = var.efs_filesystem_id
-  posix_user = {
+
+  posix_user {
     gid = 100
     uid = 1000
   }
-  root_directory = {
-    creation_info = {
+
+  root_directory {
+    creation_info {
       owner_gid = 100
       owner_uid = 1000
       permissions = "0775"
     }
+    path = var.efs_access_point_path != "" ? var.efs_access_point_path : null
   }
 
-  path = var.efs_access_point_path != "" ? var.efs_access_point_path : null
 
   tags = {
     Name = local.name
