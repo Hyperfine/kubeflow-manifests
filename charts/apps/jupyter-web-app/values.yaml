@@ -1,11 +1,11 @@
-spawner_ui_config: |
+spawnerUIConfig: |
   spawnerFormDefaults:
     image:
       # The container Image for the user's Jupyter Notebook
       value: 369500102003.dkr.ecr.us-east-1.amazonaws.com/dl-research:jupyter-f932cdf
       # The list of available standard container Images
       options:
-      - 369500102003.dkr.ecr.us-east-1.amazonaws.com/dl-research:jupyter-f932cdf
+      - 369500102003.dkr.ecr.us-east-1.amazonaws.com/dl-research:jupyter-192d333
       - kubeflownotebookswg/jupyter-pytorch-full:v1.6.1
       - kubeflownotebookswg/jupyter-pytorch-cuda-full:v1.6.1
       - kubeflownotebookswg/jupyter-tensorflow-full:v1.6.1
@@ -59,28 +59,21 @@ spawner_ui_config: |
       value: {}
       readOnly: false
     workspaceVolume:
-      # Workspace Volume to be attached to user's Notebook
-      # If you don't want a workspace volume then delete the 'value' key
-      value:
-      # mount: /home/dl-user
-      # existingSource:
-      #   persistentVolumeClaim:
-      #     claimName: '-home'
       readOnly: false
+      value:
+        mount: "/home/dl-user"
+        existingSource:
+          persistentVolumeClaim:
+            claimName: "efs-home"
     dataVolumes:
-      value:
-        - mount: /data
-          newPvc:
-            metadata:
-              name: '{notebook-name}-vol-1'
-            spec:
-              resources:
-                requests:
-                  storage: 30Gi
-              accessModes:
-                - ReadWriteOnce
       readOnly: false
+      value:
+      - mount: "/data"
+        existingSource:
+          persistentVolumeClaim:
+            claimName: "dl-fsx-claim"
     gpus:
+      readOnly: false
       # Number of GPUs to be assigned to the Notebook Container
       value:
         # values: "none", "1", "2", "4", "8"
@@ -93,13 +86,23 @@ spawner_ui_config: |
         #  uiName: "AMD"
         # Values: "" or a `limits-key` from the vendors list
         vendor: ""
-      readOnly: false
     affinityConfig:
       # If readonly, the default value will be the only option
       # value is a list of `configKey`s that we want to be selected by default
       value: ""
       # The list of available affinity configs
-      options: []
+      options:
+      - configKey: "spot_affinity"
+        displayName: "Spot Instances"
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: "eks.amazonaws.com/capacityType"
+                      operator: "In"
+                      values:
+                      - "SPOT"
       #options:
       #  - configKey: "exclusive__n1-standard-2"
       #    displayName: "Exclusive: n1-standard-2"
@@ -151,4 +154,5 @@ spawner_ui_config: |
         - add-env
         - prevent-eviction
         - access-ml-pipeline
+        - add-service-account
       readOnly: false

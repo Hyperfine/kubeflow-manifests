@@ -165,8 +165,6 @@ resource "helm_release" "kubeflow_notebook_controller" {
     name  = "cullingPolicy.idlenessCheckPeriod"
     value = var.notebook_idleness_check_period
   }
-
-
 }
 
 resource "helm_release" "kubeflow_jupyter_web_app" {
@@ -175,7 +173,7 @@ resource "helm_release" "kubeflow_jupyter_web_app" {
   name      = "jupyter-web-app"
   namespace = "kubeflow"
   chart     = "${var.chart_root_folder}/apps/jupyter-web-app"
-  version   = "0.2.2"
+  version   = "0.2.3"
 }
 
 

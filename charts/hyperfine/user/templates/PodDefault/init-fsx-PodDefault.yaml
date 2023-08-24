@@ -1,0 +1,22 @@
+apiVersion: kubeflow.org/v1alpha1
+kind: PodDefault
+metadata:
+  name: init-fsx
+  namespace: {{ .Values.name }}
+spec:
+  desc: change permissions for fsx
+  selector:
+    matchLabels:
+      init-fsx: "true"
+  initContainers:
+  - name: init-data
+    image: busybox:1.36
+    imagePullPolicy: IfNotPresent
+    command:
+    - "/bin/sh"
+    args:
+    - "-c"
+    - "adduser --ingroup users --uid 1000 --no-create-home --disabled-password dl-user && chmod 2775 /data && chown dl-user:users /data"
+    volumeMounts:
+    - name: dl-fsx-claim
+      mountPath: /data

@@ -1,4 +1,5 @@
 
+
 variable "email" {
   description = "email to use for username@domain.com"
   type        = string
@@ -19,16 +20,44 @@ variable "ssh_key_secret_name" {
   type        = string
 }
 
+variable "s3_bucket_arns" {
+  description = "bucket arns to grant access to"
+  type        = list(string)
+  default     = []
+}
+
+variable "efs_filesystem_id" {
+  description = "efs filesystem id to use for persistent volume"
+  type        = string
+}
+
+variable "efs_access_point_path" {
+  description = "efs path to use for persistent volume"
+  type        = string
+  default     = ""
+}
+
 variable "efs_storage_class_name" {
   description = "efs storage class name to create pvc for"
   type        = string
   default     = "dl-efs-home-sc"
 }
 
+variable "fsx_configs" {
+  description = ""
+  type        = any
+}
+
 variable "kms_key_arns" {
   description = "kms key arns to allow access to"
   type        = list(string)
   default     = []
+}
+
+variable "user_helm_chart_version" {
+  description = "helm chart version of the user chart"
+  type        = string
+  default     = "0.1.2"
 }
 
 variable "eks_cluster_name" {

@@ -5,6 +5,12 @@ variable "s3_bucket_name" {
   type = string
 }
 
+variable "s3_bucket_arns" {
+  description = "bucket arns to grant access to"
+  type = list(string)
+  default = []
+}
+
 variable "rds_secret_name" {
   description = "secretmaanger for rds config"
   type = string
@@ -15,6 +21,15 @@ variable "rds_host" {
   type = string
 }
 
+variable "efs_filesystem_id" {
+  description = "efs file system id to use"
+  type = string
+}
+
+variable "fsx_configs" {
+  description = ""
+  type = any
+}
 # dex configurations
 
 variable subdomain {
@@ -74,7 +89,7 @@ variable   auth_namespace {
 
 variable users {
   description = "map of usernames to ssh secret"
-  type        = map(string)
+  type        = any
 }
 
 

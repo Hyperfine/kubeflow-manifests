@@ -12,7 +12,7 @@ terraform {
 
 resource "kubernetes_namespace_v1" "ns" {
   metadata {
-    name = split("@", var.email)[0]
+    name = replace(split("@", var.email)[0], "_", "")
 
     labels = {
       "app.kubernetes.io/part-of"                      = "kubeflow-profile"
@@ -22,7 +22,7 @@ resource "kubernetes_namespace_v1" "ns" {
     }
 
     annotations = {
-      owner: var.email
+      owner : var.email
     }
   }
 
@@ -37,8 +37,8 @@ resource "kubernetes_namespace_v1" "ns" {
 }
 
 locals {
-  name = kubernetes_namespace_v1.ns.metadata[0].name
-  email = var.email
+  name    = kubernetes_namespace_v1.ns.metadata[0].name
+  email   = var.email
   sa_name = "${local.name}-sa"
 }
 
@@ -59,10 +59,36 @@ data "aws_iam_policy_document" "ssm" {
     ]
     resources = [for k, v in data.aws_secretsmanager_secret.secrets : v.arn]
   }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:ListAllMyBuckets"]
+    resources = ["*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket",
+      "s3:GetBucketLocation"
+    ]
+    resources = var.s3_bucket_arns
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:GetBucketLocation",
+      "s3:DeleteObject"
+    ]
+    resources = [for k in var.s3_bucket_arns : "${k}/*"]
+  }
 }
 
 resource "aws_iam_policy" "ssm" {
-  name   = "${var.eks_cluster_name}-${local.name}-sa-ssm-policy"
+  name   = "${var.eks_cluster_name}-${local.name}-sa-policy"
   policy = data.aws_iam_policy_document.ssm.json
 }
 
@@ -82,11 +108,13 @@ locals {
   module_sa = reverse(split("/", module.irsa.service_account))[0] # implicit dependency
 }
 
+# helm doesn't manage pv/pvc well,
 resource "helm_release" "user" {
   chart = "../../charts/hyperfine/user"
 
   namespace = local.name
-  name = "${local.name}-kf-user"
+  name      = "${local.name}-kf-user"
+  version   = var.user_helm_chart_version
 
   values = [<<YAML
 name: ${local.name}
@@ -94,7 +122,6 @@ email: ${local.email}
 s3SecretName: ${var.s3_secret_name}
 rdsSecretName: ${var.rds_secret_name}
 sshKeySecretName: ${var.ssh_key_secret_name}
-efsStorageClassName: ${var.efs_storage_class_name}
 serviceAccountName: ${local.module_sa}
 YAML
   ]
